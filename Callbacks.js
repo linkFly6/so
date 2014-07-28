@@ -8,7 +8,7 @@
     */
 
     //工具函数
-    var isIndexOf = Array.prototype.indexOf,
+    var isIndexOf = Array.prototype.indexOf,    //Es6
         toString = Object.prototype.toString,   //缓存toString方法
         toSlice = Array.prototype.slice,        //缓存slice方法
         isFunction = (function () {             //判定一个对象是否是Function
@@ -49,7 +49,7 @@
                 }
                 return -1;
             }
-        }();
+        } ();
 
     var callbacks = function (option) {
         option = typeof option === '[object object]' ? option : {};
@@ -57,32 +57,25 @@
         var list = [],      //回调列表
             _list = [],     //如果锁定这个callbacks对象，则清空list，将原list置入_list
             fired,          //是否执行过
-            firingStart,    //当前已经执行过的回调列表索引，用于callbacks自动执行功能
-            firingLength,   //回调函数的数组长度，用于维护firingStart的位置
+            firingStart,    //当前回调函数列表执行的函数索引（起点）
+            firingLength,   //回调函数的数组长度
             auto,   //标志是否自动执行，如果需要自动执行，则auto记忆着最后一次回调的参数（最后一次fire的参数），这是一个很诡异的且奇葩的用法
-            //这个变量用法很诡异和犀利，既包含了是否指定执行的标志，又记录了数据
+        //这个变量用法很诡异和犀利，既包含了是否指定执行的标志，又记录了数据
             stack = obj.once && [],     //一个callbacks栈，如果当前正在执行回调数组，而在执行中又新添了回调函数，那么把新的回调函数，那么新的回调函数都会压入该栈
             firing = false, //callbacks是否正在工作/执行
-            //触发回调函数
+        //触发回调函数
             fire = function (data) {
                 //注意这个data是个数组
-                memory = option.auto && data;//在这里，如果配置要求记忆最后的参数，则记忆这个参数
+                memory = option.auto && data; //在这里，如果配置要求记忆最后的参数，则记忆这个参数
                 fired = true;
                 firingIndex = firingStart || 0;     //是否有自动执行的标识
-                firing = true;//正在执行回调函数
+                firing = true; //正在执行回调函数
                 for (; firingIndex < firingLength; firingIndex++) {
-                    if (list[firingIndex].apply(data[0], data[1]) === false) break;//当函数返回false，终止执行后续队列
+                    if (list[firingIndex].apply(data[0], data[1]) === false) break; //当函数返回false，终止执行后续队列
                 }
-                firing = false;//停止执行回调函数
-                if (stack) //如果存在栈，则执行
-                {
-                    if (stack.length)//从栈头部取出，并递归fire()方法
-                        fire(stack.shift());
-                }
-                if (auto)      //自动执行模式，则只清空list，而不清空auto里记录的最后的参数
-                    list = [];
-                else           //否则直接清空
-                    self.disable();
+                firing = false; //停止执行回调函数
+                if (stack && stack.length) //如果存在栈，则执行
+                    fire(stack.shift()); //从栈头部取出，并递归fire()方法
             };
         var self = {
             add: function () {//添加一个回调函数
@@ -90,9 +83,9 @@
                     var start = list.length;
                     (function addCallback(args) {
                         each(list, function (item) {
-                            if (isFunction(item)) {
+                            if (isFunction(item)) {//是函数，则压入回调列表
                                 list.push(item);
-                            } else if (typeof item === '[object array]') {//这个判定抛弃了array-like
+                            } else if (typeof item === '[object array]') {//如果是个数组，则递归压入回调列表，这个判定抛弃了array-like
                                 addCallback(item);
                             }
                         });
@@ -101,6 +94,7 @@
                 if (firing)//如果当前正有回调函数在执行，那么需要更新当前回调函数列表的length，否则这个新压入的回调函数就会被掠过。
                     firingLength = list.length;
                 else if (auto) {//如果当前没有执行回调函数，并且要求自动执行
+                    //注意这里是给firingStart赋值，上面fire方法中正在使用的是firingIndex，这里不会影响到上面代码的执行线路
                     firingStart = start;
                     fire(this);
                 }
@@ -128,6 +122,12 @@
                         //可能有多项，index可以在循环中表示检索的范围，之前检索的过的可以不用再检索
                         while ((index = inArray(item, list, index)) > -1) {
                             list.splice(index, 1);
+                            if (firing) {
+                                if (index <= firingLength)//修正长度
+                                    firingLength--;
+                                if (index <= firingLength)//修正索引
+                                    firingIndex--;
+                            }
                         }
                     });
                 }
@@ -146,7 +146,7 @@
                 return this;
             },
             disabled: function () {//是否已经废掉
-                return !!list;//转换为boolean
+                return !!list; //转换为boolean
             },
             lock: function (isLock) {//锁定或解锁这个callbacks对象
                 if (isLock) {//锁
@@ -169,4 +169,4 @@
         return self;
     };
     (window.$ ? window.$.callbacks : window.$ = {} && window.$.callbacks) = callbacks;
-}(window));
+} (window));
