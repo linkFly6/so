@@ -21,10 +21,12 @@
                     return false
                 }
             } :
-            isFunction = function (fn) { return toString.call(fn) === '[object function]'; };
+            isFunction = function (fn) { return toString.call(fn) === '[object Function]'; };
         })(),
         each = function () {                    //循环遍历方法
+            //第一个参数表示要循环的数组，第二个参数是每次循环执行的函数
             if (arguments.length < 2 || !isFunction(arguments[1])) return;
+            //为什么slice无效？？
             var list = toSlice.call(arguments[0]), fn = arguments[1], item = list.shift();
             while (list.length) {
                 fn.apply(item, item);
@@ -52,7 +54,7 @@
         } ();
 
     var callbacks = function (option) {
-        option = typeof option === '[object object]' ? option : {};
+        option = typeof option === '[object Object]' ? option : {};
         //使用闭包，因为每个新建的callbacks都有自己的状态
         var list = [],      //回调列表
             _list = [],     //如果锁定这个callbacks对象，则清空list，将原list置入_list
@@ -61,7 +63,7 @@
             firingLength,   //回调函数的数组长度
             auto,   //标志是否自动执行，如果需要自动执行，则auto记忆着最后一次回调的参数（最后一次fire的参数），这是一个很诡异的且奇葩的用法
         //这个变量用法很诡异和犀利，既包含了是否指定执行的标志，又记录了数据
-            stack = obj.once && [],     //一个callbacks栈，如果当前正在执行回调数组，而在执行中又新添了回调函数，那么把新的回调函数，那么新的回调函数都会压入该栈
+            stack = option.once && [],     //一个callbacks栈，如果当前正在执行回调数组，而在执行中又新添了回调函数，那么把新的回调函数，那么新的回调函数都会压入该栈
             firing = false, //callbacks是否正在工作/执行
         //触发回调函数
             fire = function (data) {
@@ -82,10 +84,10 @@
                 if (list) {
                     var start = list.length;
                     (function addCallback(args) {
-                        each(list, function (item) {
+                        each(args, function (item) {
                             if (isFunction(item)) {//是函数，则压入回调列表
                                 list.push(item);
-                            } else if (typeof item === '[object array]') {//如果是个数组，则递归压入回调列表，这个判定抛弃了array-like
+                            } else if (typeof item === '[object Array]') {//如果是个数组，则递归压入回调列表，这个判定抛弃了array-like
                                 addCallback(item);
                             }
                         });
@@ -168,5 +170,6 @@
         };
         return self;
     };
-    (window.$ ? window.$.callbacks : window.$ = {} && window.$.callbacks) = callbacks;
+    window.$ = window.$ || {};
+    window.$ = window.callbacks = window.$.callbacks = callbacks;
 } (window));

@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Callbacks测试</title>
+</head>
+<body>
+    <div id="demo">
+    </div>
+    <script src="Callbacks.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        ~function (window) {
+            var demoDOM = document.getElementById('demo'),
+                write = function (str, overflow) {
+                    overflow ? demoDOM.innerHTML = str : demoDOM.innerHTML += (str + '<br/>');
+                },
+                index = 0,
+                callbackFn = function (value) {
+                    write('第' + (index++) + '个函数，参数是 - ' + value);
+                };
+            var list = callbacks();
+            list.add(callbackFn);
+            list.add(callbackFn);
+            list.fire('呵呵');
+        } (window);
+    </script>
+</body>
+</html>
