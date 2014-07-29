@@ -27,9 +27,14 @@
             //第一个参数表示要循环的数组，第二个参数是每次循环执行的函数
             if (arguments.length < 2 || !isFunction(arguments[1])) return;
             //为什么slice无效？？
-            var list = toSlice.call(arguments[0]), fn = arguments[1], item = list.shift();
-            while (list.length) {
-                fn.apply(item, item);
+            var list = toSlice.call(arguments[0]),
+                fn = arguments[1],
+                item;
+            while ((item = list.shift())) {//没有直接判定length，加速
+                // 为什么这里用call就可以，而apply就不行？
+                //搞定 - apply的第二个参数必须是一个array对象（没有验证array-like是否可以，而call没有这个要求）
+                //apply是这样描述的：如果 argArray（第二个参数） 不是一个有效的数组或者不是 arguments 对象，那么将导致一个 TypeError。 
+                fn.call(window, item);
             }
         },
         inArray = function () {                     //检测数组中是否包含某项，返回该项索引
@@ -51,10 +56,10 @@
                 }
                 return -1;
             }
-        } ();
+        }();
 
-    var callbacks = function (option) {
-        option = typeof option === '[object Object]' ? option : {};
+    var Callbacks = function (option) {
+        option = toString.call(option) === '[object Object]' ? option : {};
         //使用闭包，因为每个新建的callbacks都有自己的状态
         var list = [],      //回调列表
             _list = [],     //如果锁定这个callbacks对象，则清空list，将原list置入_list
@@ -62,22 +67,38 @@
             firingStart,    //当前回调函数列表执行的函数索引（起点）
             firingLength,   //回调函数的数组长度
             auto,   //标志是否自动执行，如果需要自动执行，则auto记忆着最后一次回调的参数（最后一次fire的参数），这是一个很诡异的且奇葩的用法
-        //这个变量用法很诡异和犀利，既包含了是否指定执行的标志，又记录了数据
-            stack = option.once && [],     //一个callbacks栈，如果当前正在执行回调数组，而在执行中又新添了回调函数，那么把新的回调函数，那么新的回调函数都会压入该栈
+            //这个变量用法很诡异和犀利，既包含了是否指定执行的标志，又记录了数据
+            //这个auto配合once简直就是丧心病狂：【第一次】执行了fire后才会自动执行，配合once可以做到：一次执行，后面不再追加和执行代码，保证了一组回调数据的稳定和安全
+            stack = !option.once && [],     //一个callbacks栈，如果当前正在执行回调数组，而在执行中又新添了回调函数，那么把新的回调函数，那么新的回调函数都会压入该栈
             firing = false, //callbacks是否正在工作/执行
         //触发回调函数
             fire = function (data) {
                 //注意这个data是个数组
-                memory = option.auto && data; //在这里，如果配置要求记忆最后的参数，则记忆这个参数
+                auto = option.auto && data; //在这里，如果配置要求记忆最后的参数，则记忆这个参数（非常犀利的用法，直接取了数据）
                 fired = true;
-                firingIndex = firingStart || 0;     //是否有自动执行的标识
+                firingIndex = firingStart || 0;
+                firingStart = 0;//清空firingStart（不清空下次执行有出问题啦）
+                firingLength = list.length;         //缓存list长度，外界可以访问
                 firing = true; //正在执行回调函数
                 for (; firingIndex < firingLength; firingIndex++) {
-                    if (list[firingIndex].apply(data[0], data[1]) === false) break; //当函数返回false，终止执行后续队列
+                    if (list[firingIndex].apply(data[0], data[1]) === false) {
+                        //注意，如果配置了option.auto（自动执行），并且stack（栈）里存在函数，那么add()代码里有一段对于auto判定会直接执行本方法的代码
+                        //我们要阻止掉那段代码，所以设置auto为false
+                        auto = false;
+                        break;
+                    }//当函数返回false，终止执行后续队列
                 }
-                firing = false; //停止执行回调函数
-                if (stack && stack.length) //如果存在栈，则执行
-                    fire(stack.shift()); //从栈头部取出，并递归fire()方法
+                firing = false; //标志状态已经执行完毕回调函数[stack(栈)里面的函数尚未执行]
+                //如果这个栈在没有配置once的情况下肯定是[]，所以一定存在
+                //这里主要作用是，如果没有配置once，则拦截下面的代码，如果配置了once，执行完代码清空数据
+                if (stack) {
+                    if (stack.length)//先把下面清空list状态的代码拦截掉，再判定是否有栈
+                        fire(stack.shift()); //从栈头部取出，并递归fire()方法
+                }
+                else if (auto)    //代码走到这里，证明已经配置了option.once（只执行一次），于是把list清空
+                    list = [];
+                else                //证明没有配置auto，但是配置了once，那么祭出终极大法，直接废了这个callbacks对象
+                    self.disable();
             };
         var self = {
             add: function () {//添加一个回调函数
@@ -87,7 +108,8 @@
                         each(args, function (item) {
                             if (isFunction(item)) {//是函数，则压入回调列表
                                 list.push(item);
-                            } else if (typeof item === '[object Array]') {//如果是个数组，则递归压入回调列表，这个判定抛弃了array-like
+                                //注意typeof 和Object.prototype.toString是不一样的
+                            } else if (toString.call(item) === '[object Array]') {//如果是个数组，则递归压入回调列表，这个判定抛弃了array-like
                                 addCallback(item);
                             }
                         });
@@ -98,7 +120,8 @@
                 else if (auto) {//如果当前没有执行回调函数，并且要求自动执行
                     //注意这里是给firingStart赋值，上面fire方法中正在使用的是firingIndex，这里不会影响到上面代码的执行线路
                     firingStart = start;
-                    fire(this);
+                    //执行我们新加入的小伙伴
+                    fire(auto);
                 }
                 return this;
             },
@@ -107,12 +130,18 @@
                 return this;
             },
             fireWith: function (context, args) {//触发回调函数，并指定上下文
-                if (list) {
+                //如果配置了once，stack将为undefined，而once又需要保证只执行一次，所以一旦执行过一次，这里的代码不会再执行
+                if (list && (!fired || stack)) {
                     //修正参数
                     //在这里,context索引为0
                     //而参数列表索引为2
-                    //转换为数组访问是因为对象表示更加的消耗资源，在顶层的fire()代码中有memory[记忆参数]这个功能，如果采用对象则开销了更大的内存
-                    args = [context, args ? args.slice && args.slice() : args || []];
+                    //转换为数组访问是因为对象表示更加的消耗资源，在顶层的fire()代码中有auto[记忆参数，自动执行]这个功能，如果采用对象则开销了更大的内存
+                    args = [context,
+                        args ?
+                        args.slice && args.slice()
+                        || toSlice.call(args) :
+                        []
+                    ];
                     fire(args);
                 }
                 return this;
@@ -125,6 +154,7 @@
                         while ((index = inArray(item, list, index)) > -1) {
                             list.splice(index, 1);
                             if (firing) {
+                                //保证上面fire中正在执行的函数列表能够正确运行，fire中设定全局这些变量为的就是这里可以异步移除
                                 if (index <= firingLength)//修正长度
                                     firingLength--;
                                 if (index <= firingLength)//修正索引
@@ -171,5 +201,5 @@
         return self;
     };
     window.$ = window.$ || {};
-    window.$ = window.callbacks = window.$.callbacks = callbacks;
-} (window));
+    window.$.Callbacks = window.Callbacks = Callbacks;
+}(window));

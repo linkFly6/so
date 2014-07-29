@@ -2,11 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Callbacks测试</title>
+
 </head>
 <body>
     <div id="demo">
     </div>
-    <script src="Callbacks.js" type="text/javascript"></script>
     <script type="text/javascript">
         ~function (window) {
             var demoDOM = document.getElementById('demo'),
@@ -15,13 +15,86 @@
                 },
                 index = 0,
                 callbackFn = function (value) {
-                    write('第' + (index++) + '个函数，参数是 - ' + value);
+                    write('第<span style="color:red;font-weight:bold;padding:0 5px;">' + (index++) + '</span>个函数，参数是 - ' + value);
                 };
-            var list = callbacks();
+            window.write = write;
+            window.callbackFn = callbackFn;
+        }(window);
+
+    </script>
+    <script src="Callbacks.js" type="text/javascript"></script>
+    <script src="../jQuery/jquery-1.11.1.js"></script>
+    <script type="text/javascript">
+        //jQuery版本
+        (function (window) {
+            //创建一个callbacks对象
+            write('<div style="font-size:15px;color:#38bdd9;font-weight:bold;padding:15px 0;border-bottom:1px solid #909192">下面是jQuery代码 - </div>');
+            var list = jQuery.Callbacks();
             list.add(callbackFn);
             list.add(callbackFn);
-            list.fire('呵呵');
-        } (window);
+            list.fire('这是无参的函数，压了两个，所以应该执行两次。');
+            list.add(callbackFn);
+            list.fire('这是压的第二组参数，加上之前的，它有三个，所以要执行三次');
+            //创建一个callbacks对象，并配置一次执行（即执行一次后便不再工作）
+            var onceList = jQuery.Callbacks({ once: true });
+            onceList.add(callbackFn);
+            onceList.fire('这是once函数');
+            onceList.add(callbackFn);
+            onceList.fire('<div style="background-color:red;">这个函数不该工作</div>');
+
+            //创建一个callbacks对象，并配置自动执行（每次添加函数都自动执行以前添加的所有的函数）
+            var autoList = jQuery.Callbacks({ memory: true });
+            autoList.add(callbackFn);
+            autoList.fire('这是auto函数，后面并没有fire()，但它应该执行两次，它add()了函数');
+            autoList.add(callbackFn);
+
+            //创建一个只执行一次，且自动执行的callbacks对象
+            var autoList = jQuery.Callbacks({ once: true, memory: true });
+            autoList.add(callbackFn);
+            autoList.add(callbackFn);
+            autoList.fire('这是once,auto函数，后面还有一个add，但是后面这个add的函数不该被执行。本函数应该执行两遍。');
+            autoList.add(function () {
+                write('<div style="background-color:yellow;">这个函数要单独执行</div>');
+            });
+        }(window));
+    </script>
+
+    <script type="text/javascript">
+        //so版本
+        (function (window) {
+            write('<div style="font-size:15px;color:#38bdd9;font-weight:bold;padding:20px 0;border-bottom:1px solid #909192">下面是linkFly代码 - </div>');
+            //创建一个callbacks对象
+            var list = window.Callbacks();
+            list.add(callbackFn);
+            list.add(callbackFn);
+            list.fire('这是无参的函数，压了两个，所以应该执行两次。');
+            list.add(callbackFn);
+            list.fire('这是压的第二组参数，加上之前的，它有三个，所以要执行三次');
+            //创建一个callbacks对象，并配置一次执行（即执行一次后便不再工作）
+            var onceList = $.Callbacks({ once: true });
+            onceList.add(callbackFn);
+            onceList.fire('这是once函数');
+            onceList.add(callbackFn);
+            onceList.fire('<div style="background-color:red;">这个函数不该工作</div>');
+
+            //创建一个callbacks对象，并配置自动执行（每次添加函数都自动执行以前添加的所有的函数）
+            var autoList = window.Callbacks({ auto: true });
+            autoList.add(callbackFn);
+            autoList.fire('这是auto函数，后面并没有fire()，但它应该执行两次，它add()了函数');
+            autoList.add(callbackFn);
+
+            //创建一个只执行一次，且自动执行的callbacks对象
+            var autoList = window.Callbacks({ once: true, auto: true });
+            autoList.add(callbackFn);
+            autoList.add(callbackFn);
+            autoList.fire('这是once,auto函数，后面还有一个add，但是后面这个add的函数不该被执行。本函数应该执行两遍。');
+            autoList.add(function () {
+                write('<div style="background-color:yellow;">这个函数要单独执行</div>');
+            });
+            autoList.add(function () {
+                write('这个代码执行的时候，之前那个yellow背景色的函数不再执行');
+            });
+        }(window));
     </script>
 </body>
 </html>
