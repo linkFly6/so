@@ -73,7 +73,7 @@
             firing = false, //callbacks是否正在工作/执行
         //触发回调函数
             fire = function (data) {
-                //注意这个data是个数组
+                //注意这个data是个数组，如果配置了auto模式，那么auto永远不会为false，因为auto会是个数组
                 auto = option.auto && data; //在这里，如果配置要求记忆最后的参数，则记忆这个参数（非常犀利的用法，直接取了数据）
                 fired = true;
                 firingIndex = firingStart || 0;
@@ -178,20 +178,19 @@
                 return this;
             },
             disabled: function () {//是否已经废掉
-                return !!list; //转换为boolean
+                return !list; //转换为boolean
             },
             lock: function (isLock) {//锁定或解锁这个callbacks对象
+                //无参，判断这个callbacks是否被锁定
+                if (isLock == null) return !!_list;
                 if (isLock) {//锁
                     _list = stack && list.concat(stack) || list;
                     list = undefined;
-                } else {//解锁
+                } else {//解锁，jQuery并没有提供解锁功能，解锁让Callbacks变得不稳定
                     list = _list;
                     _list = undefined;
                 }
                 return this;
-            },
-            locked: function () {//判断这个callbacks是否被锁定
-                return !!_list;
             },
             fired: function () {//这个callbacks是否执行过
                 //转换为boolean，包括undefined，null,''等
