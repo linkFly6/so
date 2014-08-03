@@ -1,0 +1,9 @@
+﻿#contaier { width: 950px; margin: 5px auto; border: 2px solid #5CACEE; border-top: none; border-bottom: none; padding: 5px; }
+.jQuery { display: inline-block; width: 400px; padding: 10px; }
+.jTitle { font-weight: bold; font-size: 25px; animation: 1s ease 0.2s normal both 1 bounceInLeft; background: none repeat scroll 0 0 #6495ed; border-radius: 3px; color: White; font-size: 14pt; font-weight: bold; margin: 15px 0 5px; padding: 5px 15px; text-shadow: 2px 2px 3px #222; transition: all 0.4s linear 0s; }
+.jTitle:hover { padding-left: 32px; }
+.jQuery a { font-weight: bold;color: #71C671; font-size:16px; }
+.jQuery a:hover{ color:#1E90FF;}
+.jQuery li { border-bottom: 1px dotted #7AC5CD; line-height: 30px; }
+.jQuery li:last-child { border: none; }
+.jQuery a:hover { text-decoration: underline; }
