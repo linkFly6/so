@@ -5,10 +5,15 @@ linkfly.so
 
 最近把整个项目给重置了，调整了新的结构，后续所有的代码都会对应放在里面。
 
+jQuery
+-------------
 jQuery下放的是jQuery系列相关：
-  jQuery.LinkFLy/ - 注释分析后的源码，每个模块都分割了出来。
-  jQuery.Demo/ - 对于jQuery模块的一些演示
-
+>    jQuery.LinkFLy/ - 注释分析后的源码，每个模块都分割了出来。<br/>
+>    jQuery.Demo/ - 对于jQuery模块的一些演示
+  
+  
+linkFLy
+------------
 LinkFLy下放的是自己平时看到和收集的代码，最终会融合在一起：
   
-打开根目录下index.html可以看到整个的目录。
+    打开根目录下index.html可以看到整个的目录。
