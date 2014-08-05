@@ -3267,7 +3267,9 @@
 			        return this;
 			    },
 			    then: function ( /* fnDone, fnFail, fnProgress */) {
+			        //保存参数
 			        var fns = arguments;
+			        //注意这里的Deferred，Deferred参数如果是一个函数，那么会直接执行这个函数，参数就是闭包里的deferred对象！！
 			        return jQuery.Deferred(function (newDefer) {
 			            jQuery.each(tuples, function (i, tuple) {
 			                var fn = jQuery.isFunction(fns[i]) && fns[i];
@@ -3304,6 +3306,10 @@
 				stateString = tuple[3];
 
                 // promise[ done | fail | progress ] = list.add
+                //promise的上下文在哪里指定的？？？？？？？？？？？？
+                //难道是因为list.add里面的this？？？
+                //对！！是因为list.add最后返回是this，所以这里直接赋值给promise，那么this就是promise
+                //真是妙用！！
                 promise[tuple[1]] = list.add;
 
                 // Handle state
@@ -3318,6 +3324,7 @@
 
                 // deferred[ resolve | reject | notify ]
                 deferred[tuple[0]] = function () {
+                    //妈蛋上下文在这里指定了！！！！
                     deferred[tuple[0] + "With"](this === deferred ? promise : this, arguments);
                     return this;
                 };
