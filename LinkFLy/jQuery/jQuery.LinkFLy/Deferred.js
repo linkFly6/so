@@ -22,7 +22,6 @@
             //———————deferred和promise公共部分的扩展
 
             //为promise扩展done/fail/progress方法，并不扩展改变状态的resolve/reject/notify，同时扩展到deferred
-
             //因为Callbacks里面返回是this，因为这里的引用关系，依赖在不同对象上面的this都指向了该对象，例如deferred.done返回的是deferred，可以继续支持链式回调
             promise.promise(promise.done = resolve.add); //注意这里调用了promise的promise方法，相当于给deferred扩展了同名的done,fail,progress方法
             promise.promise(promise.fail = reject.add);
@@ -82,6 +81,42 @@
                 func.call(deferred, deferred);
             }
             //下面是重头戏，promise的then()方法
+            promise.then = function () {
+                //then方法的本质就是把函数压到对应的Callbacks里面去
+                var fns = arguments;
+                //注意上面的这个匿名函数就是上面的func
+                //参数是闭包里的deferred对象，所以data就是deferred
+                return Deferred(function (data) {
+                    //————————————————————————
+                    //对应的方法都是Callbacks的add
+                    deferred.done(function () {//这个匿名函数是Callbacks.fireWith()的时候执行的
+                        //我们假设参数都是正确的函数，这里不对fn进行检测了
+                        //这个方法在状态改变的时候就应该执行
+                        var fn = fns[0];
+                        //我们执行它
+                        var returnData = fn && fn.apply(this, arguments);
+                        //如果有promise(promise/A)的行为
+                        if (returnData && returnData.promise) {
+                            returnData.promise()
+                            //想想resolve()方法，不就是Callbacks.fireWith()么？
+                            //这样不就间接性的把一组函数给压到新的deferred对象中了么？
+                              .done(data.resolve)
+                              .fail(data.reject)
+                              .progress(newDefer.notify);
+                        } else {
+                            //data一定是deferred对象
+                            //如果fn()方法返回的对象没有promise(promise/A)行为[在这里，绝大多数promise行为源于Deferred]
+                            //那么我们判定是否是then返回的promise
+                            //判断这个触发的行为是否是promise的触发行为?但是promise有触发接口？？
+                            //什么情况下有this===promise？？
+                            //如果外面的fn返回有结果，那么把这个结果传递给下一层
+                            data.resolveWith(this === promise ? data.promise() : this, fn ? [returnData] : arguments);
+                        }
+                    });
+                    //这只是done，后面还有fail()和progress()，暂略....
+                    fns = null;
+                }).promise(); //返回被切掉小jj的promise
+            };
 
 
             return deferred;
