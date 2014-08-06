@@ -11,41 +11,38 @@
                     $demo.append('<div>' + value + '</div');
                 };
             //deferred测试
-            var deff = $.Deferred(function (value) {
-                write('这个参数会立即执行，这个参数就是外面的deff');
-                //运行成功了？？
-                value.resolve();
-            });
-
-            //            deff.then(function () {
-            //                setTimeout(function () {
-            //                    write('它被延迟3s执行');
-            //                    deff.resolve();
-            //                }, 3000);
-            //                return deff;
-            //            });
-            //            deff.done(function () {
-            //                write('<p style="background-color:#45b97c;">成功！</p>');
-            //            }).fail(function () {
-            //                write('<p style="background-color:yellow;">失败！</p>');
-            //            });
+            var deff = $.Deferred();
 
             deff.then(function () {
                 write('<p style="background-color:#45b97c;">成功！</p>');
             }, function () {
-                write('<p style="background-color:#00a6ac;">成功！</p>');
+                write('<p style="background-color:#00a6ac;">失败！</p>');
             });
-
             write('—————————————————分隔符————————————————');
             var deff2 = jQuery.Deferred();
-            deff2.done(function (value) {
-                write(value);
-            }).done(function (value) {
-                write('卧槽：' + value);
+            //这里返回是一个promise对象，
+            deff2.then(function (value) {
+                //这里并没有使用它的返回值，域没有共享
+                write('这个：' + (++value));
+                return value;
             });
-            var hehe = deff2.promise();
-            
+            deff2.done(function (value) {
+                write(value); //这里并不是0？
+            });
+            deff2.resolve(0);
+
             //            deff.resolve();
+
+            var defer = $.Deferred();
+            //这里使用了filtered，域共享了
+            var filtered = defer.then(function (value) {
+                write('执行：' + value);
+                return value * 2;
+            });
+            defer.resolve(5);
+            filtered.done(function (value) {
+                write(value); //10
+            });
         });
     </script>
 </head>
