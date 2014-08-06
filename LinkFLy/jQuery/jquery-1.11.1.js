@@ -3274,19 +3274,28 @@
 			            jQuery.each(tuples, function (i, tuple) {
 			                var fn = jQuery.isFunction(fns[i]) && fns[i];
 			                // deferred[ done | fail | progress ] for forwarding actions to newDefer
+							//注意这里已经把then()里面的函数封装到了上一层deferred对象中
 			                deferred[tuple[1]](function () {
 			                    var returned = fn && fn.apply(this, arguments);
+								//什么情况下才为true呢？返回的结果是promise，那么什么情况下这个函数会返回promise呢？
 			                    if (returned && jQuery.isFunction(returned.promise)) {
+									//如果是deferred和promise，那么再向下压一层
+									//那么这一层什么时候执行呢？
+									//newDefer就是deferred或promise
+									//但是这个returned会在哪儿执行呢？
+									//aron并没有讲解这个在什么时候触发的
 			                        returned.promise()
 										.done(newDefer.resolve)
 										.fail(newDefer.reject)
 										.progress(newDefer.notify);
 			                    } else {
+									//then方法中，这里把上一层的返回值传递到下一层
 			                        newDefer[tuple[0] + "With"](this === promise ? newDefer.promise() : this, fn ? [returned] : arguments);
 			                    }
 			                });
 			            });
 			            fns = null;
+					//因为这里返回是promise，注意上面的returned，判断了是否有promise的行为
 			        }).promise();
 			    },
 			    // Get a promise for this deferred
@@ -3319,6 +3328,7 @@
                         state = stateString;
 
                         // [ reject_list | resolve_list ].disable; progress_list.lock
+						//这个位运算，在控制台跑一下就知道了
                     }, tuples[i ^ 1][2].disable, tuples[2][2].lock);
                 }
 
