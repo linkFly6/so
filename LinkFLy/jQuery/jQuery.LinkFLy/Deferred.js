@@ -110,6 +110,7 @@
                             //判断这个触发的行为是否是promise的触发行为?但是promise有触发接口？？
                             //什么情况下有this===promise？？
                             //如果外面的fn返回有结果，那么把这个结果传递给下一层
+                            //这里指明了this，Callbacks里最终返回是this，这里的this指向一个promise对象
                             data.resolveWith(this === promise ? data.promise() : this, fn ? [returnData] : arguments);
                         }
                     });
