@@ -46,36 +46,37 @@
             //可以看见这些函数的本质就是Callbacks的fireWith()，传递的参数最终都会到达各自委托的Callbacks对象中的函数里
             deferred.resolveWith = resolve.fireWith;
             deferred.rejectWith = reject.fireWith;
-            deferred.progressWith = progress.fireWith;
+            deferred.notifyWith = progress.fireWith;
+
 
             //给成功的回调函数系列追加一组方法，执行done()的时候会执行这组方法
-            resolve.add(function () {
-                //触发成功系列的回调函数
-                deferred.resolveWith(this === deferred ? promise : this, arguments);
-            }, reject.disable,  //把互斥状态的回调函数都给废掉
-               function () {
-                   //因为我自己编写的Callbacks里面的lock支持无参(获取这个Callbacks是否已经被锁)，所以这里需要再封一层
-                   progress.lock(true);
-               });
-            //给失败的回调函数系列追加一组方法，执行fail()的时候会执行这组方法
-            reject.add(function () {
-                //触发失败系列的回调函数
-                deferred.rejectWith(this === deferred ? promise : this, arguments);
-            }, resolve.disable, //把互斥状态的回调函数都给废掉
-               function () {
-                   //因为我自己编写的Callbacks里面的lock支持无参(获取这个Callbacks是否已经被锁)，所以这里需要再封一层
-                   progress.lock(true);
-               });
-            //给无状态的回调函数系列追加一组方法，执行notify()的时候会执行这组方法
-            progress.add(function () {
-                //触发无状态系列的回调函数
-                deferred.progressWith(this === deferred ? promise : this, arguments);
-            }, reject.disable, //把互斥状态的回调函数都给废掉
-               function () {
-                   //因为我自己编写的Callbacks里面的lock支持无参(获取这个Callbacks是否已经被锁)，所以这里需要再封一层
-                   progress.lock(true);
-               });
+            if (state) {//如果存在状态，则追加一组函数
+                /*
+                 deferred对象当存在状态（resolve、reject、notify）之后，再追加的done、fail、progress会自动执行
+                 因为Callbacks配置的是once&auto（memory）模型！想象这个模型，是不是自动执行
+                */
+                resolve.add(function () {
+                    //触发成功系列的回调函数
+                    deferred.resolveWith(this === deferred ? promise : this, arguments);
+                }, reject.disable,  //把互斥状态的回调函数都给废掉
+                   function () {
+                       progress.lock(true);
+                   });
+                //给失败的回调函数系列追加一组方法，执行fail()的时候会执行这组方法
+                reject.add(function () {
+                    //触发失败系列的回调函数
+                    deferred.rejectWith(this === deferred ? promise : this, arguments);
+                }, resolve.disable, function () {
+                    progress.lock(true);
+                });
+                //给无状态的回调函数系列追加一组方法，执行notify()的时候会执行这组方法
+                progress.add(function () {
+                    deferred.notifyWith(this === deferred ? promise : this, arguments);
+                }, reject.disable, function () {
+                    progress.lock(true);
+                });
 
+            }
             //这是最顶层Deferred()传递进来的参数，意思就是只要传递进来那么就执行它，这个获取是方便then里面的操作
             if (func) {
                 func.call(deferred, deferred);
@@ -97,6 +98,9 @@
                         var returnData = fn && fn.apply(this, arguments);
                         //如果有promise(promise/A)的行为
                         if (returnData && returnData.promise) {
+                            //它是把这组函数已经扩展到promise，但是这样做的意义呢？
+                            //是针对promise的扩展！
+                            //但是这个扩展的意义呢？
                             returnData.promise()
                             //想想resolve()方法，不就是Callbacks.fireWith()么？
                             //这样不就间接性的把一组函数给压到新的deferred对象中了么？
@@ -111,6 +115,7 @@
                             //什么情况下有this===promise？？
                             //如果外面的fn返回有结果，那么把这个结果传递给下一层
                             //这里指明了this，Callbacks里最终返回是this，这里的this指向一个promise对象
+                            //这里的promise是在最顶层，判断是否到达最顶层？是防止顶层开放了deferred么？
                             data.resolveWith(this === promise ? data.promise() : this, fn ? [returnData] : arguments);
                         }
                     });
@@ -119,8 +124,7 @@
                 }).promise(); //返回被切掉小jj的promise
             };
 
-
             return deferred;
         };
     window.$.Deferred = window.Deferred;
-} (window));
+}(window));

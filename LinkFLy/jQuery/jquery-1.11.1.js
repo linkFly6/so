@@ -3284,6 +3284,9 @@
 									//newDefer就是deferred或promise
 									//但是这个returned会在哪儿执行呢？
 									//aron并没有讲解这个在什么时候触发的
+									//这里为什么是把newDefer的方法给扩展进去？？
+
+									//newDefer这个时候是空的啊..为什么？？？？
 			                        returned.promise()
 										.done(newDefer.resolve)
 										.fail(newDefer.reject)
