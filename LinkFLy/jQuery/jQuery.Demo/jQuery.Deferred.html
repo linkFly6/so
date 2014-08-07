@@ -21,7 +21,7 @@
                     write('done的实现 - value：<span style="color:red;font-weight:bold;">' + value + '</span>');
                 });
                 defer.resolve(1);
-            }();
+            } ();
             !function () {
                 write('<p style="padding:10px 0;background-color:#b8d6ff;border-radius:4px;font-size:15px;">这是第2个栗子：deferred的promise、fail/reject</p>');
                 var defer = jQuery.Deferred();
@@ -30,7 +30,7 @@
                 promise.fail(function (value) {
                     write('fail的实现 - value：<span style="color:red;font-weight:bold;">' + value + '</span>');
                 });
-            }();
+            } ();
 
             !function () {
                 write('<p style="padding:10px 0;background-color:#b8d6ff;border-radius:4px;font-size:15px;">这是第3个栗子：then提供便利的API</p>');
@@ -42,7 +42,7 @@
                     write('then的实现 - value：' + value);
                 });
                 defer.resolve(3);
-            }();
+            } ();
 
             !function () {
                 write('<p style="padding:10px 0;background-color:#b8d6ff;border-radius:4px;font-size:15px;">这是第4个栗子：then中参数的共享</p>');
@@ -54,26 +54,26 @@
                     write('这是失败的函数，value：' + value);
                 });
                 promise.done(function (value) {
-                    write('用then返回的promise追加一个函数(done) - value：<span style="color:red;font-weight:bold;">' + value + '</span>');//40
+                    write('用then返回的promise追加一个函数(done) - value：<span style="color:red;font-weight:bold;">' + value + '</span>'); //40
                 });
                 defer.done(function (value) {
-                    write('用Deferred追加一个函数(done) - value：<span style="color:red;font-weight:bold;">' + value + '</span>');//4
+                    write('用Deferred追加一个函数(done) - value：<span style="color:red;font-weight:bold;">' + value + '</span>'); //4
                 });
                 defer.resolve(4);
-            }();
+            } ();
 
             !function () {
                 write('<p style="padding:10px 0;background-color:#b8d6ff;border-radius:4px;font-size:15px;">这是第5个栗子：done中参数的不共享</p>');
                 var defer = jQuery.Deferred();
                 defer.done(function (value) {
-                    write('用done追加一个成功函数，value：' + value + '，它*100');//undefined
+                    write('用done追加一个成功函数，value：' + value + '，它*100');
                     return value * 100;
                 });
-                var promise = defer.then(function (value) {
+                defer.then(function (value) {
                     write('再用then追加一个成功的函数，但是参数的值并没有传递过来，但是value：<span style="color:red;font-weight:bold;">' + value + '</span>');
                 });
                 defer.resolve(5);
-            }();
+            } ();
 
             !function () {
                 write('<p style="padding:10px 0;background-color:#b8d6ff;border-radius:4px;font-size:15px;">这是第6个栗子：then中域的不共享</p>');
@@ -87,10 +87,10 @@
                 });
                 //但是done的参数丢失
                 promise.done(function (value) {
-                    write('追加一个成功函数，但是参数丢失。value：<span style="color:red;font-weight:bold;">' + value + '</span>');//undefined
+                    write('追加一个成功函数，但是参数丢失。value：<span style="color:red;font-weight:bold;">' + value + '</span>'); //undefined
                 });
                 defer.resolve(6);
-            }();
+            } ();
 
             !function () {
                 write('<p style="padding:10px 0;background-color:#b8d6ff;border-radius:4px;font-size:15px;">这是第7个栗子：then的诡异行为[无效的源码]</p>');
@@ -109,7 +109,7 @@
                 //不会输出任何结果
                 defer2.resolve(7);
 
-            }();
+            } ();
 
         });
     </script>
@@ -117,78 +117,90 @@
 <body>
     <div id="container">
         <div class="con">
-            <h3>Demo：</h3>
+            <h3>
+                Demo：</h3>
             <div id="demo">
             </div>
         </div>
-        <h2 class="l-title">Deferred</h2>
+        <h2 class="l-title">
+            Deferred</h2>
         <div>
             <div class="con">
-                <h3>Deferred.done(<span class="l-notMarked">function</span>)：<span class="l-notMarked">配合Deferred.resolve()</span><span
-                    class="return">&gt;&gt;&nbsp;&nbsp;this</span>
+                <h3>
+                    Deferred.done(<span class="l-notMarked">function</span>)：<span class="l-notMarked">配合Deferred.resolve()</span><span
+                        class="return">&gt;&gt;&nbsp;&nbsp;this</span>
                 </h3>
                 <div class="l-txtBlock">
                     承接一组函数，当<span class="l-codeRemark">Deferred</span>对象执行成功后将会触发这组回调函数。
                 </div>
             </div>
             <div class="con">
-                <h3>Deferred.fail(<span class="l-notMarked">function</span>)：<span class="l-notMarked">配合Deferred.reject()</span><span
-                    class="return">&gt;&gt;&nbsp;&nbsp;this</span>
+                <h3>
+                    Deferred.fail(<span class="l-notMarked">function</span>)：<span class="l-notMarked">配合Deferred.reject()</span><span
+                        class="return">&gt;&gt;&nbsp;&nbsp;this</span>
                 </h3>
                 <div class="l-txtBlock">
                     承接一组函数，当<span class="l-codeRemark">Deferred</span>对象执行失败后将会触发这组函数。
                 </div>
             </div>
             <div class="con">
-                <h3>Deferred.progress(<span class="l-notMarked">function</span>)：<span class="l-notMarked">配合Deferred.notify()</span><span
-                    class="return">&gt;&gt;&nbsp;&nbsp;this</span>
+                <h3>
+                    Deferred.progress(<span class="l-notMarked">function</span>)：<span class="l-notMarked">配合Deferred.notify()</span><span
+                        class="return">&gt;&gt;&nbsp;&nbsp;this</span>
                 </h3>
                 <div class="l-txtBlock">
                     承接一组函数，当<span class="l-codeRemark">Deferred</span>，每次执行<span class="l-codeRemark">Deferred.notify()</span>的时候都会执行委托的函数。
                 </div>
             </div>
             <div class="con">
-                <h3>Deferred.resolve(<span class="l-notMarked">data</span>)<span class="return">&gt;&gt;&nbsp;&nbsp;this</span></h3>
+                <h3>
+                    Deferred.resolve(<span class="l-notMarked">data</span>)<span class="return">&gt;&gt;&nbsp;&nbsp;this</span></h3>
                 <div class="l-txtBlock">
                     用于标识状态为<span class="l-marked">成功</span>，相当于通知整个<span class="l-codeRemark">Deferred</span>函数都已经执行成功了。参数为<span
                         class="l-codeRemark">Deferred.done委托的函数的参数。</span>
                 </div>
             </div>
             <div class="con">
-                <h3>Deferred.reject(<span class="l-notMarked">data</span>)<span class="return">&gt;&gt;&nbsp;&nbsp;this</span></h3>
+                <h3>
+                    Deferred.reject(<span class="l-notMarked">data</span>)<span class="return">&gt;&gt;&nbsp;&nbsp;this</span></h3>
                 <div class="l-txtBlock">
                     用于标识状态为<span class="l-marked">失败</span>，相当于通知整个<span class="l-codeRemark">Deferred</span>函数都已经执行失败，参数同上。
                 </div>
             </div>
             <div class="con">
-                <h3>Deferred.notify(<span class="l-notMarked">data</span>)<span class="return">&gt;&gt;&nbsp;&nbsp;this</span></h3>
+                <h3>
+                    Deferred.notify(<span class="l-notMarked">data</span>)<span class="return">&gt;&gt;&nbsp;&nbsp;this</span></h3>
                 <div class="l-txtBlock">
                     并不标识状态，其中在源码中状态标识为<span class="l-marked">undefined</span>，相当于通知整个<span class="l-codeRemark">Deferred</span>应该执行<span
                         class="l-codeRemark">Deferred.progress()</span>，参数同上。
                 </div>
             </div>
             <div class="con">
-                <h3>Deferred.then(<span class="l-notMarked">function[done],function[fail],function[progress]</span>)<span
-                    class="return">&gt;&gt;&nbsp;&nbsp;promise</span></h3>
+                <h3>
+                    Deferred.then(<span class="l-notMarked">function[done],function[fail],function[progress]</span>)<span
+                        class="return">&gt;&gt;&nbsp;&nbsp;promise</span></h3>
                 <div class="l-txtBlock">
                     相当于更便利的接口，第一个和<span class="l-codeRemark">Deferred.done()</span>（可以为数组）的实现一致，第二个和<span
                         class="l-codeRemark">Deferred.fail()</span>实现一致，第三个和<span class="l-codeRemark">Deferred.progress()</span>实现一致。
                 </div>
             </div>
             <div class="con">
-                <h3>Deferred.state()</h3>
+                <h3>
+                    Deferred.state()</h3>
                 <div class="l-txtBlock">
                     获取当前<span class="l-codeRemark">Deferred</span>对象的['pending','resolved','rejected',undefined]状态。
                 </div>
             </div>
             <div class="con">
-                <h3>Deferred.pipe()</h3>
+                <h3>
+                    Deferred.pipe()</h3>
                 <div class="l-txtBlock">
                     过滤器<span class="l-notMarked">function[done],function[fail],function[progress]</span>)
                 </div>
             </div>
             <div class="con">
-                <h3>Deferred.promise()</h3>
+                <h3>
+                    Deferred.promise()</h3>
                 <div class="l-txtBlock">
                     返回<span class="l-codeRemark">Callbacks</span>对象闭包中的<span class="l-codeRemark">promise</span>对象，也就是阉割版的<span
                         class="l-codeRemark">Deferred</span>（只读<span class="l-codeRemark">Deferred</span>），
@@ -197,17 +209,21 @@
             </div>
         </div>
         <div>
-            <h2 class="l-title">promise</h2>
+            <h2 class="l-title">
+                promise</h2>
             <div class="con">
-                <h3>Demo：</h3>
+                <h3>
+                    Demo：</h3>
                 <div class="l-txtBlock">
                 </div>
             </div>
         </div>
         <div>
-            <h2 class="l-title">jQuery</h2>
+            <h2 class="l-title">
+                jQuery</h2>
             <div class="con">
-                <h3>Demo：</h3>
+                <h3>
+                    Demo：</h3>
                 <div class="l-txtBlock">
                 </div>
             </div>

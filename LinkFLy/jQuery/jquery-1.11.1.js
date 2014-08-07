@@ -173,28 +173,36 @@
 
     jQuery.extend = jQuery.fn.extend = function () {
         var src, copyIsArray, copy, name, options, clone,
+		//合并的目标对象
 		target = arguments[0] || {},
 		i = 1,
 		length = arguments.length,
+		//合并的深度
 		deep = false;
 
         // Handle a deep copy situation
+		//如果第一个参数是boolean
         if (typeof target === "boolean") {
+			//则把它转换为深度
             deep = target;
-
+			//target变量往后偏移一位
             // skip the boolean and the target
             target = arguments[i] || {};
+			//开始合并的对象索引往后偏移一位
             i++;
         }
 
         // Handle case when target is a string or something (possible in deep copy)
+		//如果target是一些乱七八糟的东西，给捏成对象
         if (typeof target !== "object" && !jQuery.isFunction(target)) {
             target = {};
         }
 
         // extend jQuery itself if only one argument is passed
+		//看这里，这里巧妙的转换，这里的this是jQuery或jQuery.fn
         if (i === length) {
             target = this;
+			//校准变量i
             i--;
         }
 
@@ -202,30 +210,39 @@
             // Only deal with non-null/undefined values
             if ((options = arguments[i]) != null) {
                 // Extend the base object
-                for (name in options) {
-                    src = target[name];
-                    copy = options[name];
+				//拷贝对象开始
+                for (name in options) {//需要注意，for in循环无法遍历出valueOf和toString方法，因此jQuery.extend不支持这些特殊属性的扩展
+                    src = target[name];//目标对象属性
+                    copy = options[name];//合并对象属性
 
                     // Prevent never-ending loop
+					//防止嵌套循环自我引用（内存溢出）
                     if (target === copy) {
                         continue;
                     }
 
                     // Recurse if we're merging plain objects or arrays
+					//深拷贝、有合并对象的属性值
+					//isPlaninObject判断一个对象是否是JavaScript对象（String、Number等），或者对象一个数组（类数组）
                     if (deep && copy && (jQuery.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)))) {
+						//如果是数组（类数组）
                         if (copyIsArray) {
                             copyIsArray = false;
+							//判定是否是纯净对象和数组
                             clone = src && jQuery.isArray(src) ? src : [];
 
                         } else {
+							//判断目标对象的属性是不是纯净的对象，纯净的就直接使用，否则直接创建一个新对象
                             clone = src && jQuery.isPlainObject(src) ? src : {};
                         }
 
                         // Never move original objects, clone them
+						//针对属性进行深拷贝
                         target[name] = jQuery.extend(deep, clone, copy);
 
                         // Don't bring in undefined values
                     } else if (copy !== undefined) {
+						//否则浅拷贝
                         target[name] = copy;
                     }
                 }

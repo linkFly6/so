@@ -1,4 +1,16 @@
 ﻿(function (window, undefined) {
+    /*
+    收获：
+    -  本质上，用回调函数实现，详见#31
+    -  this的使用非常巧妙，使用this成功把Callbacks的方法嫁接到Deferred中，详见#31
+    -  Callbacks模型的把控
+    -  then：最终是返回一个Deferred
+    -  
+    */
+    var extend = function () { 
+        
+    };
+
     var Callbacks = window.Callbacks,
         Deferred = function (func) {
             var state = 'pending', //当前代码状态
@@ -52,8 +64,8 @@
             //给成功的回调函数系列追加一组方法，执行done()的时候会执行这组方法
             if (state) {//如果存在状态，则追加一组函数
                 /*
-                 deferred对象当存在状态（resolve、reject、notify）之后，再追加的done、fail、progress会自动执行
-                 因为Callbacks配置的是once&auto（memory）模型！想象这个模型，是不是自动执行
+                deferred对象当存在状态（resolve、reject、notify）之后，再追加的done、fail、progress会自动执行
+                因为Callbacks配置的是once&auto（memory）模型！想象这个模型，是不是自动执行
                 */
                 resolve.add(function () {
                     //触发成功系列的回调函数
@@ -98,6 +110,7 @@
                         var returnData = fn && fn.apply(this, arguments);
                         //如果有promise(promise/A)的行为
                         if (returnData && returnData.promise) {
+                            //这段代码是jQuery源码，但是意义呢？
                             //它是把这组函数已经扩展到promise，但是这样做的意义呢？
                             //是针对promise的扩展！
                             //但是这个扩展的意义呢？
@@ -116,15 +129,32 @@
                             //如果外面的fn返回有结果，那么把这个结果传递给下一层
                             //这里指明了this，Callbacks里最终返回是this，这里的this指向一个promise对象
                             //这里的promise是在最顶层，判断是否到达最顶层？是防止顶层开放了deferred么？
+                            //如果是防止顶层，那么直接data.promise()不行么？
                             data.resolveWith(this === promise ? data.promise() : this, fn ? [returnData] : arguments);
                         }
                     });
-                    //这只是done，后面还有fail()和progress()，暂略....
+                    //和上面类似的追加
+                    deferred.fail(function () {
+                        var fn = fns[1];
+                        var returnData = fn && fn.apply(this, arguments);
+                        //这个data的数据从哪儿来的？
+                        data.rejectWith(this === promise ? data.promise() : this, fn ? [returnData] : arguments);
+                    });
+                    deferred.fail(function () {
+                        var fn = fns[1];
+                        var returnData = fn && fn.apply(this, arguments);
+                        data.notifyWith(this === promise ? data.promise() : this, fn ? [returnData] : arguments);
+                    });
                     fns = null;
+                    //注意这里和then的关系，因为返回的promise，用这个promise done一个函数进来
+                    //那么then里面的那个data，就会得到这个函数，所以上面有代码：data.resolveWith(this === promise ? data.promise() : this, fn ? [returnData] : arguments);
+                    //就相当于把执行掉了，这里对于闭包的把控非常精准
                 }).promise(); //返回被切掉小jj的promise
+
             };
 
+            //【尚未分析到progress】
             return deferred;
         };
     window.$.Deferred = window.Deferred;
-}(window));
+} (window));
