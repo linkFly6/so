@@ -7,10 +7,6 @@
     -  then：最终是返回一个Deferred
     -  
     */
-    var extend = function () { 
-        
-    };
-
     var Callbacks = window.Callbacks,
         Deferred = function (func) {
             var state = 'pending', //当前代码状态
@@ -98,7 +94,7 @@
                 //then方法的本质就是把函数压到对应的Callbacks里面去
                 var fns = arguments;
                 //注意上面的这个匿名函数就是上面的func
-                //参数是闭包里的deferred对象，所以data就是deferred
+                //参数是闭包里的deferred对象，所以data就是新创建的，这个data，是他喵的空的...deferred
                 return Deferred(function (data) {
                     //————————————————————————
                     //对应的方法都是Callbacks的add
