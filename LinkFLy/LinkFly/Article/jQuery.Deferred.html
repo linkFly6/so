@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>读jQuery源码之 - Deferred - 概念模型</title>
+    <link href="../../Themes/Article.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <div class="l-body">
+            <div class="l-index">
+                <p>
+                    <span class="l-codeRemark">Deferred</span>首次出现在<span class="l-codeRemark">jQuery 1.5</span>中，它的出现就是抹平了javascript中的大量回调产生的金字塔。
+                </p>
+                <p>
+                    <span class="l-codeRemark">Deferred</span>就是让一组函数在合适的时机执行，在成功时候执行成功的函数系列，在失败的时候执行失败的函数系列，这就是<span class="l-codeRemark">Deferred</span>的本质。模型上可以规划为两个数组来承接不同状态的函数——数组<span class="l-codeRemark">resolve</span>里的函数列表在成功状态下触发，<span class="l-codeRemark">reject</span>中的函数在失败状态下触发。
+                </p>
+                <p style="font-weight: bold;">
+                    这篇文章并不会讲解<span class="l-codeRemark">jQuery.Deferred</span>的源码，会在下一篇讲解，因为<span class="l-codeRemark">Deferred</span>比较抽象，对于初学者有一定的难度，这篇文章主要讲解<span class="l-codeRemark">Deferred</span>的模型。
+                </p>
+                <p>
+                    本文原创于<a style="color: #259ec7;" href="www.cnblogs.com/silin6/">linkFly</a>，<a style="color: #259ec7;" href="http://www.cnblogs.com/silin6/p/Deferred.html">原文地址</a>，<a style="color: #259ec7;" href="http://zh.wikipedia.org/wiki/MIT_License">遵循MIT协议</a>。
+                </p>
+                <p>
+                    这篇文章主要分为以下知识
+                </p>
+                <ul>
+                    <li style="padding: 0px"><a class="l-navigation" href="#deferred" title="点击阅读相关内容">什么是Deferred</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#promise" title="点击阅读相关内容">Promise/A规范</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#model" title="点击阅读相关内容">Deferred的模型与工作原理</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#think" title="点击阅读相关内容">延伸的思考</a></li>
+                </ul>
+            </div>
+            <h3 class="l-title"><a name="deferred" href="javascript:;" style="color: white; text-decoration: none;">什么是Deferred</a></h3>
+            <div>
+                <p>见过一切其他文章描述<span class="l-codeRemark">Deferred</span>，什么线性啊回调啊之类的，读起来你们懂的。</p>
+                <p>
+                    其实Deferred本质上就是让代码不用再一层一层嵌套着写，这样逻辑上也很恶心，这种大量嵌套的代码，多发生于异步，看下面一段代码（模拟异步，代码2B不证明人也2B...）：
+                </p>
+                <div class="l-code">
+                </div>
+                <p>
+                    如果用<span class="l-codeRemark">Deferred</span>那么上面的代码则应该是下面这个样子（只是概念代码，非<span class="l-codeRemark">jQuery.Deferred</span>）：
+                </p>
+                <div class="l-code">
+                </div>
+                <p>
+                    可以看见Deferred把代码逻辑给抹平了，Deferred切割了<span class="l-codeRemark">回调函数</span>和<span class="l-codeRemark">执行时机</span>两个概念。
+                </p>
+                <p>
+                    以上代码就是Deferred的本质了，说白了就是把<span class="l-codeRemark">回调函数的定义</span>和<span class="l-codeRemark">回调函数的执行</span>这两个概念给分离开，这样代码就能够线性的执行下去，而一般这种大量回调函数嵌套的情况多发生于异步，所以就叫<span class="l-codeRemark">Deferred</span>——让你异步的代码，看起来跟像同步执行一样。
+                </p>
+                <p>
+                    我们可以在任何状态下委托多个函数到Deferred，本质上就是用数组专门用来存放函数的事情然后循环执行的事情。并且，Deferred不仅仅只有<span class="l-codeRemark">代表成功状态下执行的resolve函数数组</span>和<span class="l-codeRemark">代表失败状态下执行的reject函数数组</span>，
+                    还有一个<span class="l-codeRemark">每次触发都会执行的progress数组</span>（表达能力有限，移步到&nbsp;<a class="l-navigation" href="#model" title="点击阅读相关内容">Deferred模型</a>&nbsp;大概就知道了）。
+                </p>
+            </div>
+            <h3 class="l-title"><a name="promise" href="javascript:;" style="color: white; text-decoration: none;">Promise/A规范</a></h3>
+            <div>
+                <p><span class="l-codeRemark">jQuery.Deferred</span>里面实现了<span class="l-codeRemark">Promise/A</span>规范。</p>
+                <p>
+                    jQuery的Deferred里面，有一个<span class="l-codeRemark">Promise</span>对象，它其实说白了就是上面的Deferred描述的那些东西，但是jQuery.Deferred的实现在<span class="l-codeRemark">Promise</span>之上，是在实现<span class="l-codeRemark">Promise/A</span>之后顺便实现了一些自己的东西。
+                </p>
+                <p>
+                    <span class="l-codeRemark">Promise</span>有这样一个API——<span class="l-codeRemark">then()</span>：上面我们说了，Deferred有三个数组，分别存放着不同状态下都要执行的函数列表，如果我们添加一个成功状态下要执行的函数，那么肯定是push(新函数)到Deferred，then呢，提供了一个便捷的入口，then接收三个参数，分别表示：<span class="l-codeRemark">成功状态下执行的函数</span>，<span class="l-codeRemark">失败状态下执行的函数</span>，<span class="l-codeRemark">每次触发状态下</span>执行的函数——其实就是把三个数组的push合并到了一个API，但是，then()的返回值是
+                    一个全新的<span class="l-codeRemark">Promise</span>对象，这个对象呢，为毛线要新的对象其实我也没明白...
+                </p>
+                <p>只是在jQuery中，jQuery.Deferred其实本身就已经实现了Promise/A规范，并且还扩充了一套很实用了API，但是jQuery.Deferred对象中又包含着一个Promise对象，这个对象和Promise/A规范有点不同，它是切掉丁丁的jQuery.Deferred（阉割版），只有上面所说的<span class="l-codeRemark">回调函数的定义</span>这一部分API，并没有<span class="l-codeRemark">回调函数的执行</span>这个API，这么做是因为可以在<span class="l-codeRemark">Ajax</span>中把<span class="l-codeRemark">回调函数的执行</span>给封闭起来（jQuery自己维护这部分），而使用jQuery的开发者则实现<span class="l-codeRemark">回调函数的定义</span>这部分。</p>
+            </div>
+            <h3 class="l-title"><a name="model" href="javascript:;" style="color: white; text-decoration: none;">Deferred的模型与工作原理</a></h3>
+            <div>
+                <p>上面叽里呱啦说了一大堆，仍然没懂？木关系，我们直接来看模型看API就能确定这玩意儿到底是什么了，jQuery.Deferred有如下API：</p>
+            </div>
+            <h3 class="l-title"><a name="download" href="javascript:;" style="color: white; text-decoration: none;">下载</a></h3>
+            <div style="border: 1px dotted #CCC; color: #666; padding: 15px 0; background: #fafafa; font: 14px/24px 'Helvetica Neue',Helvetica,Arial,'Microsoft Yahei',sans-serif; text-indent: 2em; line-height: 25px;">
+                <ul style="list-style: none; padding: 0; font-size: 15px;">
+                    <li>Github：<a target="_blank" href="https://github.com/linkFly6/linkfly.so/blob/master/Deferred.js" style="color: #259ec7;">https://github.com/linkFly6/linkfly.so/blob/master/Deferred.js</a></li>
+                </ul>
+            </div>
+            <div class="l-author">
+                <div>作者：linkFly</div>
+                <div>原文：<a href="http://www.cnblogs.com/silin6/p/Callbacks.html" style="color: #259ec7;">http://www.cnblogs.com/silin6/p/Callbacks.html</a></div>
+                <div>出处：<a href="http://www.cnblogs.com/silin6/" style="color: #259ec7;">www.cnblogs.com/silin6/</a></div>
+                <div>声明：嘿！你都拷走上面那么一大段了，我觉得你应该也不介意顺便拷走这一小段，希望你能够在每一次的引用中都保留这一段声明，尊重作者的辛勤劳动成果，本文与博客园共享。</div>
+            </div>
+            <span class="l-codeRemark"></span>
+        </div>
+    </div>
+    <script type="text/javascript">
+        window.onload = function () {
+            //定义一个成功状态下运行的函数
+            var resolve = function () {
+                console.log('成功');
+            },
+            //定义一个失败状态下运行的函数
+            reject = function () {
+                console.log('失败');
+            };
+            //模拟服务器请求，正在等待服务器响应ing.....
+            setTimeout(function (status) {
+                if (status === 200) resolve();
+                else reject();
+            }, 1000);
+
+            var deferred = new Deferred();
+            //先将成功和失败的函数委托到Deferred
+            deferred.resolve(function () {
+                console.log('成功');
+            }).reject(function () {
+                console.log('失败');
+            });
+            //当改变状态的时候，会自动触发成或者失败的函数
+            deferred.setStatus(200);
+            //将Deferred的代码和上面对比一下，思考下Deferred改变了什么？
+        }
+    </script>
+</body>
+</html>
