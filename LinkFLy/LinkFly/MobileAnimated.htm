@@ -1,0 +1,217 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>动画测试页面</title>
+    <style type="text/css">
+        html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { margin: 0; padding: 0; border: 0; list-style: none; font: 14px/24px "Microsoft YaHei"; color: #333333; }
+        #container { border: 2px solid #8DB6CD; margin: 0 auto; width: 300px; height: 600px; position: relative; }
+        .demo li { float: left; width: 280px; height: 300px; list-style: none; margin: 0 10px; font-size: 80px; text-align: center; color: #87CEFA; line-height: 300px; }
+        .demo { width: 1000px; margin: 0; padding: 30px 0; position: relative; }
+        .demo:after { content: ""; float: none; clear: both; display: block; }
+        .red { background-color: #FFC1C1; }
+        .blue { background-color: #E6E6FA; }
+        .yellow { background-color: #F0E68C; }
+        .button { padding: 10px 10px; }
+        .button a { color: #4876FF; text-decoration: none; transition: all 0.2s ease-in-out 0s; outline: none; }
+        .button a:hover { color: #388E8E; text-decoration: underline; }
+        .animation { transform: rotate(360deg); }
+        .done { transition: all 0.2s ease-in-out 0s; -moz-transition-property: all; -moz-transition-duration: 0.5; -moz-transition-delay: 0; -moz-transition-timing-function: ease; }
+    </style>
+    <script src="../Phone/Zepto.v1.1.4.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function ($, window, undefined) {
+            var animateTo = function (elem, time, parentTime) {
+                var privNode = elem.prev().get(0),
+                    parentNode = elem.parent().get(0),
+                    nextNode = elem.next().get(0);
+                elem = $(elem).get(0);
+                time = time ? time / 1000 : 0.7;
+                parentTime = parentTime ? parentTime / 1000 : time;
+                var style = function (elem, attr, value) {
+                    //attr首字母大写
+                    if (!elem) return elem;
+                    value = value || '';
+                    elem.style['webkit' + attr] = value;
+                    elem.style['Moz' + attr] = value;
+                    elem.style['ms' + attr] = value;
+                    elem.style['O' + attr] = value;
+                    elem.style[attr.toLowerCase()] = value;
+                    return elem;
+                },
+                css = function (elem, attr, value) {
+                    value = value || '';
+                    elem.style[attr] = value;
+                    return elem;
+                },
+                callback = function () {
+
+                },
+                self = {
+                    style: function (attr, value) {
+                        if (!self.status) return this;
+                        style(elem, attr, value);
+                    },
+                    css: function (attr, value) {
+                        if (!self.status) return this;
+                        css(elem, attr, value);
+                    },
+                    check: function (className) {
+                        if (elem.className && elem.className.indexOf(className) > 0) {
+                            elem.className = elem.className.replace(className, '');
+                            return false;
+                        } else
+                            elem.className += (' ' + className);
+                        return true;
+                    },
+                    status: function () {
+                        if (!elem) return false;
+                        style(elem, 'Transition', 'all ' + time + 's ease-in-out 0s');
+                        style(elem.parentNode, 'Transition', 'all ' + parentTime + 's ease-in-out 0s');
+                        css(elem.parentNode, 'left', '0px');
+                        return true;
+                    } (),
+                    toX: function (value) {
+                        if (!self.status) return;
+                        value = value || -360;
+                        if (self.check('trans')) {
+                            style(elem, 'Transform', 'rotate(' + value + 'deg)');
+                        } else
+                            style(elem, 'Transform');
+                        return this;
+                    },
+                    //滑动
+                    toSlide: function (value) {
+                        if (!self.status) return this;
+                        value = value || -300;
+                        //注意在status中已经给父容器赋值为0px了，
+                        //如果没有left样式，第一次执行会突然蹦到value的位置而不是用动画平缓滚动过去
+                        //要给默认加上一个left:0才会生效
+                        if (self.check('toTrun')) {
+                            css(self.parentNode, 'left', value + 'px');
+                        } else
+                            css(self.parentNode, 'left', '0px');
+                        return this;
+                    },
+                    //翻转
+                    toTurn: function (value) {
+
+                        return this;
+                    },
+                    toShow: function () {
+                        if (!self.status) return this;
+                        var start = arguments[0],
+                            now = arguments[1],
+                            end = arguments[2];
+                        //为true表示没有opacity
+                        var model = self.check('opacity');
+                        //如果在函数里针对DOM操作，则进入了浏览器异步线程队列
+                        //这里的代码和下面的css将会不同步
+                        if (start && $.isFunction(start))
+                            start.call(elem, model, elem);
+                        setTimeout(function () {
+                            //所以会造成函数和opacity执行时间不匹配
+                            //所以我们要阻塞一下当前的代码
+                            //要阻塞只能使用setTimeout，加大了内存消耗，性能不划算，于是更改了API的实现
+                            if (model) {
+                                css(elem, 'opacity', '0');
+                            } else
+                                css(elem, 'opacity', '1');
+                            if ($.isFunction(now))
+                                now.call(elem, model, elem);
+                            if ($.isFunction(end))
+                                setTimeout(function () {
+                                    end.call(elem, model, elem);
+                                }, time * 1000);
+
+                        }, 1);
+                        return this;
+                    },
+                    //3D翻转
+                    to3DTrun: function () {
+                        if (!self.status) return this;
+                        var model = self.check('turn3d');
+                        //                        if (model) {
+                        //                        style(nextNode, 'Transition', 'all ' + time + 's ease-in-out 0s');
+                        //                            style(nextNode, 'Transform', 'rotateY(90deg) translateZ(-100px)');
+                        //                            self.style('Transform', 'perspective(600px) rotateY(-90deg) translateZ(100px)');
+                        //                            self.style('width', '0');
+                        //                        } else {
+                        //                            style(nextNode, 'Transform');
+                        //                            self.style('Transform');
+                        //                            self.css('width');
+                        //                        }
+                        if (model) {
+                            style(nextNode, 'Transform', 'transform: rotateY(-100deg) translateZ(155px);');
+                            style(nextNode, 'transition', 'all ' + time + 's ease-in-out 0s');
+                            self.style('Transform', 'rotateY(-90deg) translateZ(100px)');
+                            style(nextNode, 'Transform', 'rotateY(90deg) translateZ(-100px)');
+                        } else {
+                            style(parentNode, 'Transform');
+                            style(nextNode, 'Transform');
+                            self.style('Transform');
+                        }
+                        //                        self.css('width', '0');
+                        return this;
+                    }
+
+                };
+
+                return self;
+            };
+            window.animateTo = animateTo;
+        } (Zepto, window));
+
+        $(function () {
+            var elem = animateTo($('#red'), 600, 800);
+            $('#linkOne').click(function () {
+                elem.toX();
+            });
+            $('#linkTwo').click(function () {
+                elem.toSlide();
+            });
+            $('#linkThree').click(function () {
+                elem.toX().toSlide();
+            });
+            $('#linkFour').click(function () {
+                elem.toShow(function (status) {
+                    if (!status)
+                        this.style.display = '';
+                }, function () {
+
+                }, function (status) {
+                    if (status)
+                        this.style.display = 'none';
+                });
+            });
+            $('#linkFive').click(function () {
+
+            });
+            $('#linkSix').click(function () {
+                elem.to3DTrun();
+            });
+            $('#red').click(function () {
+                console.log('click in me!');
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="container" style="perspective: 800px;">
+        <ul class="demo" style="transform-style: preserve-3d;">
+            <li class="red done" id="red" style="transform: rotateY(0deg) translateZ(10px);">A</li>
+            <li class="blue done" id="blue" style="transform: rotateY(-120deg) translateZ(10px);">
+                B</li>
+            <li class="yellow done" id="yellow" style="transform: rotateY(-320deg) translateZ(10px);">
+                C</li>
+        </ul>
+        <ul class="button">
+            <li><a href="javascript:;" id="linkOne">动画一：旋转</a></li>
+            <li><a href="javascript:;" id="linkTwo">动画二：偏移</a></li>
+            <li><a href="javascript:;" id="linkThree">动画三：旋转+偏移</a></li>
+            <li><a href="javascript:;" id="linkFour">动画四：渐变</a></li>
+            <li><a href="javascript:;" id="linkFive">动画五：翻转</a></li>
+            <li><a href="javascript:;" id="linkSix">动画六：3D翻转</a></li>
+        </ul>
+    </div>
+</body>
+</html>
