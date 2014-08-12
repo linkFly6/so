@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>动画测试页面</title>
@@ -7,17 +7,18 @@
         #container { border: 2px solid #8DB6CD; margin: 0 auto; width: 300px; height: 600px; position: relative; }
         .demo li { float: left; width: 280px; height: 300px; list-style: none; margin: 0 10px; font-size: 80px; text-align: center; color: #87CEFA; line-height: 300px; }
         .demo { width: 1000px; margin: 0; padding: 30px 0; position: relative; }
-        .demo:after { content: ""; float: none; clear: both; display: block; }
+            .demo:after { content: ""; float: none; clear: both; display: block; }
         .red { background-color: #FFC1C1; }
         .blue { background-color: #E6E6FA; }
         .yellow { background-color: #F0E68C; }
         .button { padding: 10px 10px; }
-        .button a { color: #4876FF; text-decoration: none; transition: all 0.2s ease-in-out 0s; outline: none; }
-        .button a:hover { color: #388E8E; text-decoration: underline; }
+            .button a { color: #4876FF; text-decoration: none; transition: all 0.2s ease-in-out 0s; outline: none; }
+                .button a:hover { color: #388E8E; text-decoration: underline; }
         .animation { transform: rotate(360deg); }
         .done { transition: all 0.2s ease-in-out 0s; -moz-transition-property: all; -moz-transition-duration: 0.5; -moz-transition-delay: 0; -moz-transition-timing-function: ease; }
     </style>
-    <script src="../Phone/Zepto.v1.1.4.js" type="text/javascript"></script>
+    <script src="../jQuery/Zepto/Zepto.1.1.4.js"></script>
+    <!--<script src="../Phone/Zepto.v1.1.4.js" type="text/javascript"></script>-->
     <script type="text/javascript">
         (function ($, window, undefined) {
             var animateTo = function (elem, time, parentTime) {
@@ -69,7 +70,7 @@
                         style(elem.parentNode, 'Transition', 'all ' + parentTime + 's ease-in-out 0s');
                         css(elem.parentNode, 'left', '0px');
                         return true;
-                    } (),
+                    }(),
                     toX: function (value) {
                         if (!self.status) return;
                         value = value || -360;
@@ -141,14 +142,15 @@
                         //                            self.css('width');
                         //                        }
                         if (model) {
-                            style(nextNode, 'Transform', 'transform: rotateY(-100deg) translateZ(155px);');
+                            //style(nextNode, 'Transform', 'rotateY(-80deg) origin:left translateZ(155px);');
                             style(nextNode, 'transition', 'all ' + time + 's ease-in-out 0s');
-                            self.style('Transform', 'rotateY(-90deg) translateZ(100px)');
-                            style(nextNode, 'Transform', 'rotateY(90deg) translateZ(-100px)');
+                            //self.style('Transform', 'rotateY(-90deg)');
+                            //style(nextNode, 'Transform');
+                            style(parentNode, 'Transform', 'rotateY(-100deg)');
                         } else {
+                            //style(nextNode, 'Transform', 'rotateY(-100deg) translateZ(155px)');
+                            //self.style('Transform', 'rotateY(0deg) translateZ(10px)');
                             style(parentNode, 'Transform');
-                            style(nextNode, 'Transform');
-                            self.style('Transform');
                         }
                         //                        self.css('width', '0');
                         return this;
@@ -159,7 +161,7 @@
                 return self;
             };
             window.animateTo = animateTo;
-        } (Zepto, window));
+        }(Zepto, window));
 
         $(function () {
             var elem = animateTo($('#red'), 600, 800);
@@ -196,13 +198,11 @@
     </script>
 </head>
 <body>
-    <div id="container" style="perspective: 800px;">
-        <ul class="demo" style="transform-style: preserve-3d;">
-            <li class="red done" id="red" style="transform: rotateY(0deg) translateZ(10px);">A</li>
-            <li class="blue done" id="blue" style="transform: rotateY(-120deg) translateZ(10px);">
-                B</li>
-            <li class="yellow done" id="yellow" style="transform: rotateY(-320deg) translateZ(10px);">
-                C</li>
+    <div id="container" style="perspective: 0;">
+        <ul class="demo" style="transform-style: preserve-3d; transform-origin: 29% 75%; backface-visibility: visible;">
+            <li class="red done" id="red" style="transform: translateZ(150px);">A</li>
+            <li class="blue done" id="blue" style="transform: rotateY(-90deg); left: 300px; transform-origin: left;">B</li>
+            <!--<li class="yellow done" id="yellow" style="transform: rotateY(-320deg) translateZ(10px);">C</li>-->
         </ul>
         <ul class="button">
             <li><a href="javascript:;" id="linkOne">动画一：旋转</a></li>
