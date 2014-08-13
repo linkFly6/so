@@ -3380,15 +3380,22 @@
 			length = resolveValues.length,
 
             // the count of uncompleted subordinates
+			//表明余下的个数，这里已经约定了如果只有一个参数，那么这个参数必然是Deferred对象（相对jQuery来说）
 			remaining = length !== 1 || (subordinate && jQuery.isFunction(subordinate.promise)) ? length : 0,
 
             // the master Deferred. If resolveValues consist of only a single Deferred, just use that.
+			//如果长度是1，则使用这个Deferred对象，否则新建一个Deferred
 			deferred = remaining === 1 ? subordinate : jQuery.Deferred(),
 
             // Update function for both resolve and progress values
 			updateFunc = function (i, contexts, values) {
+				//i表示当前循环的参数索引
+				//contexts是一个本来为空的数组
+				//values应该是一个Deferred对象
 			    return function (value) {
+					//对应的context设置为jQuery
 			        contexts[i] = this;
+
 			        values[i] = arguments.length > 1 ? slice.call(arguments) : value;
 			        if (values === progressValues) {
 			            deferred.notifyWith(contexts, values);
@@ -3402,11 +3409,13 @@
 			progressValues, progressContexts, resolveContexts;
 
             // add listeners to Deferred subordinates; treat others as resolved
+			//参数长度大于1，则把后续的函数委托进来
             if (length > 1) {
                 progressValues = new Array(length);
                 progressContexts = new Array(length);
                 resolveContexts = new Array(length);
                 for (; i < length; i++) {
+					//保存参数存在，并且来自Deferred
                     if (resolveValues[i] && jQuery.isFunction(resolveValues[i].promise)) {
                         resolveValues[i].promise()
 						.done(updateFunc(i, resolveContexts, resolveValues))

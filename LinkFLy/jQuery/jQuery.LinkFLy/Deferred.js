@@ -1,156 +1,144 @@
 ﻿(function (window, undefined) {
-    /*
-    收获：
-    -  本质上，用回调函数实现，详见#31
-    -  this的使用非常巧妙，使用this成功把Callbacks的方法嫁接到Deferred中，详见#31
-    -  Callbacks模型的把控
-    -  then：最终是返回一个Deferred
-    -  
-    */
-    var Callbacks = window.Callbacks,
-        Deferred = function (func) {
-            var state = 'pending', //当前代码状态
-            deferred = {}, //正统deferred
-            promise = {}, //阉割版的deferred对象
-            resolve = Callbacks({ once: true, auto: true }), //成功后执行的回调函数集合
-            reject = Callbacks({ once: true, auto: true }), //失败后执行的回调函数集合
-            progress = Callbacks({ auto: true }); //注意这里并没有清空过去的函数库，每次标识notify的时候都会执行的回调函数集合
-            //开始逻辑代码———————promise的扩展
-
-            //获取当前promise的状态
-            promise.state = function () {
-                return state;
+    var $ = window.$,
+        Slice = toSlice = Array.prototype.slice,
+        isFunction = (function () {             //判定一个对象是否是Function
+            return "object" === typeof document.getElementById ?
+            isFunction = function (fn) {
+                //ie下对DOM和BOM的识别有问题
+                try {
+                    return /^\s*\bfunction\b/.test("" + fn);
+                } catch (x) {
+                    return false
+                }
+            } :
+            isFunction = function (fn) { return toString.call(fn) === '[object Function]'; };
+        })(),
+        each = function () {
+            if (arguments.length < 2 || !isFunction(arguments[1])) return;
+            var list = toSlice.call(arguments[0]),
+                fn = arguments[1],
+                length = list.length,
+                i = 0,
+                item;
+            for (; i < length; i++) {
+                fn.call(window, list[i]);
             }
-            //将外面传递进来的一个对象扩展promise的方法，主要用于一个对象扩展promise行为
-            promise.promise = function (obj) {
-                //把自己的方法扩展进去，注意这个方法等一下可以用来扩展deferred
-                return obj != null ? window.$.extend(obj, promise) : promise;
-            };
-
-            //———————deferred和promise公共部分的扩展
-
-            //为promise扩展done/fail/progress方法，并不扩展改变状态的resolve/reject/notify，同时扩展到deferred
-            //因为Callbacks里面返回是this，因为这里的引用关系，依赖在不同对象上面的this都指向了该对象，例如deferred.done返回的是deferred，可以继续支持链式回调
-            promise.promise(promise.done = resolve.add); //注意这里调用了promise的promise方法，相当于给deferred扩展了同名的done,fail,progress方法
-            promise.promise(promise.fail = reject.add);
-            promise.promise(promise.progress = progress.add);
-            //扩展always方法
-            promise.promise(promise.always = function () {
-                deferred.done(arguments).fail(arguments);
-                return this;
-            });
-            /*
-            promise对象构建完成，它有如下方法：
-            promise.state() - 获取deferred状态
-            promise.promise() - 返回deferred的promise，也用于扩展参数传递进来的对象[主要是把这些最上面定义的回调函数和对象关联上]
-            promise.done() - 追加一个(或一组)成功状态下执行的回调函数
-            promise.fail() - 追加一个(或一组)失败状态下执行的回调函数
-            promise.progress() - 追加一个(或一组)无状态下执行的回调函数
-            promise.always() - 追加一个(或一组)无论成功失败都会执行的回调函数
-            promise.then() - 尚未扩展，最后扩展
-            还有一个pipe()没有看懂，也应该扩展进去
-            */
-            //———————promise已经完成，下面是deferred的扩展
-            //可以看见这些函数的本质就是Callbacks的fireWith()，传递的参数最终都会到达各自委托的Callbacks对象中的函数里
-            deferred.resolveWith = resolve.fireWith;
-            deferred.rejectWith = reject.fireWith;
-            deferred.notifyWith = progress.fireWith;
-
-
-            //给成功的回调函数系列追加一组方法，执行done()的时候会执行这组方法
-            if (state) {//如果存在状态，则追加一组函数
+        },
+        extend = function () {
+            //浅合并一个对象
+            var target = arguments[0] || {},
+            source = arguments[1] || {},
+            name;
+            //因为只限内部使用，代码允许松散
+            for (name in source) {
+                if (!target[name])
+                    target[name] = source[name];
+            }
+            return target;
+        },
+        deferred = {},
+        Deferred = function (fn) {
+            //因为Deferred和promise很多地方的通用的
+            //于是抽出这些通用部分，然后一起生成
+            var tuples = [
+            //注意，配置的once和auto映射的Deferred的模型
+                ["resolve", "done", $.Callbacks({ once: true, auto: true }), "resolved"],
+				["reject", "fail", $.Callbacks({ once: true, auto: true }), "rejected"],
+            //因为这里的函数需要重复执行，所以没有once
+				["notify", "progress", $.Callbacks({ auto: true })]
+            ],
+            state = 'pending',
+            promise = {
+                state: function () {
+                    return state;
+                },
+                promise: function (obj) {
+                    //这是有意思的接口
+                    //无参的它返回promise自身
+                    //有参的它将为这个参数追加上promise行为
+                    return obj == null ? extend(obj, promise) : promise;
+                },
+                always: function (fn) {
+                    deferred.done(fn).fail(fn);
+                },
                 /*
-                deferred对象当存在状态（resolve、reject、notify）之后，再追加的done、fail、progress会自动执行
-                因为Callbacks配置的是once&auto（memory）模型！想象这个模型，是不是自动执行
+                建议then()留到最后读
+                then的原理是通过新建一个deferred对象
                 */
-                resolve.add(function () {
-                    //触发成功系列的回调函数
-                    deferred.resolveWith(this === deferred ? promise : this, arguments);
-                }, reject.disable,  //把互斥状态的回调函数都给废掉
-                   function () {
-                       progress.lock(true);
-                   });
-                //给失败的回调函数系列追加一组方法，执行fail()的时候会执行这组方法
-                reject.add(function () {
-                    //触发失败系列的回调函数
-                    deferred.rejectWith(this === deferred ? promise : this, arguments);
-                }, resolve.disable, function () {
-                    progress.lock(true);
-                });
-                //给无状态的回调函数系列追加一组方法，执行notify()的时候会执行这组方法
-                progress.add(function () {
-                    deferred.notifyWith(this === deferred ? promise : this, arguments);
-                }, reject.disable, function () {
-                    progress.lock(true);
-                });
+                then: function () {
+                    var thenArgs = arguments;
+                    //这个函数会立即执行
+                    return Deferred(function (newDeferred) {
+                        each(tuples, function (i, item) {
+                            //这个deferred是顶层的Deferred对象
+                            //获取对应的参数
+                            var fn = isFunction(thenArgs[i]) && thenArgs[i];
+                            //这里调用的是[ done | fail | progress]
+                            //也就是对应Callbacks.add
+                            //本质上，在顶层的deferred中追加了一个匿名函数，这个函数将then传递的函数进行封装
+                            deferred[item[1]](function () {
+                                var value = fn && fn.apply(this, arguments);
+                                //jQuery有对这个value的promise行为做判定，测试发现这个行为有点鸡肋，于是给干掉了
 
-            }
-            //这是最顶层Deferred()传递进来的参数，意思就是只要传递进来那么就执行它，这个获取是方便then里面的操作
-            if (func) {
-                func.call(deferred, deferred);
-            }
-            //下面是重头戏，promise的then()方法
-            promise.then = function () {
-                //then方法的本质就是把函数压到对应的Callbacks里面去
-                var fns = arguments;
-                //注意上面的这个匿名函数就是上面的func
-                //参数是闭包里的deferred对象，所以data就是新创建的，这个data，是他喵的空的...deferred
-                return Deferred(function (data) {
-                    //————————————————————————
-                    //对应的方法都是Callbacks的add
-                    deferred.done(function () {//这个匿名函数是Callbacks.fireWith()的时候执行的
-                        //我们假设参数都是正确的函数，这里不对fn进行检测了
-                        //这个方法在状态改变的时候就应该执行
-                        var fn = fns[0];
-                        //我们执行它
-                        var returnData = fn && fn.apply(this, arguments);
-                        //如果有promise(promise/A)的行为
-                        if (returnData && returnData.promise) {
-                            //这段代码是jQuery源码，但是意义呢？
-                            //它是把这组函数已经扩展到promise，但是这样做的意义呢？
-                            //是针对promise的扩展！
-                            //但是这个扩展的意义呢？
-                            returnData.promise()
-                            //想想resolve()方法，不就是Callbacks.fireWith()么？
-                            //这样不就间接性的把一组函数给压到新的deferred对象中了么？
-                              .done(data.resolve)
-                              .fail(data.reject)
-                              .progress(newDefer.notify);
-                        } else {
-                            //data一定是deferred对象
-                            //如果fn()方法返回的对象没有promise(promise/A)行为[在这里，绝大多数promise行为源于Deferred]
-                            //那么我们判定是否是then返回的promise
-                            //判断这个触发的行为是否是promise的触发行为?但是promise有触发接口？？
-                            //什么情况下有this===promise？？
-                            //如果外面的fn返回有结果，那么把这个结果传递给下一层
-                            //这里指明了this，Callbacks里最终返回是this，这里的this指向一个promise对象
-                            //这里的promise是在最顶层，判断是否到达最顶层？是防止顶层开放了deferred么？
-                            //如果是防止顶层，那么直接data.promise()不行么？
-                            data.resolveWith(this === promise ? data.promise() : this, fn ? [returnData] : arguments);
-                        }
-                    });
-                    //和上面类似的追加
-                    deferred.fail(function () {
-                        var fn = fns[1];
-                        var returnData = fn && fn.apply(this, arguments);
-                        //这个data的数据从哪儿来的？
-                        data.rejectWith(this === promise ? data.promise() : this, fn ? [returnData] : arguments);
-                    });
-                    deferred.fail(function () {
-                        var fn = fns[1];
-                        var returnData = fn && fn.apply(this, arguments);
-                        data.notifyWith(this === promise ? data.promise() : this, fn ? [returnData] : arguments);
-                    });
-                    fns = null;
-                    //注意这里和then的关系，因为返回的promise，用这个promise done一个函数进来
-                    //那么then里面的那个data，就会得到这个函数，所以上面有代码：data.resolveWith(this === promise ? data.promise() : this, fn ? [returnData] : arguments);
-                    //就相当于把执行掉了，这里对于闭包的把控非常精准
-                }).promise(); //返回被切掉小jj的promise
+                                //这才是关键，如果有上一层的返回值，则把这个返回值传递到下一层
 
+                                //jQuery里判定this === promise ? newDefer.promise() : this
+                                //这里的判定是什么意思呢？？
+                                newDeferred[item[0] + 'with'](this, fn ? [value] : arguments);
+                                //newDeferred是这个闭包里生成的deferred
+                            });
+                        });
+                        //注意这个newDeferred的概念
+                        //then()追加函数到了上一层，这里有两个上一层：
+                        //1、deferred.then().then() - 这里第二个then()的上一层是第一个then()里面的deferred
+                        //2、deferred.then();Deferred.then() - 这里的两个then()的上一层都是deferred，他们俩是平级的
+
+                        //最后执行的newDeferred[doneWith]，就是执行下一层的函数，并把这一层函数的返回值传递到下一层
+                        //所以在上下文里，判定了this === promise ? newDeferred.promise() : this
+
+                        //你可以试试第2种方式来追加，应该两个then无法通信
+
+                    }).promise();
+                }
             };
-
-            //【尚未分析到progress】
+            //生成公共部分
+            each(tuples, function (i, item) {
+                var callbacks = item[2], //callbacks
+                /* "resolved"||"rejected"||undefined */
+                    stateString = item[3];
+                /* done||fail||progress === callbacks.add */
+                promise[item[1]] = callbacks.add; //注意callbacks里面最终返回值是this，巧妙的编码
+                if (stateString) { //能够进入这里的只有i===0||i===1
+                    //有状态则将相应的回调函数添加到callbacks中
+                    //注意这里添加了三个
+                    callbacks.add(function () {
+                        state = stateString;
+                    },
+                    item[i ^ 1].disable,
+                    function () {
+                        item[2][2].lock(true);
+                    });
+                    //到了这里，回调函数都已经准备好了
+                }
+                /* resolveWith||rejectWith||notifyWith*/
+                deferred[item[0] + 'With'] = callbacks.fireWidth;
+                /* resolve||reject||notify*/
+                deferred[item[0]] = function () {
+                    //jQuery在第一个参数这里使用了：this === deferred ? promise
+                    deferred[item[0] + 'With'](promise, arguments);
+                    return this;
+                };
+            });
+            //上面方法执行之后
+            //deferred还差done，fail，progress，state,promise，always，then没有生成
+            //使用promise.promise生成
+            promise.promise(deferred);
+            if (fn) {
+                //如果new Deferred()有参数，那么立即执行它，同时把闭包里deferred对象传递给它
+                fn.call(deferred, deferred);
+            }
+            //返回真正的diferred对象
             return deferred;
         };
-    window.$.Deferred = window.Deferred;
-} (window));
+    window.$.Deferred = Deferred;
+})(window);

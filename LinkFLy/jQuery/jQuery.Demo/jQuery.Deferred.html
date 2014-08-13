@@ -111,6 +111,13 @@
 
             } ();
 
+            //jQuery.when功能测试
+            !function () {
+                write('<p style="padding:10px 0;background-color:#b8d6ff;border-radius:4px;font-size:15px;">这是第8个栗子：when()的测试</p>');
+                $.when(function () {
+                    write('我真的不知道这个是干什么用的..');
+                });
+            } ();
         });
     </script>
 </head>
