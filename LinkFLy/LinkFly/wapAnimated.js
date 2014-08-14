@@ -8,7 +8,7 @@
         trun3D: false, //3D模型
         time: 0.6,
         slide: 0, //滑动模型，1234对应上左下右（↑→↓←）
-        active: 0,
+        active: 0
     },
     camelCase = function (str) {
         //转换字符串为驼峰命名
@@ -177,14 +177,28 @@
                 return self;
             };
         } else if (option.slide && parentNode && parentNode.nodeType === 1) {
+            /*
+            正确的slide，有如下约定：
+            1、滑动容器(parent)并不应该设定宽度，为的是每一个子项都能够在不同的分辨率下都能正确的展现满屏的宽度，例如，子项的宽度设置为100%（或自定义的宽度），
+            在页面展现中，累加了每个子项的宽度，并赋值给了自己，这样就不会因为给parent设置宽度而影响到子项，而最后，累加了这些子项的宽度到parent。
+            2、并没有实现上下滑动的效果
+            3、获取宽度方法丢失margin和border的精度，这里需要注意，每个子项要无缝的链接到一起，否则精度不准会造成滑动异常
+            */
+
             //滑动模式
             //矫正active
             option.active = 0;
             active = elems[option.active] || {};
-            var maxWdith = -width(parentNode),
-                radix = width(active),
+            var radix = width(active),
+                maxWdith = 0,
                 pos = 0,
+                w = 0,
             direc = direction[option.slide] || 'left';
+            self.each(function (item) {
+                w = width(item);
+                maxWdith += w;
+                css(item, 'width', w + 'px');
+            });
             oldStatus['parent'] = {
                 visibility: css(parentNode, 'visibility'),
                 position: css(parentNode, 'position'),
@@ -196,9 +210,9 @@
                 position: 'relative',
                 overflow: 'hidden'
             });
+            maxWdith = -maxWdith;
             self.slide = function (value) {
                 radix = value || radix;
-
                 pos += (-radix);
                 if (pos > maxWdith)
                     css(parentNode, direc, pos + 'px');
