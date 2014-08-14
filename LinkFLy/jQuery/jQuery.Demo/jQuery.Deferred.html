@@ -33,7 +33,7 @@
             } ();
 
             !function () {
-                write('<p style="padding:10px 0;background-color:#b8d6ff;border-radius:4px;font-size:15px;">这是第3个栗子：then提供便利的API</p>');
+                write('<p style="padding:10px 0;background-color:#b8d6ff;border-radius:4px;font-size:15px;">这是第3个栗子：then的使用</p>');
                 var defer = jQuery.Deferred();
                 //then方法提供一个便利的API，可以快捷的定义done/fail/progress，返回一个promise
                 var promise = defer.then(function (value) {
@@ -117,6 +117,21 @@
                 $.when(function () {
                     write('我真的不知道这个是干什么用的..');
                 });
+            } ();
+
+            //jQuery.when功能测试
+            !function () {
+                write('<p style="padding:10px 0;background-color:#b8d6ff;border-radius:4px;font-size:15px;">这是第9个栗子：两个then()之间可以沟通么？</p>');
+                var defer = jQuery.Deferred();
+                defer.then(function (value) {
+                    write('value现在的值：' + value + '，我们把value*10');
+                    return value * 10;
+                });
+                defer.then(function (value) {
+                    //只有上下层共享
+                    write('如果value被共享，它的值应该被*10，value：' + value);
+                });
+                defer.resolve(9);
             } ();
         });
     </script>

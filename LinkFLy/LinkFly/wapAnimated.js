@@ -8,7 +8,9 @@
         trun3D: false, //3D模型
         time: 0.6,
         slide: 0, //滑动模型，1234对应上左下右（↑→↓←）
-        active: 0
+        active: 0,
+        //滑动模型下，表示每次滑动执行的参数
+        fn: function () { }
     },
     camelCase = function (str) {
         //转换字符串为驼峰命名
@@ -190,13 +192,13 @@
             option.active = 0;
             active = elems[option.active] || {};
             var radix = width(active),
-                maxWdith = 0,
+                maxWidth = 0,
                 pos = 0,
                 w = 0,
             direc = direction[option.slide] || 'left';
             self.each(function (item) {
                 w = width(item);
-                maxWdith += w;
+                maxWidth += w;
                 css(item, 'width', w + 'px');
             });
             oldStatus['parent'] = {
@@ -206,22 +208,27 @@
                 width: css(parentNode, 'width')
             };
             css(parentNode, { transition: 'all ' + option.time + 's ease-in-out 0s', left: '0px',
-                width: maxWdith + 'px',
+                width: maxWidth + 'px',
                 position: 'relative',
                 overflow: 'hidden'
             });
-            maxWdith = -maxWdith;
+            maxWidth = -maxWidth;
             self.slide = function (value) {
                 radix = value || radix;
                 pos += (-radix);
-                if (pos > maxWdith)
+                option.fn.call(self, pos, maxWidth, parentNode);
+                if (pos > maxWidth && pos < 1) {
                     css(parentNode, direc, pos + 'px');
-                else {
+                } else if (pos === maxWidth) {
                     css(parentNode, direc, '0px');
                     pos = 0;
+                } else {
+                    pos = maxWidth - radix;
+                    css(parentNode, direc, pos + 'px');
                 }
                 return self;
             };
+
             self.radix = function () {
                 return radix;
             };
