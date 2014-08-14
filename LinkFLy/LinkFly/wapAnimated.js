@@ -8,7 +8,7 @@
         trun3D: false, //3D模型
         time: 0.6,
         slide: 0, //滑动模型，1234对应上左下右（↑→↓←）
-        active: 0
+        active: 0,
     },
     camelCase = function (str) {
         //转换字符串为驼峰命名
@@ -193,11 +193,12 @@
             };
             css(parentNode, { transition: 'all ' + option.time + 's ease-in-out 0s', left: '0px',
                 width: maxWdith + 'px',
-                position: 'absolute',
+                position: 'relative',
                 overflow: 'hidden'
             });
             self.slide = function (value) {
                 radix = value || radix;
+
                 pos += (-radix);
                 if (pos > maxWdith)
                     css(parentNode, direc, pos + 'px');
