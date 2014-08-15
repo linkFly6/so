@@ -196,7 +196,7 @@
                 pos = 0,
                 w = 0,
             direc = direction[option.slide] || 'left';
-            self.each(function (item) {
+            self.each(function (item, i) {
                 w = width(item);
                 maxWidth += w;
                 css(item, 'width', w + 'px');
