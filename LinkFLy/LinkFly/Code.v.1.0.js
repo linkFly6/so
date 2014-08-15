@@ -72,7 +72,107 @@
         (length - 1) in obj); //可以被索引
     };
 
-    //——————————————————————————————————数据类型判定结束——————————————————————————————————
+    //——————————————————————————————————Array数组——————————————————————————————————
+    //这里总得干点什么吧...直接创建一个类数组？
+    var List = function () {
+        /// <summary>
+        ///     1: 将参数转换为List对象，这个函数无论成功与否都会创建一个类数组对象返回，即使length===0
+        ///     &#10;    1.1 - new List(Array) - 将数组转换为List对象，支持类数组
+        ///     &#10;    1.3 - new List(elem,[ elem1,[, elem2[, elemN ]]]) - 将两个数组拼接为一个List对象
+        /// </summary>
+        /// <param name="fn" type="Function">
+        ///     每个循环项的回调函数
+        /// </param>
+        /// <returns type="List" />
+        var res = [], len = arguments.length, array = arguments[0], i = 0;
+        if (len) {
+            if (len === 1) {
+                //修正len
+                len = array.length;
+                //这里可以来一层对象判定？
+                if (len == null || getType(array) === 'string' || isFunction(array) || isWindow(array)) {
+                    res[0] = array;
+                } else {
+                    while (i++ < len)//利用i++非常低的优先级
+                        res[i] = array[i];
+                }
+            } else {
+                while (i++ < len)
+                    res[i] = arguments[i];
+            }
+        }
+        return res;
+    },
+    isIndexOf = Array.prototype.indexOf;        //es5
+
+    //这个一定要有，判定是否是自己
+    List.isList = function () {
+        
+    };
+
+    //构造函数已经返回的数组，所以不用在修正原型链了
+    //    List.prototype = new Array(); //从原型中创建一个Array，所有保有Array的特性
+    List.prototype.constructor = List; //修正list
+    // - 扩展each方法，基础方法
+    List.prototype.each = function (fn) {
+        /// <summary>
+        ///     1: 循环一组List对象
+        ///     &#10;    1.1 - each(fn)
+        /// </summary>
+        /// <param name="fn" type="Function">
+        ///     每个循环项的回调函数
+        /// </param>
+        /// <returns type="List" />
+        for (var i = 0, len = this.length; i < len; i++) {
+            fn.call(this[i], this[i], i);
+        }
+        return this;
+    };
+
+    // - 检测数据中是否包含某项，返回该项索引，如果没有，则返回-1，这个函数没有预编译是因为要保证作用域(this的作用域)
+    //index表示开始要遍历查找的起点，用于加快访问速度（例如多次查找，可以缓存第一次的索引，第二次查找建立在第一次查找之上）
+    List.prototype.indexOf = isIndexOf ? function (elem, index) {//存在es5方法
+        if (this.length)
+            return isIndexOf.call(this, elem, index);
+    } : function (elem, index) {
+        var len = this.length;
+        if (len) {
+            //修正查找索引
+            index = index ?
+                index < 0 ? //负索引表示倒数
+                    Math.max(0, len + index) : index
+                : 0;
+            for (; index < len; index++) {
+                //当数组中可以找到该项索引并且该索引的元素等于要查找的元素，返回该索引
+                if (index in this && this[index] === elem)
+                    return index;
+            }
+        }
+        return -1;
+    };
+
+    List.prototype.removeAt = function () {
+
+    };
+    List.prototype.remove = function () {
+
+    };
+    List.prototype.random = function () {
+
+    };
+
+
+
+
+    //——————————————————————————————————Array数组结束——————————————————————————————————————
+
+
+
+
+
+
+    //——————————————————————————————————DOMReady结束————————————————————————————————————
+
 
 
     //——————————————————————————————————DOMReady——————————————————————————————————————
@@ -83,4 +183,15 @@
 
 
     //——————————————————————————————————DOMReady结束————————————————————————————————————
+
+
+    //——————————————————————————————————封装一个——————————————————————————————————————
+
+
+
+
+
+
+    //——————————————————————————————————DOMReady结束————————————————————————————————————
+
 })(window);
