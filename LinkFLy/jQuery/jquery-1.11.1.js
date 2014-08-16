@@ -3304,13 +3304,16 @@
 									//这里为什么是把newDefer的方法给扩展进去？？
 
 									//newDefer这个时候是空的啊..为什么？？？？
+									//newDefer不为空，因为then最终返回的promise正是newDefer的promise
+									//then返回的promise.done，正是newDefer.done
 			                        returned.promise()
 										.done(newDefer.resolve)
 										.fail(newDefer.reject)
 										.progress(newDefer.notify);
+									//其实这里的扩展，应该只是纯粹的对具有promise/A的扩展，只是留了这个功能，什么时候执行，并不是jQuery.Deferred关心的事情
 			                    } else {
-									//then方法中，这里把上一层的返回值传递到下一层
 									//这是then方法的本质，使用then()返回的promise对象依赖于newDefer对象
+									//then方法中，这里把上一层的返回值传递到下一层
 									//而现在的环境只能被最顶层的Deferred触发
 									//在触发顶层的Deferred中，触发then()中的Deferred
 									//这里的判定，为什么要做这一层对象的封装呢？
@@ -3318,6 +3321,7 @@
 			                    }
 			                });
 			            });
+						//这里可以放心释放fns，在上面的each中，已经单独创建了对应了变量
 			            fns = null;
 					//因为这里返回是promise，注意上面的returned，判断了是否有promise的行为
 			        }).promise();
