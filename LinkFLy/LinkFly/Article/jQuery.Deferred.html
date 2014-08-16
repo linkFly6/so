@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -156,7 +156,7 @@
                 <p>
                     从上面的API里可以看见，Promise对象就是切掉小丁丁版本的Deferred，只有<span class="l-codeRemark">回调函数的定义（done/fail/progress）</span>API，没有<span class="l-codeRemark">回调函数的执行（resolve/reject/notify）</span>API。
                 </p>
-
+                <p>注：在jQuery.1.8之前还有一个API：<span class="l-codeRemark">pipe()</span>，这个API在jQuery-1.8之后过时，采用新API<span class="l-codeRemark">then()</span>替代，该方法的作用就是1.8以后重写的then()</p>
             </div>
             <h3 class="l-title"><a name="deferred" href="javascript:;" style="color: white; text-decoration: none;">jQuery.Deferred的实现</a></h3>
             <div>
@@ -185,7 +185,7 @@
                 </p>
                 <p>然后给<span class="l-codeRemark">Callbacks</span>中压入三个响应的回调函数，分别执行了<span class="l-bold">修改状态字符串、将互斥的函数设置为不可用、锁定无状态的函数</span>，后两个直接引用了<span class="l-codeRemark">Callbacks</span>的方法。这里：通过位运算符得到互斥的索引，然后根据索引访问上面数组里对应的<span class="l-codeRemark">Callbacks</span>，直接禁用和锁定。</p>
                 <p>后面的代码，木有了！！！！你木有看错，是真的木有了！！！有这么一点点啊！真的就这么一点点代码！！！有木有感觉so easy？随手就写了一个Deferred有木有啊？！</p>
-                <p>小伙鸡，还有一个大块头小洁呢，不要忽略这个API——<span class="l-codeRemark">Deferred.then()</span>！</p>
+                <p>小伙鸡，还有一个大块头呢，不要忽略这个API——<span class="l-codeRemark">Deferred.then()</span>！</p>
             </div>
             <h3 class="l-title"><a name="then" href="javascript:;" style="color: white; text-decoration: none;">jQuery.Deferred的then()</a></h3>
             <div>

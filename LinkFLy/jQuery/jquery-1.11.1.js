@@ -3310,6 +3310,10 @@
 										.progress(newDefer.notify);
 			                    } else {
 									//then方法中，这里把上一层的返回值传递到下一层
+									//这是then方法的本质，使用then()返回的promise对象依赖于newDefer对象
+									//而现在的环境只能被最顶层的Deferred触发
+									//在触发顶层的Deferred中，触发then()中的Deferred
+									//这里的判定，为什么要做这一层对象的封装呢？
 			                        newDefer[tuple[0] + "With"](this === promise ? newDefer.promise() : this, fn ? [returned] : arguments);
 			                    }
 			                });

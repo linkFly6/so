@@ -87,6 +87,7 @@
                                 newDeferred[item[0] + 'with'](this, fn ? [value] : arguments);
                                 //newDeferred是这个闭包里生成的deferred
                             });
+                            fn = null;
                         });
                         //注意这个newDeferred的概念
                         //then()追加函数到了上一层，这里有两个上一层：
@@ -135,6 +136,7 @@
             promise.promise(deferred);
             if (fn) {
                 //如果new Deferred()有参数，那么立即执行它，同时把闭包里deferred对象传递给它
+                //这个地方提供了第二个环境来访问这个新的Deferred，用于then方法中
                 fn.call(deferred, deferred);
             }
             //返回真正的diferred对象
