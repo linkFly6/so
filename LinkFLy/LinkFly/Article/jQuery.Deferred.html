@@ -4,6 +4,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>读jQuery源码之 - Deferred</title>
     <link href="../../Themes/Article.css" rel="stylesheet" />
+    <script src="../../jQuery/jquery-2.1.1.js" type="text/javascript"></script>
+    <style>
+        test { text-decoration: none; }
+    </style>
 </head>
 <body>
     <div>
@@ -13,84 +17,112 @@
                     <span class="l-codeRemark">Deferred</span>首次出现在<span class="l-codeRemark">jQuery 1.5</span>中，它的出现就是抹平了javascript中的大量回调产生的金字塔。
                 </p>
                 <p>
-                    <span class="l-codeRemark">Deferred</span>就是让一组函数在合适的时机执行，在成功时候执行成功的函数系列，在失败的时候执行失败的函数系列，这就是<span class="l-codeRemark">Deferred</span>的本质。简单的说，模型上可以规划为两个数组来承接不同状态的函数——数组<span class="l-codeRemark">resolve</span>里的函数列表在成功状态下触发，<span class="l-codeRemark">reject</span>中的函数在失败状态下触发。
+                    <span class="l-codeRemark">Deferred</span>就是让一组函数在合适的时机执行，在成功时候执行成功的函数系列，在失败的时候执行失败的函数系列，这就是<span
+                        class="l-codeRemark">Deferred</span>的本质。简单的说，模型上可以规划为两个数组来承接不同状态的函数——数组<span class="l-codeRemark">resolve</span>里的函数列表在成功状态下触发，<span
+                            class="l-codeRemark">reject</span>中的函数在失败状态下触发。
                 </p>
                 <p>
-                    本文原创于<a style="color: #259ec7;" href="www.cnblogs.com/silin6/">linkFly</a>，<a style="color: #259ec7;" href="http://www.cnblogs.com/silin6/p/Deferred.html">原文地址</a>。
+                    本文原创于<a style="color: #259ec7;" href="www.cnblogs.com/silin6/">linkFly</a>，<a style="color: #259ec7;"
+                        href="http://www.cnblogs.com/silin6/p/Deferred.html">原文地址</a>。
                 </p>
                 <p>
-                    这篇文章主要分为以下知识，和上一篇博文《<a href="http://www.cnblogs.com/silin6/p/Callbacks.html" style="color: #259ec7;">读jQuery源码之 - Callbacks</a>》关联。
+                    这篇文章主要分为以下知识，和上一篇博文《<a href="http://www.cnblogs.com/silin6/p/Callbacks.html" style="color: #259ec7;">读jQuery源码之
+                        - Callbacks</a>》关联。
                 </p>
                 <ul>
                     <li style="padding: 0px"><a class="l-navigation" href="#deferred" title="点击阅读相关内容">什么是Deferred</a></li>
                     <li style="padding: 0px"><a class="l-navigation" href="#promise" title="点击阅读相关内容">jQuery.Deferred的Promise</a></li>
                     <li style="padding: 0px"><a class="l-navigation" href="#model" title="点击阅读相关内容">Deferred的模型与工作原理</a></li>
-                    <li style="padding: 0px"><a class="l-navigation" href="#deferred" title="点击阅读相关内容">jQuery.Deferred的实现</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#code" title="点击阅读相关内容">jQuery.Deferred的实现</a></li>
                     <li style="padding: 0px"><a class="l-navigation" href="#then" title="点击阅读相关内容">jQuery.Deferred的then()</a></li>
                 </ul>
             </div>
-            <h3 class="l-title"><a name="deferred" href="javascript:void(0);" style="color: white; text-decoration: none;">什么是Deferred</a></h3>
+            <h3 class="l-title">
+                <a name="deferred" href="javascript:void(0);" style="color: white; text-decoration: none;">
+                    什么是Deferred</a></h3>
             <div>
-                <p>见过一切其他文章描述<span class="l-codeRemark">Deferred</span>，什么线性啊回调啊之类的，读起来你们懂的。</p>
                 <p>
-                    其实Deferred本质上就是让代码不用再一层一层嵌套着写，这样逻辑上也很恶心，这种大量嵌套的代码，多发生于异步，看下面一段代码（模拟异步，代码2B不证明人也2B...）：
+                    见过一切其他文章描述Deferred，什么线性啊回调啊之类的，读起来你们懂的。</p>
+                <p>
+                    Deferred实现让代码不用再一层一层嵌套着写，这样逻辑上也很恶心，这种大量嵌套的代码，多发生于异步，看下面一段代码（模拟异步）：
                 </p>
                 <div class="l-code">
-                    <div class="cnblogs_code" onclick="cnblogs_code_show('e05e6d8c-8ad4-4659-bf55-63dea5a7711d')">
-                        <img id="code_img_closed_e05e6d8c-8ad4-4659-bf55-63dea5a7711d" class="code_img_closed" src="http://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif" alt="" /><img id="code_img_opened_e05e6d8c-8ad4-4659-bf55-63dea5a7711d" class="code_img_opened" style="display: none;" onclick="cnblogs_code_hide('e05e6d8c-8ad4-4659-bf55-63dea5a7711d',event)" src="http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif" alt="" />
-                        <div id="cnblogs_code_open_e05e6d8c-8ad4-4659-bf55-63dea5a7711d" class="cnblogs_code_hide">
-                            <pre><span style="color: #008080;"> 1</span>             <span style="color: #008000;">//</span><span style="color: #008000;">定义一个成功状态下运行的函数</span>
-<span style="color: #008080;"> 2</span>             <span style="color: #0000ff;">var</span> resolve = <span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
-</span><span style="color: #008080;"> 3</span>                 console.log('成功'<span style="color: #000000;">);
-</span><span style="color: #008080;"> 4</span> <span style="color: #000000;">            },
-</span><span style="color: #008080;"> 5</span>             <span style="color: #008000;">//</span><span style="color: #008000;">定义一个失败状态下运行的函数</span>
-<span style="color: #008080;"> 6</span>             reject = <span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
-</span><span style="color: #008080;"> 7</span>                 console.log('失败'<span style="color: #000000;">);
-</span><span style="color: #008080;"> 8</span> <span style="color: #000000;">            };
-</span><span style="color: #008080;"> 9</span>             <span style="color: #008000;">//</span><span style="color: #008000;">模拟服务器请求，正在等待服务器响应ing.....</span>
-<span style="color: #008080;">10</span>             setTimeout(<span style="color: #0000ff;">function</span><span style="color: #000000;"> (status) {
-</span><span style="color: #008080;">11</span>                 <span style="color: #0000ff;">if</span> (status === 200<span style="color: #000000;">) resolve();
-</span><span style="color: #008080;">12</span>                 <span style="color: #0000ff;">else</span><span style="color: #000000;"> reject();
-</span><span style="color: #008080;">13</span>             }, 1000);</pre>
-                        </div>
-                        <span class="cnblogs_code_collapse">Callbacks</span>
-                    </div>
-                    <p>&nbsp;</p>
+                    <div class="cnblogs_code" onclick="cnblogs_code_show('436774ce-333e-4abd-88fc-aa34a99a1b7b')"><img id="code_img_closed_436774ce-333e-4abd-88fc-aa34a99a1b7b" class="code_img_closed" src="http://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif" alt="" /><img id="code_img_opened_436774ce-333e-4abd-88fc-aa34a99a1b7b" class="code_img_opened" style="display: none;" onclick="cnblogs_code_hide('436774ce-333e-4abd-88fc-aa34a99a1b7b',event)" src="http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif" alt="" />
+<div id="cnblogs_code_open_436774ce-333e-4abd-88fc-aa34a99a1b7b" class="cnblogs_code_hide">
+<pre><span style="color: #0000ff;">var</span> resolve = <span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                console.log(</span>'成功'<span style="color: #000000;">);
+            },
+            </span><span style="color: #008000;">//</span><span style="color: #008000;">定义一个失败状态下运行的函数</span>
+            reject = <span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                console.log(</span>'失败'<span style="color: #000000;">);
+            };
+            </span><span style="color: #008000;">//</span><span style="color: #008000;">模拟服务器请求，正在等待服务器响应ing.....</span>
+            setTimeout(<span style="color: #0000ff;">function</span><span style="color: #000000;"> (status) {
+                </span><span style="color: #0000ff;">if</span> (status === 200<span style="color: #000000;">) resolve();
+                </span><span style="color: #0000ff;">else</span><span style="color: #000000;"> reject();
+            }, </span>1000);</pre>
+</div>
+<span class="cnblogs_code_collapse">Callbacks</span></div>
                 </div>
                 <p>
                     如果用<span class="l-codeRemark">Deferred</span>那么上面的代码则应该是下面这个样子（只是概念代码，非<span class="l-codeRemark">jQuery.Deferred</span>）：
                 </p>
                 <div class="l-code">
+                    <div class="cnblogs_code" onclick="cnblogs_code_show('4ef54e48-a50d-48d1-b6b8-33af4269a0c0')"><img id="code_img_closed_4ef54e48-a50d-48d1-b6b8-33af4269a0c0" class="code_img_closed" src="http://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif" alt="" /><img id="code_img_opened_4ef54e48-a50d-48d1-b6b8-33af4269a0c0" class="code_img_opened" style="display: none;" onclick="cnblogs_code_hide('4ef54e48-a50d-48d1-b6b8-33af4269a0c0',event)" src="http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif" alt="" />
+<div id="cnblogs_code_open_4ef54e48-a50d-48d1-b6b8-33af4269a0c0" class="cnblogs_code_hide">
+<pre><span style="color: #0000ff;">var</span> deferred = <span style="color: #0000ff;">new</span><span style="color: #000000;"> Deferred();
+            </span><span style="color: #008000;">//</span><span style="color: #008000;">先将成功和失败的函数委托到Deferred</span>
+            deferred.resolve(<span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                console.log(</span>'成功'<span style="color: #000000;">);
+            }).reject(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                console.log(</span>'失败'<span style="color: #000000;">);
+            });
+            </span><span style="color: #008000;">//</span><span style="color: #008000;">当改变状态的时候，会自动触发成或者失败的函数</span>
+            deferred.setStatus(200<span style="color: #000000;">);
+            </span><span style="color: #008000;">//</span><span style="color: #008000;">将Deferred的代码和上面对比一下，思考下Deferred改变了什么？</span></pre>
+</div>
+<span class="cnblogs_code_collapse">Deferred</span></div>
                 </div>
                 <p>
                     可以看见Deferred把代码逻辑给抹平了，Deferred切割了<span class="l-codeRemark">回调函数</span>和<span class="l-codeRemark">执行时机</span>两个概念。
                 </p>
                 <p>
-                    以上代码就是Deferred的本质了，说白了就是把<span class="l-codeRemark">回调函数的定义</span>和<span class="l-codeRemark">回调函数的执行</span>这两个概念给分离开，这样代码就能够线性的执行下去，而一般这种大量回调函数嵌套的情况多发生于异步，所以就叫<span class="l-codeRemark">Deferred</span>——让你异步的代码，看起来跟像同步执行一样。
+                    就是把<span class="l-codeRemark">回调函数的定义</span>和<span class="l-codeRemark">回调函数的执行</span>这两个概念给分离开，这样代码就能够线性的执行下去，而一般这种大量回调函数嵌套的情况多发生于异步，所以就叫<span
+                        class="l-codeRemark">Deferred</span>——让你异步的代码，看起来跟像同步执行一样。
                 </p>
                 <p>
-                    我们可以在任何状态下委托多个函数到Deferred，本质上就是用数组专门用来存放函数的事情然后循环执行的事情。并且，Deferred不仅仅只有<span class="l-codeRemark">代表成功状态下执行的resolve函数数组</span>和<span class="l-codeRemark">代表失败状态下执行的reject函数数组</span>，
-                    还有一个<span class="l-codeRemark">每次触发都会执行的progress数组</span>（表达能力有限，移步到&nbsp;<a class="l-navigation" href="#model" title="点击阅读相关内容">Deferred模型</a>&nbsp;大概就知道了）。
+                    我们可以在任何状态下委托多个函数到Deferred，本质上就是用数组专门用来存放函数的事情然后循环执行的事情。并且，Deferred不仅仅只有<span class="l-codeRemark">代表成功状态下执行的resolve函数数组</span>和<span
+                        class="l-codeRemark">代表失败状态下执行的reject函数数组</span>， 还有一个<span class="l-codeRemark">每次触发都会执行的progress数组</span>（表达能力有限，移步到&nbsp;<a
+                            class="l-navigation" href="#model" title="点击阅读相关内容">Deferred模型</a>&nbsp;大概就知道了）。
                 </p>
             </div>
-            <h3 class="l-title"><a name="promise" href="javascript:void(0);" style="color: white; text-decoration: none;">jQuery.Deferred的Promise</a></h3>
+            <h3 class="l-title">
+                <a name="promise" href="javascript:void(0);" style="color: white; text-decoration: none;">
+                    jQuery.Deferred的Promise</a></h3>
             <div>
-                <p><span class="l-codeRemark">jQuery.Deferred</span>里面实现了<span class="l-codeRemark">Promise/A</span>规范。</p>
                 <p>
-                    jQuery的Deferred里面，有一个<span class="l-codeRemark">Promise</span>对象，它其实说白了就是上面的Deferred描述的那些东西，但是需要注意，在代码上，jQuery.Deferred的实现是在<span class="l-codeRemark">Promise</span>之上，是在实现<span class="l-codeRemark">Promise/A</span>之后顺便实现了一些自己的东西。
+                    <span class="l-codeRemark">jQuery.Deferred</span>里面实现了<span class="l-codeRemark">Promise/A</span>规范。</p>
+                <p>
+                    jQuery中，jQuery.Deferred其实本身就已经实现了Promise/A规范，并且还扩充了一套很实用了API，但是jQuery.Deferred对象中又包含着一个Promise对象，这个对象和Promise/A规范有点不同，它是切掉丁丁的jQuery.Deferred（阉割版），只有上面所说的<span
+                        class="l-codeRemark">回调函数的定义</span>这一部分API，并没有<span class="l-codeRemark">回调函数的执行</span>这一部分的API，这么做是因为可以在<span
+                            class="l-codeRemark">Ajax</span>中把<span class="l-codeRemark">回调函数的执行</span>给封闭起来（jQuery自己维护这部分），而使用jQuery的开发者则实现<span
+                                class="l-codeRemark">回调函数的定义</span>这部分——实现一个恰到好处的观察者模式。</p>
+                <p>
+  Deferred工作在更深层次的地方，而外层只需要根据相关结果做出对应的操作即可，即Promise对象行为。例如Ajax请求成功后，Deferred工作在Ajax内层（发送请求，接收请求）
+                    ，Promise对外的API接收了对应行为的函数，当内层Ajax请求成功的时候，通过Deferred标识状态为成功，那么这些承接的函数都会执行——Deferred主要应用于这样的工作场景。而因为对外开放的是Promise，它并不具备<span
+                        class="l-codeRemark">回调函数的执行</span>这部分代码，而这部分，是被内层Deferred维护的。
                 </p>
-
-                <p>只是在jQuery中，jQuery.Deferred其实本身就已经实现了Promise/A规范，并且还扩充了一套很实用了API，但是jQuery.Deferred对象中又包含着一个Promise对象，这个对象和Promise/A规范有点不同，它是切掉丁丁的jQuery.Deferred（阉割版），只有上面所说的<span class="l-codeRemark">回调函数的定义</span>这一部分API，并没有<span class="l-codeRemark">回调函数的执行</span>这一部分的API，这么做是因为可以在<span class="l-codeRemark">Ajax</span>中把<span class="l-codeRemark">回调函数的执行</span>给封闭起来（jQuery自己维护这部分），而使用jQuery的开发者则实现<span class="l-codeRemark">回调函数的定义</span>这部分——实现一个恰到好处的观察者模式。</p>
                 <p>
-                    jQuery.Deferred工作在更深层次的地方，例如Ajax发起请求到接收等处理过程我们自己操作，而外层只需要根据相关结果做出对应的操作即可，例如Ajax请求成功后，执行相应成功的函数即可。
-                </p>
-                <p>
-                    这就类似你们大boss要你办一件事，并提前给了三种情形的解决方案，分别表示：<span class="l-bold">这件事处理成功了之后该怎么做，处理失败了又该怎么做，处理中该怎么做</span>。大boss给的解决方案，就是<span class="l-codeRemark">回调函数的定义</span>,而你在这件事得到结果后针对不同的情况进行处理，就是<span class="l-codeRemark">回调函数的执行</span>。
+                    这就类似你们大boss要你办一件事，并提前给了三种情形的解决方案，分别表示：<span class="l-bold">这件事处理成功了之后该怎么做，处理失败了又该怎么做，处理中该怎么做</span>。大boss给的解决方案，就是<span
+                        class="l-codeRemark">回调函数的定义</span>,而你在这件事得到结果后针对不同的情况进行处理，就是<span class="l-codeRemark">回调函数的执行</span>。
                 </p>
             </div>
-            <h3 class="l-title"><a name="model" href="javascript:void(0);" style="color: white; text-decoration: none;">Deferred的模型与工作原理</a></h3>
+            <h3 class="l-title">
+                <a name="model" href="javascript:void(0);" style="color: white; text-decoration: none;">
+                    Deferred的模型与工作原理</a></h3>
             <div>
-                <p>上面叽里呱啦说了一大堆，仍然没懂？木关系，我们直接来看模型看API就能确定这玩意儿到底是什么了，jQuery.Deferred有如下API：</p>
+                <p>
+                    上面叽里呱啦说了一大堆，仍然没懂？木关系，我们直接来看模型看API就能确定这玩意儿到底是什么了，jQuery.Deferred有如下API：</p>
                 <table class="table">
                     <colgroup>
                         <col width="210px" />
@@ -99,102 +131,357 @@
                         <col width="300px" />
                     </colgroup>
                     <tr>
-                        <th>API</th>
-                        <th>隶属对象</th>
-                        <th>描述</th>
-                        <th>实现</th>
+                        <th>
+                            API
+                        </th>
+                        <th>
+                            隶属对象
+                        </th>
+                        <th>
+                            描述
+                        </th>
+                        <th>
+                            实现
+                        </th>
                     </tr>
                     <tbody>
                         <tr>
-                            <td>done(<span class="l-notMarked">function[,function...]</span>)</td>
-                            <td>Deferred&Promise</td>
-                            <td class="leftTd">添加一个或多个表示<span class="l-bold">成功</span>的函数到Deferred对象中，与<span class="l-codeRemark">Deferred.resolve()</span>方法对应。</td>
-                            <td class="leftTd">内部原型是<span class="l-codeRemark">Callbacks</span>对象，该方法直接引用<span class="l-codeRemark">Callbacks.add()</span></td>
+                            <td>
+                                done(<span class="l-notMarked">function[,function...]</span>)
+                            </td>
+                            <td>
+                                Deferred&Promise
+                            </td>
+                            <td class="leftTd">
+                                添加一个或多个表示<span class="l-bold">成功</span>的函数到Deferred对象中，与<span class="l-codeRemark">Deferred.resolve()</span>方法对应。
+                            </td>
+                            <td class="leftTd">
+                                内部原型是<span class="l-codeRemark">Callbacks</span>对象，该方法直接引用<span class="l-codeRemark">Callbacks.add()</span>
+                            </td>
                         </tr>
                         <tr>
-                            <td>fail(<span class="l-notMarked">function[,function...]</span>)</td>
-                            <td>Deferred&Promise</td>
-                            <td class="leftTd">添加一个或多个表示<span class="l-bold">失败</span>的函数到Deferred对象中，与<span class="l-codeRemark">Deferred.reject()</span>方法对应。</td>
-                            <td class="leftTd">同上</td>
+                            <td>
+                                fail(<span class="l-notMarked">function[,function...]</span>)
+                            </td>
+                            <td>
+                                Deferred&Promise
+                            </td>
+                            <td class="leftTd">
+                                添加一个或多个表示<span class="l-bold">失败</span>的函数到Deferred对象中，与<span class="l-codeRemark">Deferred.reject()</span>方法对应。
+                            </td>
+                            <td class="leftTd">
+                                同上
+                            </td>
                         </tr>
                         <tr>
-                            <td>progress(<span class="l-notMarked">function[,function...]</span>)</td>
-                            <td>Deferred&Promise</td>
-                            <td class="leftTd">添加一个或多个表示<span class="l-bold">无状态</span>的函数到Deferred对象中，与<span class="l-codeRemark">Deferred.notify()</span>方法对应，每次执行<span class="l-codeRemark">Deferred.notify()</span>都会执行委托的回调函数，而done()、fail()方法中委托的回调函数都是一次性的。</td>
-                            <td class="leftTd">同上</td>
+                            <td>
+                                progress(<span class="l-notMarked">function[,function...]</span>)
+                            </td>
+                            <td>
+                                Deferred&Promise
+                            </td>
+                            <td class="leftTd">
+                                添加一个或多个表示<span class="l-bold">无状态</span>的函数到Deferred对象中，与<span class="l-codeRemark">Deferred.notify()</span>方法对应，每次执行<span
+                                    class="l-codeRemark">Deferred.notify()</span>都会执行委托的回调函数，而done()、fail()方法中委托的回调函数都是一次性的。
+                            </td>
+                            <td class="leftTd">
+                                同上
+                            </td>
                         </tr>
                         <tr>
-                            <td>resolve(<span class="l-notMarked">[args]</span>)</td>
-                            <td>Deferred</td>
-                            <td class="leftTd">触发<span class="l-bold">成功</span>系列函数（通过<span class="l-codeRemark">Deferred.done()</span>追加的函数），注意每次执行这些函数之后都会被销毁。</td>
-                            <td class="leftTd">内部原型直接引用了<span class="l-codeRemark">Callbacks</span>对象的<span class="l-codeRemark">fireWith()</span>方法。</td>
+                            <td>
+                                resolve(<span class="l-notMarked">[args]</span>)
+                            </td>
+                            <td>
+                                Deferred
+                            </td>
+                            <td class="leftTd">
+                                触发<span class="l-bold">成功</span>系列函数（通过<span class="l-codeRemark">Deferred.done()</span>追加的函数），注意每次执行这些函数之后都会被销毁。
+                            </td>
+                            <td class="leftTd">
+                                内部原型直接引用了<span class="l-codeRemark">Callbacks</span>对象的<span class="l-codeRemark">fireWith()</span>方法。
+                            </td>
                         </tr>
                         <tr>
-                            <td>reject(<span class="l-notMarked">[args]</span>)</td>
-                            <td>Deferred</td>
-                            <td class="leftTd">触发<span class="l-bold">失败</span>系列函数（通过<span class="l-codeRemark">Deferred.fail()</span>追加的函数），注意每次执行这些函数之后都会被销毁。</td>
-                            <td class="leftTd">同上</td>
+                            <td>
+                                reject(<span class="l-notMarked">[args]</span>)
+                            </td>
+                            <td>
+                                Deferred
+                            </td>
+                            <td class="leftTd">
+                                触发<span class="l-bold">失败</span>系列函数（通过<span class="l-codeRemark">Deferred.fail()</span>追加的函数），注意每次执行这些函数之后都会被销毁。
+                            </td>
+                            <td class="leftTd">
+                                同上
+                            </td>
                         </tr>
                         <tr>
-                            <td>notify(<span class="l-notMarked">[args]</span>)</td>
-                            <td>Deferred</td>
-                            <td class="leftTd">触发<span class="l-bold">无状态</span>系列函数（通过<span class="l-codeRemark">Deferred.progress()</span>追加的函数），注意每次执行这些函数之后都会被销毁。</td>
-                            <td class="leftTd">同上</td>
+                            <td>
+                                notify(<span class="l-notMarked">[args]</span>)
+                            </td>
+                            <td>
+                                Deferred
+                            </td>
+                            <td class="leftTd">
+                                触发<span class="l-bold">无状态</span>系列函数（通过<span class="l-codeRemark">Deferred.progress()</span>追加的函数），注意每次执行这些函数之后都会被销毁。
+                            </td>
+                            <td class="leftTd">
+                                同上
+                            </td>
                         </tr>
                         <tr>
-                            <td>promise(<span class="l-notMarked">[Object]</span>)</td>
-                            <td>Deferred&Promise</td>
-                            <td class="leftTd">无参的情况下返回<span class="l-bold">Promise</span>对象，有参数的情况下为参数Object扩展Promise行为。</td>
-                            <td class="leftTd">阉割版的Deferred，内部先定义了Promise的基础API，在此基础上扩展了Deferred，就是用有参的promise()将promise的行为扩展到Deferred上的。</td>
+                            <td>
+                                promise(<span class="l-notMarked">[Object]</span>)
+                            </td>
+                            <td>
+                                Deferred&Promise
+                            </td>
+                            <td class="leftTd">
+                                无参的情况下返回<span class="l-bold">Promise</span>对象，有参数的情况下为参数Object扩展Promise行为。
+                            </td>
+                            <td class="leftTd">
+                                阉割版的Deferred，内部先定义了Promise的基础API，在此基础上扩展了Deferred，就是用有参的promise()将promise的行为扩展到Deferred上的。
+                            </td>
                         </tr>
                         <tr>
-                            <td>state()</td>
-                            <td>Deferred&Promise</td>
-                            <td class="leftTd">返回当前状态的字符串：pending(尚未执行)、resolved（已成功）、rejected（已失败）、undefined（无状态，未定义）</td>
-                            <td class="leftTd">执行相应函数的时候标识一下状态就可以了。</td>
+                            <td>
+                                state()
+                            </td>
+                            <td>
+                                Deferred&Promise
+                            </td>
+                            <td class="leftTd">
+                                返回当前状态的字符串：pending(尚未执行)、resolved（已成功）、rejected（已失败）、undefined（无状态，未定义）
+                            </td>
+                            <td class="leftTd">
+                                执行相应函数的时候标识一下状态就可以了。
+                            </td>
                         </tr>
                         <tr>
-                            <td>then(<span class="l-notMarked">doneCallbacks[,failCallbacks[,progressCallbacks]]</span>)</td>
-                            <td>Deferred&Promise</td>
-                            <td class="leftTd"><span class="l-bold">在jQuery 1.8以后被重写</span>，委托最多三<span class="l-bold">组</span>函数到Deferred对象中，分别表示：<span class="l-bold">成功、失败、无状态</span>下执行的函数，从使用上来说，是<span class="l-codeRemark">Deferred.done()、Deferred.fail()、Deferred.progress()</span>的简写版——然而，本质上并非如此，then方法是单独实现的——它返回一个全新的<span class="l-codeRemark">Promise</span>对象，它连接了链式回调中的参数，让每个函数都可以与上一层、下一层函数通信，详情请见《<a class="l-navigation" href="#then" title="点击阅读相关内容">jQuery.Deferred的then()</a>》小节。</td>
-                            <td class="leftTd">内部的实现较为复杂，创建了一个全新的Deferred对象（与<span class="l-codeRemark">Deferred.done()</span>）系列函数完全不同，每一次在同一个Deferred对象上链式调用then()都建立了深层的嵌套，并且通过回调函数的返回值与下一层进行通信。</td>
+                            <td>
+                                then(<span class="l-notMarked">doneCallbacks[,failCallbacks[,progressCallbacks]]</span>)
+                            </td>
+                            <td>
+                                Deferred&Promise
+                            </td>
+                            <td class="leftTd">
+                                <span class="l-bold">在jQuery 1.8以后被重写</span>，委托最多三<span class="l-bold">组</span>函数到Deferred对象中，分别表示：<span
+                                    class="l-bold">成功、失败、无状态</span>下执行的函数，从使用上来说，是<span class="l-codeRemark">Deferred.done()、Deferred.fail()、Deferred.progress()</span>的简写版——然而，本质上并非如此，then方法是单独实现的——它返回一个全新的<span
+                                        class="l-codeRemark">Promise</span>对象，它连接了链式回调中的参数，让每个函数都可以与上一层、下一层函数通信，详情请见《<a class="l-navigation"
+                                            href="#then" title="点击阅读相关内容">jQuery.Deferred的then()</a>》小节。
+                            </td>
+                            <td class="leftTd">
+                                内部的实现较为复杂，创建了一个全新的Deferred对象（与<span class="l-codeRemark">Deferred.done()</span>）系列函数完全不同，每一次在同一个Deferred对象上链式调用then()都建立了深层的嵌套，并且通过回调函数的返回值与下一层进行通信。
+                            </td>
                         </tr>
                         <tr>
-                            <td>always(<span class="l-notMarked">function[,function]</span>)</td>
-                            <td>Deferred&Promise</td>
-                            <td class="leftTd">接收两个函数，分别表示<span class="l-bold">成功、失败</span>执行的函数，这才是正统的使用<span class="l-codeRemark">Deferred.done()、Deferred.fail()</span>实现的API。</td>
-                            <td class="leftTd">内部调用<span class="l-codeRemark">Deferred.done()、Deferred.fail()</span>实现</td>
+                            <td>
+                                always(<span class="l-notMarked">function[,function]</span>)
+                            </td>
+                            <td>
+                                Deferred&Promise
+                            </td>
+                            <td class="leftTd">
+                                接收两个函数，分别表示<span class="l-bold">成功、失败</span>执行的函数，这才是正统的使用<span class="l-codeRemark">Deferred.done()、Deferred.fail()</span>实现的API。
+                            </td>
+                            <td class="leftTd">
+                                内部调用<span class="l-codeRemark">Deferred.done()、Deferred.fail()</span>实现
+                            </td>
                         </tr>
                         <tr>
-                            <td>other</td>
-                            <td>Deferred&Promise</td>
-                            <td class="leftTd">还有一些其他的API无关痛痒啊，基本都是在上面的API基础上扩展的，so easy~~~</td>
-                            <td class="leftTd"></td>
+                            <td>
+                                other
+                            </td>
+                            <td>
+                                Deferred&Promise
+                            </td>
+                            <td class="leftTd">
+                                还有一些其他的API无关痛痒啊，基本都是在上面的API基础上扩展的，so easy~~~
+                            </td>
+                            <td class="leftTd">
+                            </td>
                         </tr>
                     </tbody>
                 </table>
                 <p>
-                    从上面的API里可以看见，Promise对象就是切掉小丁丁版本的Deferred，只有<span class="l-codeRemark">回调函数的定义（done/fail/progress）</span>API，没有<span class="l-codeRemark">回调函数的执行（resolve/reject/notify）</span>API。
+                    从上面的API里可以看见，Promise对象就是切掉小丁丁版本的Deferred，只有<span class="l-codeRemark">回调函数的定义（done/fail/progress）</span>API，没有<span
+                        class="l-codeRemark">回调函数的执行（resolve/reject/notify）</span>API。下面有美图一张...
                 </p>
+                <p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_jQuery.Deferred%e7%9a%84API.png" alt="" width="1030" height="375" /></p>
+                <p>基础部分从代码的表现上（API的使用上）是这些：</p>
+                <div class="l-code">
+                    <div class="cnblogs_code" onclick="cnblogs_code_show('524f7c66-a885-4ea1-ab65-a04f2ba53d93')"><img id="code_img_closed_524f7c66-a885-4ea1-ab65-a04f2ba53d93" class="code_img_closed" src="http://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif" alt="" /><img id="code_img_opened_524f7c66-a885-4ea1-ab65-a04f2ba53d93" class="code_img_opened" style="display: none;" onclick="cnblogs_code_hide('524f7c66-a885-4ea1-ab65-a04f2ba53d93',event)" src="http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif" alt="" />
+<div id="cnblogs_code_open_524f7c66-a885-4ea1-ab65-a04f2ba53d93" class="cnblogs_code_hide">
+<pre>(<span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+            </span><span style="color: #008000;">//</span><span style="color: #008000;">Deferred的done/resolve</span>
+            <span style="color: #0000ff;">var</span> deferred =<span style="color: #000000;"> $.Deferred();
+            deferred.done(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (state) {
+                console.log(state); </span><span style="color: #008000;">//</span><span style="color: #008000;">write 1</span>
+<span style="color: #000000;">            });
+            resolve.resolve(</span>1<span style="color: #000000;">);
+        } ());
+        </span>~<span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+            </span><span style="color: #008000;">//</span><span style="color: #008000;">Deferred的fail/reject</span>
+            <span style="color: #0000ff;">var</span> deferred =<span style="color: #000000;"> $.Deferred();
+            deferred.fail(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (state) {
+                console.log(state); </span><span style="color: #008000;">//</span><span style="color: #008000;">write 2</span>
+<span style="color: #000000;">            });
+            resolve.reject(</span>2<span style="color: #000000;">);
+        } ();
+        </span>!<span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+            </span><span style="color: #008000;">//</span><span style="color: #008000;">Deferred的progress/notify</span>
+            <span style="color: #008000;">/*</span><span style="color: #008000;">
+            progress/notify对应的是&ldquo;无状态&rdquo;的状态
+            它表示一个既不表示成功，也不表示失败的状态
+            它每一次的触发（notify）都会执行progress里面的函数
+            和resolve、reject不同，通过progress委托的函数，每次notify都不会被清空
+            它可以反复被执行，用于会话保持
+            </span><span style="color: #008000;">*/</span>
+            <span style="color: #0000ff;">var</span> deferred =<span style="color: #000000;"> $.Deferred();
+            progress.progress(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (state) {
+                console.log(state); </span><span style="color: #008000;">//</span><span style="color: #008000;">write 2</span>
+<span style="color: #000000;">            });
+            setTimeout(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                </span><span style="color: #008000;">//</span><span style="color: #008000;">每隔1s反复执行</span>
+                resolve.notify(2<span style="color: #000000;">);
+            }, </span>1000<span style="color: #000000;">);
+        } ();</span></pre>
+</div>
+<span class="cnblogs_code_collapse">Deferred</span></div>
+                </div>
             </div>
-            <h3 class="l-title"><a name="deferred" href="javascript:void(0);" style="color: white; text-decoration: none;">jQuery.Deferred的实现</a></h3>
+            <h3 class="l-title">
+                <a name="code" href="javascript:void(0);" style="color: white; text-decoration: none;">
+                    jQuery.Deferred的实现</a></h3>
             <div>
-                <p>上面说了一大堆概念啊神马的可能好多人都觉得这他瞄的什么玩意儿，直接给个痛快咱们看代码吧。</p>
-                <p>那就亮好我们的12氪钛金硬化写轮防暴+12透视*2000狗眼：</p>
-                <h3>结构：</h3>
+                <p>
+                    上面说了一大堆概念啊神马的可能好多人都觉得这他瞄的什么玩意儿，直接给个痛快咱们看代码吧。</p>
+                <p>
+                    那就亮好我们的12氪钛金硬化写轮防暴+12透视*2000狗眼：</p>
+                <h3>
+                    结构：</h3>
                 <div class="l-code">
-                    <span style="color: #00ff21">jQuery.Deferred结构代码</span>
+                   <div class="cnblogs_code" onclick="cnblogs_code_show('e8e26c9b-364f-41ce-af07-be65130e5ebb')"><img id="code_img_closed_e8e26c9b-364f-41ce-af07-be65130e5ebb" class="code_img_closed" src="http://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif" alt="" /><img id="code_img_opened_e8e26c9b-364f-41ce-af07-be65130e5ebb" class="code_img_opened" style="display: none;" onclick="cnblogs_code_hide('e8e26c9b-364f-41ce-af07-be65130e5ebb',event)" src="http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif" alt="" />
+<div id="cnblogs_code_open_e8e26c9b-364f-41ce-af07-be65130e5ebb" class="cnblogs_code_hide">
+<pre><span style="color: #008000;">//</span><span style="color: #008000;">jQuery.Deferred结构代码</span>
+<span style="color: #000000;">        jQuery.extend({
+            Deferred: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (func) {
+                </span><span style="color: #0000ff;">var</span> tuples =<span style="color: #000000;"> [
+                    [</span>"resolve", "done", jQuery.Callbacks("once memory"), "resolved"<span style="color: #000000;">],
+                    [</span>"reject", "fail", jQuery.Callbacks("once memory"), "rejected"<span style="color: #000000;">],
+                    [</span>"notify", "progress", jQuery.Callbacks("memory"<span style="color: #000000;">)]
+                ],
+                state </span>= "pending"<span style="color: #000000;">,
+                promise </span>=<span style="color: #000000;"> {
+                    state: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                        </span><span style="color: #0000ff;">return</span><span style="color: #000000;"> state;
+                    },
+                    always: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                        </span><span style="color: #008000;">//</span><span style="color: #008000;">直接调用</span>
+<span style="color: #000000;">                        deferred.done(arguments).fail(arguments);
+                        </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
+                    },
+                    </span><span style="color: #008000;">//</span><span style="color: #008000;">then方法稍后解读</span>
+                    then: <span style="color: #0000ff;">function</span> ( <span style="color: #008000;">/*</span><span style="color: #008000;"> fnDone, fnFail, fnProgress </span><span style="color: #008000;">*/</span><span style="color: #000000;">) { },
+                    promise: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (obj) {
+                        </span><span style="color: #0000ff;">return</span> obj != <span style="color: #0000ff;">null</span> ?<span style="color: #000000;"> jQuery.extend(obj, promise) : promise;
+                    }
+                },
+                deferred </span>=<span style="color: #000000;"> {};
+                </span><span style="color: #008000;">//</span><span style="color: #008000;">过去pipe，现在的then</span>
+                promise.pipe =<span style="color: #000000;"> promise.then;
+                jQuery.each(tuples, </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (i, tuple) {
+                    </span><span style="color: #0000ff;">var</span> list = tuple[2<span style="color: #000000;">],
+                    stateString </span>= tuple[3<span style="color: #000000;">];
+                    promise[tuple[</span>1]] =<span style="color: #000000;"> list.add;
+                    </span><span style="color: #008000;">//</span><span style="color: #008000;">内部先压入三个函数</span>
+                    <span style="color: #0000ff;">if</span><span style="color: #000000;"> (stateString) {
+                        list.add(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                            state </span>=<span style="color: #000000;"> stateString;
+                            </span><span style="color: #008000;">//</span><span style="color: #008000;">把互斥的函数和无状态函数都给禁用掉</span>
+                        }, tuples[i ^ 1][2].disable, tuples[2][2<span style="color: #000000;">].lock);
+                    }
+                    </span><span style="color: #008000;">//</span><span style="color: #008000;">resolve/reject/notify</span>
+                    deferred[tuple[0]] = <span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                        </span><span style="color: #008000;">//</span><span style="color: #008000;">这里的this===deferred为什么做这一层判定没有理解</span>
+                        <span style="color: #008000;">//</span><span style="color: #008000;">这些触发状态的方法只能是deferred拥有，既然是deferred的触发，那么为何又要阉割当前上下文呢？</span>
+                        deferred[tuple[0] + "With"](<span style="color: #0000ff;">this</span> === deferred ? promise : <span style="color: #0000ff;">this</span><span style="color: #000000;">, arguments);
+                        </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
+                    };
+                    </span><span style="color: #008000;">//</span><span style="color: #008000;">resolveWith/rejectWith/notifyWith</span>
+                    deferred[tuple[0] + "With"] =<span style="color: #000000;"> list.fireWith;
+                });
+                </span><span style="color: #008000;">//</span><span style="color: #008000;">promise有参方法是扩展这个参数</span>
+<span style="color: #000000;">                promise.promise(deferred);
+
+                </span><span style="color: #008000;">//</span><span style="color: #008000;">配合then使用的</span>
+                <span style="color: #0000ff;">if</span><span style="color: #000000;"> (func) {
+                    func.call(deferred, deferred);
+                }
+                </span><span style="color: #0000ff;">return</span><span style="color: #000000;"> deferred;
+            }
+        });</span></pre>
+</div>
+<span class="cnblogs_code_collapse">jQuery.Deferred</span></div>
                 </div>
-                <p>对于基础的API实现<span class="l-codeRemark">[ done/fail/progress | resolve/reject/notify]</span>，jQuery把这一部分的代码抽离出来，在后面采用循环一次性动态生成的方式实现。</p>
-                <p>首先实现的promise，前面说了，promise是切掉小丁丁版本的Deferred，所以先实现promise，后面把它的API扩展到Deferred里面即可。</p>
+                <p>
+                    对于基础的API实现<span class="l-codeRemark">[ done/fail/progress | resolve/reject/notify]</span>，jQuery把这一部分的代码抽离出来，在后面采用循环一次性动态生成的方式实现。</p>
+                <p>
                 <div class="l-code">
-                    <span style="color: #00ff21">jQuery.Promise结构代码</span>
+                    <div class="cnblogs_code">
+<pre><span style="color: #0000ff;">var</span> tuples =<span style="color: #000000;"> [
+                    [</span>"resolve", "done", jQuery.Callbacks("once memory"), "resolved"<span style="color: #000000;">],
+                    [</span>"reject", "fail", jQuery.Callbacks("once memory"), "rejected"<span style="color: #000000;">],
+                    [</span>"notify", "progress", jQuery.Callbacks("memory"<span style="color: #000000;">)]
+                ]</span></pre>
+</div>
                 </div>
-                <p>注意这个promise()方法的实现，无参的它把Promise对象的行为扩展到Deferred，后面就直接用这个方法扩展Deferred就可以让Deferred对象拥有promise的API了。</p>
-                <p>在前面准备工作完毕了之后，生成通用的部分，直接循环上面定义的通用数组，直接把<span class="l-codeRemark">Callbacks</span>对象相应的方法引用到API上，因为我们之前<span class="l-codeRemark">Callbacks</span>内部的实现，最终返回的都是this，这里直接引用过去之后，this就代表了<span class="l-codeRemark">Deferred/Promise</span>对象，仍然支持链式回调。</p>
-                <p>在循环中，这里的代码很是心思慎密：</p>
+                    首先实现的promise，前面说了，promise是切掉小丁丁版本的Deferred，所以先实现promise，后面把它的API扩展到Deferred里面即可。</p>
                 <div class="l-code">
-                    <span style="color: #00ff21">jQuery.Promise if (stateString) {代码</span>
+                    <div class="cnblogs_code">
+<pre>promise =<span style="color: #000000;"> {
+                    state: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {},
+                    always: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {},
+                    then: </span><span style="color: #0000ff;">function</span> ( <span style="color: #008000;">/*</span><span style="color: #008000;"> fnDone, fnFail, fnProgress </span><span style="color: #008000;">*/</span><span style="color: #000000;">) { },
+                    promise: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (obj) {
+                        </span><span style="color: #008000;">//</span><span style="color: #008000;">有参的它为了这个参数扩展了promise行为</span>
+                        <span style="color: #0000ff;">return</span> obj != <span style="color: #0000ff;">null</span> ?<span style="color: #000000;"> jQuery.extend(obj, promise) : promise;
+                    }
+                }</span></pre>
+</div>
+                </div>
+                <p>
+                    注意这个promise()方法的实现，无参的它把Promise对象的行为扩展到Deferred，后面就直接用这个方法扩展Deferred就可以让Deferred对象拥有promise的API了。</p>
+                <p>
+                    在前面准备工作完毕了之后，生成通用的部分，直接循环上面定义的通用数组，直接把<span class="l-codeRemark">Callbacks</span>对象相应的方法引用到API上，因为我们之前<span
+                        class="l-codeRemark">Callbacks</span>内部的实现，最终返回的都是this，这里直接引用过去之后，this就代表了<span class="l-codeRemark">Deferred/Promise</span>对象，仍然支持链式回调。</p>
+                <p>
+                    在循环中，这里的代码很是心思慎密：</p>
+                <div class="l-code">
+                    <div class="cnblogs_code">
+<pre>jQuery.each(tuples, <span style="color: #0000ff;">function</span><span style="color: #000000;"> (i, tuple) {
+                    </span><span style="color: #0000ff;">var</span> list = tuple[2<span style="color: #000000;">],
+                    stateString </span>= tuple[3<span style="color: #000000;">];
+                    promise[tuple[</span>1]] =<span style="color: #000000;"> list.add;
+                    </span><span style="color: #008000;">//</span><span style="color: #008000;">内部先压入三个函数</span>
+                    <span style="color: #0000ff;">if</span><span style="color: #000000;"> (stateString) {
+                        list.add(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                            state </span>=<span style="color: #000000;"> stateString;
+                            </span><span style="color: #008000;">//</span><span style="color: #008000;">把互斥的函数和无状态函数都给禁用掉，i^1位运算，跑下控制台就知道了</span>
+                        }, tuples[i ^ 1][2].disable, tuples[2][2<span style="color: #000000;">].lock);
+                    }
+                    </span><span style="color: #008000;">//</span><span style="color: #008000;">resolve/reject/notify</span>
+                    deferred[tuple[0]] = <span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                        </span><span style="color: #008000;">//</span><span style="color: #008000;">这里的this===deferred为什么做这一层判定没有理解</span>
+                        <span style="color: #008000;">//</span><span style="color: #008000;">这些触发状态的方法只能是deferred拥有，既然是deferred的触发，那么为何又要阉割当前上下文呢？</span>
+                        deferred[tuple[0] + "With"](<span style="color: #0000ff;">this</span> === deferred ? promise : <span style="color: #0000ff;">this</span><span style="color: #000000;">, arguments);
+                        </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
+                    };
+                    </span><span style="color: #008000;">//</span><span style="color: #008000;">resolveWith/rejectWith/notifyWith</span>
+                    deferred[tuple[0] + "With"] =<span style="color: #000000;"> list.fireWith;
+                });</span></pre>
+</div>
                 </div>
                 <p>
                     <span class="l-codeRemark">stateString</span>取值范围（上面数组的定义中）有三个：<span class="l-bold">"resolved"、"rejected"、undefined</span>。
@@ -202,35 +489,125 @@
                 <p>
                     所以进入这个判定之后，<span class="l-codeRemark">变量i</span>的值只可能是<span class="l-bold">0||1</span>。
                 </p>
-                <p>然后给<span class="l-codeRemark">Callbacks</span>中压入三个响应的回调函数，分别执行了<span class="l-bold">修改状态字符串、将互斥的函数设置为不可用、锁定无状态的函数</span>，后两个直接引用了<span class="l-codeRemark">Callbacks</span>的方法。这里：通过位运算符得到互斥的索引，然后根据索引访问上面数组里对应的<span class="l-codeRemark">Callbacks</span>，直接禁用和锁定。</p>
-                <p>后面的代码，木有了！！！！你木有看错，是真的木有了！！！有这么一点点啊！真的就这么一点点代码！！！有木有感觉so easy？随手就写了一个Deferred有木有啊？！</p>
-                <p>小伙鸡，还有一个大块头呢，不要忽略这个API——<span class="l-codeRemark">Deferred.then()</span>！</p>
+                <p>
+                    然后给<span class="l-codeRemark">Callbacks</span>中压入三个响应的回调函数，分别执行了<span class="l-bold">修改状态字符串、将互斥的函数设置为不可用、锁定无状态的函数</span>，后两个直接引用了<span
+                        class="l-codeRemark">Callbacks</span>的方法。这里：通过位运算符得到互斥的索引，然后根据索引访问上面数组里对应的<span class="l-codeRemark">Callbacks</span>，直接禁用和锁定。</p>
+                    <p>也就是说，Deferred默认为每个状态压入了三个函数，当我们使用done/fail/progress的时候，是在这三个函数之后执行的，当首次执行触发状态函数（resolve/reject/notify），先执行了这三个函数，再来美图一张，演示了Deferred整个内部模型：</p>
+                    <p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_jQuery.Deferred%e6%a8%a1%e5%9e%8b.png" alt="" width="1042" height="844" /></p>
+                <p>
+                    后面的代码，木有了！！！！你木有看错，是真的木有了！！！有这么一点点啊！真的就这么一点点代码！！！有木有感觉so easy？随手就写了一个Deferred有木有啊？！</p>
+                <p>
+                    小伙鸡，还有一个大块头呢，不要忽略这个API——<span class="l-codeRemark">Deferred.then()</span>！</p>
             </div>
-            <h3 class="l-title"><a name="then" href="javascript:void(0);" style="color: white; text-decoration: none;">jQuery.Deferred的then()</a></h3>
+            <h3 class="l-title">
+                <a name="then" href="javascript:void(0);" style="color: white; text-decoration: none;">
+                    jQuery.Deferred的then()</a></h3>
             <div>
-                <p>这个<span class="l-codeRemark">then()</span>啊，很是巧妙，读起来就简直就是各种痛经啊。我们先再来详细缕一缕<span class="l-codeRemark">then()</span>的定义。</p>
+                <p>
+                    这个<span class="l-codeRemark">then()</span>啊，很是巧妙，读起来就简直就是各种痛经啊。我们先再来详细撸一发<span class="l-codeRemark">then()</span>的定义。</p>
                 <div>
-                    <h3 style="border-bottom: 1px dashed #666; line-height: 40px;">then的定义：</h3>
+                    <h3 style="border-bottom: 1px dashed #666; line-height: 40px;">
+                        then的定义：</h3>
                     <p>
-                        <span class="l-codeRemark">Promise和Deferred</span>共同拥有API——<span class="l-codeRemark">then()</span>：上面的源码里可以看见，Deferred里面本质上是三个<span class="l-codeRemark">Callbacks</span>在工作，，分别存放着不同状态下都要执行的函数列表，看过别人的解释：如果我们添加一个成功状态下要执行的函数，那么大家可能想着调用<span class="l-codeRemark">Deferred.done()</span>。而then()呢，提供了一个便捷的API，then()接收三个参数，分别表示：<span class="l-codeRemark">成功状态下执行的函数</span>，<span class="l-codeRemark">失败状态下执行的函数</span>，<span class="l-codeRemark">每次触发状态下</span>执行的函数——其实意思上就是把<span class="l-codeRemark">done/fail/progress</span>合并到了一个API。
+                        <span class="l-codeRemark">Promise和Deferred</span>共同拥有API——<span class="l-codeRemark">then()</span>：上面的源码里可以看见，Deferred里面本质上是三个<span
+                            class="l-codeRemark">Callbacks</span>在工作，，分别存放着不同状态下都要执行的函数列表，看过别人的解释：如果我们添加一个成功状态下要执行的函数，那么大家可能想着调用<span
+                                class="l-codeRemark">Deferred.done()</span>。而then()呢，提供了一个便捷的API，then()接收三个参数，分别表示：<span
+                                    class="l-codeRemark">成功状态下执行的函数</span>，<span class="l-codeRemark">失败状态下执行的函数</span>，<span
+                                        class="l-codeRemark">每次触发状态下</span>执行的函数——其实意思上就是把<span class="l-codeRemark">done/fail/progress</span>合并到了一个API。
                     </p>
-                    <p>嗯，这是在jQuery.1.8以前then()的实现，在jQuery.1.8以前，then()只是一个普通的实现，1.7.2中它的实现：</p>
+                    <p>
+                        嗯，这是在jQuery.1.8以前then()的实现，在jQuery.1.8以前，then()只是一个普通的实现，1.7.2中它的实现：</p>
                     <div class="l-code">
-                        <span style="color: #00ff21">jQuery.1.7.2中Deferred的结构代码</span>
+                        <div class="cnblogs_code">
+<pre> then: <span style="color: #0000ff;">function</span><span style="color: #000000;"> (doneCallbacks, failCallbacks, progressCallbacks) {
+                deferred.done(doneCallbacks).fail(failCallbacks).progress(progressCallbacks);
+                </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
+            }</span></pre>
+</div>
                     </div>
-                    <p>可以看见只是就是直接调用了Call自己的API啊，真真正正的提供了便捷的API入口。在jQuery.1.8以前，有一个API<span class="l-codeRemark">Deferred.pipe()</span>：这API的作用是：提供一个类似<span class="l-codeRemark">always()</span>的API，也就是三个参数，分别表示<span class="l-bold">done、fail、progress</span>状态的函数，也就是把这个三个API合并到一起了，<span class="l-bold">同时，这些函数都可以沟通</span>。</p>
-                    <p>jQuery.1.8以后，<span class="l-codeRemark">Deferred.pipe()</span>过时，取代它的API就是<span class="l-codeRemark">Deferred.then()</span>。</p>
-                    <p><span class="l-bold">什么叫做这些函数可以沟通？</span>看如下代码（Deferred.then）：</p>
+                    <p>
+                        可以看见只是就是直接调用了Call自己的API啊，真真正正的提供了便捷的API入口。我们还是撸一下then的前世吧，在jQuery.1.8以前，有一个API<span class="l-codeRemark">Deferred.pipe()</span>：这API的作用是：提供一个类似<span
+                            class="l-codeRemark">always()</span>的API，也就是三个参数，分别表示<span class="l-bold">done、fail、progress</span>状态的函数，也就是把这个三个API合并到一起了，<span
+                                class="l-bold">同时，这些函数都可以沟通</span>。</p>
+                    <p>
+                        jQuery.1.8以后，<span class="l-codeRemark">Deferred.pipe()</span>过时，取代它的API就是<span class="l-codeRemark">Deferred.then()</span>。</p>
+                    <p>
+                        <span class="l-bold">什么叫做这些函数可以沟通？</span>看如下代码（Deferred.then）：</p>
+                        <div class="l-code">
+                        <div class="cnblogs_code" onclick="cnblogs_code_show('95d6e4ad-2dd3-4c2a-90d8-fd032f101c61')"><img id="code_img_closed_95d6e4ad-2dd3-4c2a-90d8-fd032f101c61" class="code_img_closed" src="http://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif" alt="" /><img id="code_img_opened_95d6e4ad-2dd3-4c2a-90d8-fd032f101c61" class="code_img_opened" style="display: none;" onclick="cnblogs_code_hide('95d6e4ad-2dd3-4c2a-90d8-fd032f101c61',event)" src="http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif" alt="" />
+<div id="cnblogs_code_open_95d6e4ad-2dd3-4c2a-90d8-fd032f101c61" class="cnblogs_code_hide">
+<pre><span style="color: #008000;">//</span><span style="color: #008000;">普通的应用</span>
+        !(<span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+            </span><span style="color: #0000ff;">var</span> deferred =<span style="color: #000000;"> $.Deferred();
+            deferred.done(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (value) {
+                </span><span style="color: #0000ff;">return</span> value * 10<span style="color: #000000;">;
+            })
+                .done(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (value) {
+                    console.log(value);
+                });
+            deferred.resolve(</span>1); <span style="color: #008000;">//</span><span style="color: #008000;">result ---- 1</span>
+<span style="color: #000000;">        })();
 
-                    <p>通过then()添加的函数，同一状态下，上一个函数的返回值可以传递到下一层，这就是<span class="l-codeRemark">then/pipe</span>的实现。</p>
+        </span><span style="color: #008000;">//</span><span style="color: #008000;">then的应用</span>
+        !(<span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+            </span><span style="color: #0000ff;">var</span> deferred =<span style="color: #000000;"> $.Deferred();
+            deferred.then(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (value) {
+                </span><span style="color: #0000ff;">return</span> value * 10<span style="color: #000000;">;
+            }).then(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (value) {
+                console.log(value);
+            });
+            deferred.resolve(</span>1); <span style="color: #008000;">//</span><span style="color: #008000;">result ---- 10</span>
+        })();</pre>
+</div>
+<span class="cnblogs_code_collapse">Deferred.then</span></div>
+</div>
+                    <p>
+                        通过then()添加的函数，同一状态下，上一个函数的返回值可以传递到下一层，这就是<span class="l-codeRemark">then/pipe</span>的实现。</p>
                 </div>
                 <div>
-                    <h3 style="border-bottom: 1px dashed #666; line-height: 40px;">Deferred.then：</h3>
+                    <h3 style="border-bottom: 1px dashed #666; line-height: 40px;">
+                        Deferred.then：</h3>
                     <div class="l-code">
-                        <span style="color: #00ff21;">jQuery.Deferred的then的代码</span>
+                      <div class="cnblogs_code" onclick="cnblogs_code_show('e34b56f3-5b18-49fc-a310-9f8c017fd291')"><img id="code_img_closed_e34b56f3-5b18-49fc-a310-9f8c017fd291" class="code_img_closed" src="http://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif" alt="" /><img id="code_img_opened_e34b56f3-5b18-49fc-a310-9f8c017fd291" class="code_img_opened" style="display: none;" onclick="cnblogs_code_hide('e34b56f3-5b18-49fc-a310-9f8c017fd291',event)" src="http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif" alt="" />
+<div id="cnblogs_code_open_e34b56f3-5b18-49fc-a310-9f8c017fd291" class="cnblogs_code_hide">
+<pre>then: <span style="color: #0000ff;">function</span> ( <span style="color: #008000;">/*</span><span style="color: #008000;"> fnDone, fnFail, fnProgress </span><span style="color: #008000;">*/</span><span style="color: #000000;">) {
+                    </span><span style="color: #008000;">//</span><span style="color: #008000;">保存参数</span>
+                    <span style="color: #0000ff;">var</span> fns =<span style="color: #000000;"> arguments;
+                    </span><span style="color: #008000;">//</span><span style="color: #008000;">注意这里的Deferred，Deferred参数如果是一个函数，那么会直接执行这个函数，参数就是闭包里的deferred对象！！</span>
+                    <span style="color: #0000ff;">return</span> jQuery.Deferred(<span style="color: #0000ff;">function</span><span style="color: #000000;"> (newDefer) {
+                        jQuery.each(tuples, </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (i, tuple) {
+                            </span><span style="color: #0000ff;">var</span> fn = jQuery.isFunction(fns[i]) &amp;&amp;<span style="color: #000000;"> fns[i];
+                            </span><span style="color: #008000;">//</span><span style="color: #008000;"> deferred[ done | fail | progress ] for forwarding actions to newDefer</span>
+                            <span style="color: #008000;">//</span><span style="color: #008000;">注意这里已经把then()里面的函数封装到了上一层deferred对象中</span>
+                            deferred[tuple[1]](<span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+                                </span><span style="color: #0000ff;">var</span> returned = fn &amp;&amp; fn.apply(<span style="color: #0000ff;">this</span><span style="color: #000000;">, arguments);
+                                </span><span style="color: #0000ff;">if</span> (returned &amp;&amp;<span style="color: #000000;"> jQuery.isFunction(returned.promise)) {
+                                    </span><span style="color: #008000;">//</span><span style="color: #008000;">这一层判定的判定扩展了函数返回的Promise/Deferred对象，这里应该是给jQuery.when()方法使用的</span>
+<span style="color: #000000;">                                    returned.promise()
+                                        .done(newDefer.resolve)
+                                        .fail(newDefer.reject)
+                                        .progress(newDefer.notify);
+                                    </span><span style="color: #008000;">//</span><span style="color: #008000;">其实这里的扩展，应该只是纯粹的对具有promise/A的扩展，只是留了这个功能，什么时候执行，并不是jQuery.Deferred关心的事情</span>
+                                } <span style="color: #0000ff;">else</span><span style="color: #000000;"> {
+                                    </span><span style="color: #008000;">//</span><span style="color: #008000;">这是then方法的本质，使用then()返回的promise对象依赖于newDefer对象</span>
+                                    <span style="color: #008000;">//</span><span style="color: #008000;">then方法中，这里把上一层的返回值传递到下一层</span>
+                                    <span style="color: #008000;">//</span><span style="color: #008000;">而现在的环境只能被最顶层的Deferred触发</span>
+                                    <span style="color: #008000;">//</span><span style="color: #008000;">在触发顶层的Deferred中，触发then()中的Deferred</span>
+                                    <span style="color: #008000;">//</span><span style="color: #008000;">这里的判定，为什么要做这一层对象的封装呢？</span>
+                                    newDefer[tuple[0] + "With"](<span style="color: #0000ff;">this</span> === promise ? newDefer.promise() : <span style="color: #0000ff;">this</span>, fn ?<span style="color: #000000;"> [returned] : arguments);
+                                }
+                            });
+                        });
+                        </span><span style="color: #008000;">//</span><span style="color: #008000;">这里可以放心释放fns，在上面的each中，已经单独创建了对应了变量</span>
+                        fns = <span style="color: #0000ff;">null</span><span style="color: #000000;">;
+                    }).promise();
+                }</span></pre>
+</div>
+<span class="cnblogs_code_collapse">Deferred.then</span></div>
                     </div>
                     <div class="l-txtBlock">
-                        <p class="l-bold" style="border-bottom: 1px dotted #808080; padding-bottom: 10px;">实现上比较饶，做了这些事情：</p>
+                        <p class="l-bold" style="border-bottom: 1px dotted #808080; padding-bottom: 10px;">
+                            实现上比较饶，做了这些事情：</p>
                         <ul style="list-style: none;">
                             <li>1、创建了一个新的Deferred对象，Deferred对象构造函数里，如果传入一个函数作为参数，那么这个函数就会立即执行，这个函数的参数和上下文，就是新创建的Deferred对象。</li>
                             <li>2、因为then的API承接done/fail/progress这些函数，所以循环上面定义的那个公共部分的数组，一次循环三个函数一并处理了。</li>
@@ -241,58 +618,125 @@
                         </ul>
                     </div>
                     <div class="l-txtBlock">
-                        <p class="l-bold" style="border-bottom: 1px dotted #808080; padding-bottom: 10px;">这里的代码如下几点需要注意：</p>
-                        <p><span class="l-bold">作用域</span>：<span class="l-bold">newDefer</span>是then中新创建的Deferred对象，then最终返回的是这个对象的Promise，而在这个<span class="l-bold">newDefer</span>中通过<span class="l-bold">done/fail/progress</span>压入的函数，都是压在上一层Deferred中，也就是变量<span class="l-bold">deferred</span>。</p>
-                        <p><span class="l-bold">执行链</span>：then中，一开始有参数<span class="l-bold">newDefer</span>的大匿名函数，是在新的Deferred对象里执行的，而在这里面，又通过上一层的变量<span class="l-bold">deferred</span>对应的<span class="l-bold">done/fail/progress</span>添加的匿名函数，在添加的匿名函数里，又调用了<span class="l-bold">newDefer</span>对应的<span class="l-bold">resolve/reject/notify</span>——即<span class="l-bold">上一层驱动了下一层的执行</span>，读透它需要多一点思考。</p>
+                        <p class="l-bold" style="border-bottom: 1px dotted #808080; padding-bottom: 10px;">
+                            这里的代码如下几点需要注意：</p>
+                        <p>
+                            <span class="l-bold">作用域</span>：<span class="l-bold">newDefer</span>是then中新创建的Deferred对象，then最终返回的是这个对象的Promise，而在这个<span
+                                class="l-bold">newDefer</span>中通过<span class="l-bold">done/fail/progress</span>压入的函数，都是压在上一层Deferred中，也就是变量<span
+                                    class="l-bold">deferred</span>。</p>
+                        <p>
+                            <span class="l-bold">执行链</span>：then中，一开始有参数<span class="l-bold">newDefer</span>的大匿名函数，是在新的Deferred对象里执行的，而在这里面，又通过上一层的变量<span
+                                class="l-bold">deferred</span>对应的<span class="l-bold">done/fail/progress</span>添加的匿名函数，在添加的匿名函数里，又调用了<span
+                                    class="l-bold">newDefer</span>对应的<span class="l-bold">resolve/reject/notify</span>——即<span
+                                        class="l-bold">上一层驱动了下一层的执行</span>，读透它需要多一点思考。</p>
                     </div>
-                    <p class="l-bold">手贱画了张图，美图一张：</p>
-                    <div>
-                        <span style="color: red">插入图片</span>
-                    </div>
+                    <p class="l-bold">
+                        手贱又画了张图，美图一张：</p>
+                    <p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_jQuery.Deferred.then.png" alt="" width="1030" height="375" /></p>
                 </div>
                 <div>
-                    <h3 style="border-bottom: 1px dashed #666; line-height: 40px;">思考：</h3>
-                    <p class="l-bold">代码的阅读：</p>
-                    <p>我读代码的时候先读的Deferred的基础部分，最后单独读then()的，基础部分通俗易懂，公共的数组和现有API的利用非常巧妙。代码上，个人觉得我读的版本<span class="l-codeRemark">jQuery.1.11.1</span>代码整理的非常精致，但是阅读起来略感晦涩，读完了之后个人也读了<span class="l-codeRemark">jQuery.1.7.2</span>（以前一直用1.7.2的），觉得后者的代码整理上不如前者，但是相比前者<span class="l-bold">阅读上</span>更加的通俗易懂和简单明了。</p>
-                    <p class="l-bold">then：</p>
+                    <h3 style="border-bottom: 1px dashed #666; line-height: 40px;">
+                        思考：</h3>
+                    <p class="l-bold">
+                        代码的阅读：</p>
+                    <p>
+                        我读代码的时候先读的Deferred的基础部分，最后单独读then()的，基础部分通俗易懂，公共的数组和现有API的利用非常巧妙。代码上，个人觉得我读的版本<span
+                            class="l-codeRemark">jQuery.1.11.1</span>代码整理的非常精致，但是阅读起来略感晦涩，读完了之后个人也读了<span class="l-codeRemark">jQuery.1.7.2</span>（以前一直用1.7.2的），觉得后者的代码整理上不如前者，但是相比前者<span
+                                class="l-bold">阅读上</span>更加的通俗易懂和简单明了。</p>
+                    <p class="l-bold">
+                        then：</p>
                     <p>
                         then是实现很是精髓，尤其要理解每一段代码会产生的作用，jQuery在then里面有这么一段代码：
                     </p>
                     <div class="l-code">
-                        <span style="color: #00ff21">jQuery.Deferred的isFunction这里的判定</span>
+                    <div class="cnblogs_code">
+<pre><span style="color: #0000ff;">if</span> (returned &amp;&amp;<span style="color: #000000;"> jQuery.isFunction(returned.promise)) {
+         returned.promise()
+                           .done(newDefer.resolve)
+                           .fail(newDefer.reject)
+                           .progress(newDefer.notify);
+ }</span></pre>
+</div>
+<p>&nbsp;</p>
                     </div>
                     <p>
                         这里的代码琢磨了好久为什么，会发生什么，各种代码模拟尝试，后来想了下这他瞄的就是提供了这么一个功能而已，木有其他，是自己他瞄的想多了卧槽...说多了都是泪。
                     </p>
+                      <p class="l-bold">
+                        then的职责：</p>
                     <p>
                         为了让函数的可以沟通，实现了then，而then一直用jQuery.Deferred创建新的实例，这么做主要的作用是每个不同的Deferred.then()他们的沟通是被隔离的，如下代码：
                     </p>
                     <div class="l-code">
-                        <span style="color: #00ff21">jQuery.Deferred.then中每个then隔离了作用域</span>
+<div class="cnblogs_code" onclick="cnblogs_code_show('60d0cbcb-5f84-4951-b871-e08c0961d573')"><img id="code_img_closed_60d0cbcb-5f84-4951-b871-e08c0961d573" class="code_img_closed" src="http://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif" alt="" /><img id="code_img_opened_60d0cbcb-5f84-4951-b871-e08c0961d573" class="code_img_opened" style="display: none;" onclick="cnblogs_code_hide('60d0cbcb-5f84-4951-b871-e08c0961d573',event)" src="http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif" alt="" />
+<div id="cnblogs_code_open_60d0cbcb-5f84-4951-b871-e08c0961d573" class="cnblogs_code_hide">
+<pre>!<span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+       </span><span style="color: #008000;">//</span><span style="color: #008000;">then中上下文被隔离</span>
+       <span style="color: #0000ff;">var</span> deferred =<span style="color: #000000;"> $.Deferred();
+       deferred.then(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (value) {
+            </span><span style="color: #0000ff;">return</span> value * 10<span style="color: #000000;">;
+       });
+       </span><span style="color: #008000;">//</span><span style="color: #008000;">then创建了新的Deferred</span>
+       deferred.then(<span style="color: #0000ff;">function</span><span style="color: #000000;"> (value) {
+            console.log(value);</span><span style="color: #008000;">//</span><span style="color: #008000;">还是1，他们的上下文被隔离了</span>
+<span style="color: #000000;">       });
+       deferred.resolve(</span>1<span style="color: #000000;">);
+    } ();
+    </span>!<span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
+        </span><span style="color: #008000;">//</span><span style="color: #008000;">then中使用不被隔离的上下文</span>
+        <span style="color: #0000ff;">var</span> deferred =<span style="color: #000000;"> $.Deferred();
+        deferred.then(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (value) {
+             </span><span style="color: #0000ff;">return</span> value * 10<span style="color: #000000;">;
+        }).then(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (value) {
+            </span><span style="color: #008000;">//</span><span style="color: #008000;">在上一个then的返回值上调用，所以上下文没有被隔离</span>
+            console.log(value);<span style="color: #008000;">//</span><span style="color: #008000;">10</span>
+<span style="color: #000000;">        });
+        deferred.resolve(</span>1<span style="color: #000000;">);
+    } ();</span></pre>
+</div>
+<span class="cnblogs_code_collapse">Deferred.then</span></div>
                     </div>
-                    <p>如上代码所示，每个不同的then都被隔离了：<span class="l-codeRemark">Deferred.then</span>和<span class="l-codeRemark">done/fail/progress</span>之间不同的地方就是让每个相同状态的函数都可以沟通（通过返回值），而每个<span class="l-codeRemark">Deferred.then</span>(每次独立调用Deferred.then)之间的不同则是代码的作用域被隔离。</p>
-                    <p>我思考过then的重构：尝试着把<span class="l-bold">每个函数都可以沟通</span>这个概念直接应用在done/fail/progress上面，这样就不用在then中一直创建新的Deferred对象，但是这么做就让done/fail/progress承载了太多，每次对函数执行后的返回值做判定，这根本就是不靠谱的做法，并且失去了上面所说的<span class="l-bold">隔离沟通</span>，看起来好像Deferred更加的平滑了，其实这样会让Deferred应用条件变得更加苛刻。反观jQuery.Deferred，每一个API做的不多，但是足够细腻与精准，只能说我还是图样图森破啊...</p>
-                    <p>每个函数都有自己的职责，不要让它承载的太多，太的职责决定了这个函数会越发的不可控。我想，这或许也是<span class="l-codeRemark">jQuery.then</span>单独实现的一个理由吧。</p>
-                    <p class="l-bold">类，往往因为承载的太多而变得臃肿不堪。</p>
-                    <p>最后，我手抄了一份jQuery.Deferred的代码，可以单独运行，并加入了注释。</p>
-                    <h3>如果你觉得这篇文章不错的话，点一下右下角的<span style="color: red">推荐</span>吧。举手之劳，却鼓舞人心，何乐而不为呢？</h3>
+                    <p>
+                        如上代码所示，每个不同的then都被隔离了：<span class="l-codeRemark">Deferred.then</span>和<span class="l-codeRemark">done/fail/progress</span>之间不同的地方就是让每个相同状态的函数都可以沟通（通过返回值），而每个<span
+                            class="l-codeRemark">Deferred.then</span>(每次独立调用Deferred.then)之间的不同则会让作用域被隔离。</p>
+                    <p>
+                        我思考过then的重构：尝试着把<span class="l-bold">每个函数都可以沟通</span>这个概念直接应用在done/fail/progress上面，这样就不用在then中一直创建新的Deferred对象，但是这么做就让done/fail/progress承载了太多，每次对函数执行后的返回值做判定，这根本就是不靠谱的做法，并且失去了上面所说的<span
+                            class="l-bold">隔离沟通</span>，看起来好像Deferred更加的平滑了，其实这样会让Deferred应用条件变得更加苛刻。反观jQuery.Deferred，每一个API做的不多，但是足够细腻与精准，只能说我还是图样图森破啊...</p>
+                    <p>
+                        每个函数都有自己的职责，不要让它承载的太多，太的职责决定了这个函数会越发的不可控。我想，这或许也是<span class="l-codeRemark">jQuery.then</span>单独实现的一个理由吧。</p>
+                    <p class="l-bold">
+                        类，往往因为承载的太多而变得臃肿不堪。</p>
+                    <p>
+                        最后，我手抄了一份jQuery.Deferred的代码，可以单独运行，并加入了注释。</p>
+                    <h3>
+                        如果你觉得这篇文章不错的话，点一下右下角的<span style="color: red">推荐</span>吧。举手之劳，却鼓舞人心，何乐而不为呢？</h3>
                 </div>
             </div>
-            <h3 class="l-title"><a name="download" href="javascript:void(0);" style="color: white; text-decoration: none;">下载</a></h3>
+            <h3 class="l-title">
+                <a name="download" href="javascript:void(0);" style="color: white; text-decoration: none;">
+                    相关</a></h3>
             <div class="l-author">
                 <ul style="list-style: none; padding: 0; font-size: 15px;">
-                    <li>Github：<a target="_blank" href="https://github.com/linkFly6/linkfly.so/blob/master/Deferred.js" style="color: #259ec7;">https://github.com/linkFly6/linkfly.so/blob/master/Deferred.js</a></li>
+                    <li>手抄注释源码 - Github：<a target="_blank" href="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/jQuery/jQuery.LinkFLy/Deferred.js"
+                        style="color: #259ec7;">https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/jQuery/jQuery.LinkFLy/Deferred.js</a></li>
+                        <li>参考文章：<a target="_blank" href="http://www.ruanyifeng.com/blog/2011/08/a_detailed_explanation_of_jquery_deferred_object.html"
+                        style="color: #259ec7;">阮一峰 - jQuery的deferred对象详解</a></li>
+                        <li>参考文章：<a target="_blank" href="http://www.cnblogs.com/snandy/archive/2012/12/19/2812935.html"
+                        style="color: #259ec7;">Snandy - 读jQuery之十九（多用途回调函数列表对象）</a></li>
                 </ul>
             </div>
             <div class="l-author">
-                <div>作者：linkFly</div>
-                <div>原文：<a href="http://www.cnblogs.com/silin6/p/Deferred.html" style="color: #259ec7;">http://www.cnblogs.com/silin6/p/Deferred.html</a></div>
-                <div>出处：<a href="http://www.cnblogs.com/silin6/" style="color: #259ec7;">www.cnblogs.com/silin6/</a></div>
-                <div>声明：嘿！你都拷走上面那么一大段了，我觉得你应该也不介意顺便拷走这一小段，希望你能够在每一次的引用中都保留这一段声明，尊重作者的辛勤劳动成果，本文与博客园共享。</div>
+                <div>
+                    作者：linkFly</div>
+                <div>
+                    原文：<a href="http://www.cnblogs.com/silin6/p/Deferred.html" style="color: #259ec7;">http://www.cnblogs.com/silin6/p/Deferred.html</a></div>
+                <div>
+                    出处：<a href="http://www.cnblogs.com/silin6/" style="color: #259ec7;">www.cnblogs.com/silin6/</a></div>
+                <div>
+                    声明：嘿！你都拷走上面那么一大段了，我觉得你应该也不介意顺便拷走这一小段，希望你能够在每一次的引用中都保留这一段声明，尊重作者的辛勤劳动成果，本文与博客园共享。</div>
             </div>
         </div>
     </div>
-
     <script type="text/javascript">
         window.onload = function () {
             //定义一个成功状态下运行的函数
@@ -321,7 +765,43 @@
             //将Deferred的代码和上面对比一下，思考下Deferred改变了什么？
         }
     </script>
-
+    <script type="text/javascript">
+        (function () {
+            //Deferred的done/resolve
+            var deferred = $.Deferred();
+            deferred.done(function (state) {
+                console.log(state); //write 1
+            });
+            resolve.resolve(1);
+        } ());
+        ~function () {
+            //Deferred的fail/reject
+            var deferred = $.Deferred();
+            deferred.fail(function (state) {
+                console.log(state); //write 2
+            });
+            resolve.reject(2);
+        } ();
+        !function () {
+            //Deferred的progress/notify
+            /*
+            progress/notify对应的是“无状态”的状态
+            它表示一个既不表示成功，也不表示失败的状态
+            它每一次的触发（notify）都会执行progress里面的函数
+            和resolve、reject不同，通过progress委托的函数，每次notify都不会被清空
+            它可以反复被执行，用于会话保持
+            */
+            var deferred = $.Deferred();
+            progress.progress(function (state) {
+                console.log(state); //write 2
+            });
+            setTimeout(function () {
+                //每隔1s反复执行
+                resolve.notify(2);
+            }, 1000);
+        } ();
+      
+    </script>
     <script>
         //jQuery.Deferred结构代码
         jQuery.extend({
@@ -343,56 +823,46 @@
                     },
                     //then方法稍后解读
                     then: function ( /* fnDone, fnFail, fnProgress */) { },
-                    // Get a promise for this deferred
-                    // If obj is provided, the promise aspect is added to the object
                     promise: function (obj) {
+                        //有参的它为了这个参数扩展了promise行为
                         return obj != null ? jQuery.extend(obj, promise) : promise;
                     }
                 },
                 deferred = {};
-
-                // Keep pipe for back-compat
+                //过去pipe，现在的then
                 promise.pipe = promise.then;
-
-                // Add list-specific methods
                 jQuery.each(tuples, function (i, tuple) {
                     var list = tuple[2],
                     stateString = tuple[3];
                     promise[tuple[1]] = list.add;
-                    // Handle state
+                    //内部先压入三个函数
                     if (stateString) {
                         list.add(function () {
-                            // state = [ resolved | rejected ]
                             state = stateString;
-
-                            // [ reject_list | resolve_list ].disable; progress_list.lock
-                            //这个位运算，在控制台跑一下就知道了
+                            //把互斥的函数和无状态函数都给禁用掉
                         }, tuples[i ^ 1][2].disable, tuples[2][2].lock);
                     }
-
-                    // deferred[ resolve | reject | notify ]
+                    //resolve/reject/notify
                     deferred[tuple[0]] = function () {
-                        //妈蛋上下文在这里指定了！！！！
+                        //这里的this===deferred为什么做这一层判定没有理解
+                        //这些触发状态的方法只能是deferred拥有，既然是deferred的触发，那么为何又要阉割当前上下文呢？
                         deferred[tuple[0] + "With"](this === deferred ? promise : this, arguments);
                         return this;
                     };
+                    //resolveWith/rejectWith/notifyWith
                     deferred[tuple[0] + "With"] = list.fireWith;
                 });
-
-                // Make the deferred a promise
+                //promise有参方法是扩展这个参数
                 promise.promise(deferred);
 
-                // Call given func if any
+                //配合then使用的
                 if (func) {
                     func.call(deferred, deferred);
                 }
-
-                // All done!
                 return deferred;
             }
         });
     </script>
-
     <script type="text/javascript">
         //1.8以前 Deferred.then的代码
         var then = {
@@ -402,7 +872,6 @@
             }
         }
     </script>
-
     <script type="text/javascript">
         //普通的应用
         !(function () {
@@ -413,7 +882,7 @@
                 .done(function (value) {
                     console.log(value);
                 });
-            deferred.resolve(1);//result ---- 1
+            deferred.resolve(1); //result ---- 1
         })();
 
         //then的应用
@@ -424,8 +893,33 @@
             }).then(function (value) {
                 console.log(value);
             });
-            deferred.resolve(1);//result ---- 10
+            deferred.resolve(1); //result ---- 10
         })();
+    </script>
+    <script type="text/javascript">
+        !function () {
+            //then中上下文被隔离
+            var deferred = $.Deferred();
+            deferred.then(function (value) {
+                return value * 10;
+            });
+            //then创建了新的Deferred
+            deferred.then(function (value) {
+                console.log(value);//还是1，他们的上下文被隔离了
+            });
+            deferred.resolve(1);
+        } ();
+        !function () {
+            //then中使用不被隔离的上下文
+            var deferred = $.Deferred();
+            deferred.then(function (value) {
+                return value * 10;
+            }).then(function (value) {
+                //在上一个then的返回值上调用，所以上下文没有被隔离
+                console.log(value);//10
+            });
+            deferred.resolve(1);
+        } ();
     </script>
 </body>
 </html>
