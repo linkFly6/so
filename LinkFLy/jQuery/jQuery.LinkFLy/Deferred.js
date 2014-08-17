@@ -21,7 +21,7 @@
                 i = 0,
                 item;
             for (; i < length; i++) {
-                fn.call(window, list[i]);
+                fn.call(window, i, list[i]);
             }
         },
         extend = function () {
@@ -36,7 +36,6 @@
             }
             return target;
         },
-        deferred = {},
         Deferred = function (fn) {
             //因为Deferred和promise很多地方的通用的
             //于是抽出这些通用部分，然后一起生成
@@ -48,6 +47,7 @@
 				["notify", "progress", $.Callbacks({ auto: true })]
             ],
             state = 'pending',
+            deferred = {},//之前把这玩意儿写到外面去了（最顶层的那个var那里），卧槽....结果就是后面的对象把前面覆盖了卧槽...
             promise = {
                 state: function () {
                     return state;
@@ -56,7 +56,7 @@
                     //这是有意思的接口
                     //无参的它返回promise自身
                     //有参的它将为这个参数追加上promise行为
-                    return obj == null ? extend(obj, promise) : promise;
+                    return obj != null ? extend(obj, promise) : promise;
                 },
                 always: function (fn) {
                     deferred.done(fn).fail(fn);
@@ -84,11 +84,11 @@
 
                                 //jQuery里判定this === promise ? newDefer.promise() : this
                                 //这里的判定是什么意思呢？？
-                                newDeferred[item[0] + 'with'](this, fn ? [value] : arguments);
+                                newDeferred[item[0] + 'With'](this, fn ? [value] : arguments);
                                 //newDeferred是这个闭包里生成的deferred
                             });
-                            fn = null;
                         });
+                        thenArgs = null;
                         //注意这个newDeferred的概念
                         //then()追加函数到了上一层，这里有两个上一层：
                         //1、deferred.then().then() - 这里第二个then()的上一层是第一个then()里面的deferred
@@ -115,14 +115,14 @@
                     callbacks.add(function () {
                         state = stateString;
                     },
-                    item[i ^ 1].disable,
+                    tuples[i ^ 1][2].disable,
                     function () {
-                        item[2][2].lock(true);
+                        tuples[2][2].lock(true);
                     });
                     //到了这里，回调函数都已经准备好了
                 }
                 /* resolveWith||rejectWith||notifyWith*/
-                deferred[item[0] + 'With'] = callbacks.fireWidth;
+                deferred[item[0] + 'With'] = callbacks.fireWith;
                 /* resolve||reject||notify*/
                 deferred[item[0]] = function () {
                     //jQuery在第一个参数这里使用了：this === deferred ? promise
