@@ -14,7 +14,7 @@
         <div class="l-body">
             <div class="l-index">
                 <p>
-                    <span class="l-codeRemark">Deferred</span>首次出现在<span class="l-codeRemark">jQuery 1.5</span>中，它的出现就是抹平了javascript中的大量回调产生的金字塔。
+                    <span class="l-codeRemark">Deferred</span>首次出现在<span class="l-codeRemark">jQuery 1.5</span>中，在<span class="l-codeRemark">jQuery 1.8</span>之后被改写，它的出现抹平了javascript中的大量回调产生的金字塔，提供了异步编程的能力。
                 </p>
                 <p>
                     <span class="l-codeRemark">Deferred</span>就是让一组函数在合适的时机执行，在成功时候执行成功的函数系列，在失败的时候执行失败的函数系列，这就是<span
@@ -26,7 +26,7 @@
                         href="http://www.cnblogs.com/silin6/p/Deferred.html">原文地址</a>。
                 </p>
                 <p>
-                    这篇文章主要分为以下知识，和上一篇博文《<a href="http://www.cnblogs.com/silin6/p/Callbacks.html" style="color: #259ec7;">读jQuery源码之
+                    这篇文章主要分为以下知识，和上一篇博文《<a target="_blank" href="http://www.cnblogs.com/silin6/p/Callbacks.html" style="color: #259ec7;">读jQuery源码之
                         - Callbacks</a>》关联。
                 </p>
                 <ul>
@@ -41,8 +41,6 @@
                 <a name="deferred" href="javascript:void(0);" style="color: white; text-decoration: none;">
                     什么是Deferred</a></h3>
             <div>
-                <p>
-                    见过一切其他文章描述Deferred，什么线性啊回调啊之类的，读起来你们懂的。</p>
                 <p>
                     Deferred实现让代码不用再一层一层嵌套着写，这样逻辑上也很恶心，这种大量嵌套的代码，多发生于异步，看下面一段代码（模拟异步）：
                 </p>
@@ -657,10 +655,9 @@
                            .progress(newDefer.notify);
  }</span></pre>
 </div>
-<p>&nbsp;</p>
                     </div>
                     <p>
-                        这里的代码琢磨了好久为什么，会发生什么，各种代码模拟尝试，后来想了下这他瞄的就是提供了这么一个功能而已，木有其他，是自己他瞄的想多了卧槽...说多了都是泪。
+                        这里的代码琢磨了好久为什么，会发生什么，各种代码模拟尝试，思考了一下，如果我们委托的函数返回一个具有promise行为的对象，那么这里就提供了<span class="l-bold">停下后续函数的执行</span>这么一个实现，<span class="l-bold">并且，会把当前Deferred对象里所有未执行的函数（done/fail/progress）都传递给这个具有promise行为的对象。</span>
                     </p>
                       <p class="l-bold">
                         then的职责：</p>
@@ -703,7 +700,7 @@
                         我思考过then的重构：尝试着把<span class="l-bold">每个函数都可以沟通</span>这个概念直接应用在done/fail/progress上面，这样就不用在then中一直创建新的Deferred对象，但是这么做就让done/fail/progress承载了太多，每次对函数执行后的返回值做判定，这根本就是不靠谱的做法，并且失去了上面所说的<span
                             class="l-bold">隔离沟通</span>，看起来好像Deferred更加的平滑了，其实这样会让Deferred应用条件变得更加苛刻。反观jQuery.Deferred，每一个API做的不多，但是足够细腻与精准，只能说我还是图样图森破啊...</p>
                     <p>
-                        每个函数都有自己的职责，不要让它承载的太多，太的职责决定了这个函数会越发的不可控。我想，这或许也是<span class="l-codeRemark">jQuery.then</span>单独实现的一个理由吧。</p>
+                        每个函数都有自己的职责，不要让它承载的太多，太多的职责决定了这个函数会越发的不可控。我想，这或许也是<span class="l-codeRemark">jQuery.then</span>单独实现的一个理由吧。</p>
                     <p class="l-bold">
                         类，往往因为承载的太多而变得臃肿不堪。</p>
                     <p>
