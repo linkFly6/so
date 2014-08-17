@@ -17,3 +17,5 @@ linkFLy
 LinkFLy下放的是自己平时看到和收集的代码，最终会融合在一起：
   
     打开根目录下index.html可以看到整个的目录。
+
+#### [我的博客](http://www.cnblogs.com/silin6/)
