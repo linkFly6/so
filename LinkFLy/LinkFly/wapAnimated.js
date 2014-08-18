@@ -1,4 +1,9 @@
 ﻿(function (window, undefined) {
+    /*
+        使用对象请注意：这里的javascript是根据transition进行操作的动画，transition的操作是异步的
+        所以会造成，当DOM的动画没有完成，获取DOM的属性（宽度、高度、位置）会变得不精准的问题
+        解决这种问题，主要延迟自己的代码（setTimeout）
+    */
     var document = window.document,
         Slice = Array.prototype.slice,
         String = Object.prototype.toString,
