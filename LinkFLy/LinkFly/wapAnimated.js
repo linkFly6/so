@@ -1,8 +1,8 @@
 ﻿(function (window, undefined) {
     /*
-        使用对象请注意：这里的javascript是根据transition进行操作的动画，transition的操作是异步的
-        所以会造成，当DOM的动画没有完成，获取DOM的属性（宽度、高度、位置）会变得不精准的问题
-        解决这种问题，主要延迟自己的代码（setTimeout）
+    使用对象请注意：这里的javascript是根据transition进行操作的动画，transition的操作是异步的
+    所以会造成，当DOM的动画没有完成，获取DOM的属性（宽度、高度、位置）会变得不精准的问题
+    解决这种问题，主要延迟自己的代码（setTimeout）
     */
     var document = window.document,
         Slice = Array.prototype.slice,
@@ -101,6 +101,12 @@
                     }
                     return self;
                 },
+                index: function () {
+                    return option.active;
+                },
+                length: function () {
+                    return elems.length;
+                },
                 animate: function (fn, callbacks) {
                     //第一个函数用于执行到极限后的函数，
                     //第二个函数用于每次动画执行
@@ -194,7 +200,6 @@
 
             //滑动模式
             //矫正active
-            option.active = 0;
             active = elems[option.active] || {};
             var radix = width(active),
                 maxWidth = 0,
@@ -204,6 +209,9 @@
             self.each(function (item, i) {
                 w = width(item);
                 maxWidth += w;
+                if (option.active - 1 === i) {
+                    pos -= maxWidth;
+                }
                 css(item, 'width', w + 'px');
             });
             oldStatus['parent'] = {
@@ -212,7 +220,8 @@
                 left: css(parentNode, 'left'),
                 width: css(parentNode, 'width')
             };
-            css(parentNode, { transition: 'all ' + option.time + 's ease-in-out 0s', left: '0px',
+            css(parentNode, { left: pos + 'px', '-webkit-transition': 'all ' + option.time + 's ease-in-out 0s',
+                transition: 'all ' + option.time + 's ease-in-out 0s',
                 width: maxWidth + 'px',
                 position: 'relative',
                 overflow: 'hidden'
@@ -224,23 +233,26 @@
                 option.fn.call(self, pos, maxWidth, parentNode);
                 if (pos > maxWidth && pos < 1) {
                     css(parentNode, direc, pos + 'px');
+                    option.active++;
                 } else if (pos === maxWidth) {
                     css(parentNode, direc, '0px');
+                    option.active = 0;
                     pos = 0;
                 } else {
                     pos = maxWidth - radix;
+                    option.active = self.length();
                     css(parentNode, direc, pos + 'px');
                 }
                 return self;
             };
-
             self.radix = function () {
                 return radix;
             };
+        } else {
+            self.each(function (item) {
+                css(item, { '-webkit-transition': 'all ' + option.time + 's ease-in-out 0s', transition: 'all ' + option.time + 's ease-in-out 0s' });
+            });
         }
-        self.each(function (item) {
-            css(item, 'transition', 'all ' + option.time + 's ease-in-out 0s');
-        });
         return self;
     };
     window.so = window.so || {};
