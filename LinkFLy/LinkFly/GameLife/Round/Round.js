@@ -10,7 +10,7 @@
         lineWidth: 20,
         deep: 40
     },
-        colorReg=
+        colorReg =
         extend = function () {
             if (arguments.length !== 2) return {};
             var target = arguments[0] || {},
@@ -22,7 +22,8 @@
             return target;
         },
         val = function (value) {
-            return (value > 0 ? value / 100 : value) * Math.PI;
+            //百分比转角度再转弧度
+            return (value > 0 ? value / 100 : value) * 360 * Math.PI / 180;
         },
         Round = function (elem, config) {
             if (typeof (elem) === 'string' || elem.nodeType !== 1) {
@@ -36,27 +37,39 @@
                 self = {
                     getColor: function (color) {
                         if (color === undefined) {
-                            //随机颜色和上一个重复
-                            while ((tempRandom = Math.floor(Math.random() * config.colors.length)) !== lastColor) {
-                                lastColor = tempRandom;
-                                break;
-                            }
+                            //随机颜色不能和上一个重复
+                            while ((tempRandom = Math.floor(Math.random() * config.colors.length)) === lastColor);
+                            lastColor = tempRandom;
+                            console.log(lastColor);
                             return config.colors[lastColor];
                         }
-                        return typeof (color) === 'string' && color.indexOf('#') !== -1 ? color : config.colors[color];
+                        return lastColor = -1 && typeof (color) === 'string' && color.indexOf('#') !== -1 ? color : config.colors[color];
                     },
+                    //这里的值按照百分比来给定
                     draw: function (value, color) {
                         if (canvas && value <= 100) {
                             //画扇形：arc(x坐标，y坐标，半径，扇形弧度起点，扇形弧度终点，顺时针（true）或逆时针（false）)
+                            //canvas.arc(config.x, config.y, config.deep, val(start), val(start + value - config.breakPx));
+                            //start += value;
+                            ////线宽
+                            //canvas.lineWidth = config.lineWidth;
+                            ////线颜色
+                            //canvas.strokeStyle = self.getColor(color);
+                            ////对线条的操作，所以描边
+                            //canvas.stroke();
+                            //canvas.beginPath(); //标识路径重新绘制
+
+
+                            /*
+                                填充式写法：
+                            */
+                            canvas.fillStyle = self.getColor(color);
+                            canvas.beginPath(); //开始绘图
+                            canvas.moveTo(50, 50);
                             canvas.arc(config.x, config.y, config.deep, val(start), val(start + value - config.breakPx));
                             start += value;
-                            //线宽
-                            canvas.lineWidth = config.lineWidth;
-                            //线颜色
-                            canvas.strokeStyle = self.getColor(color);
-                            //对线条的操作，所以描边
-                            canvas.stroke();
-                            canvas.beginPath(); //标识路径重新绘制
+                            canvas.fill(); //开始绘图
+
                         }
                         return self;
                     },
@@ -73,4 +86,4 @@
         };
     window.so = window.so || {};
     window.so.Round = Round;
-} ());
+}());

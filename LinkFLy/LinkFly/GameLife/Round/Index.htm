@@ -8,10 +8,21 @@
             var round = window.so.Round('yuanxing', { breakPx: 1 });
             round.draw(25, '#cccccc');
             round.draw(25);
+            //round.draw(30);
+            //round.draw(20);
+
+            var round2 = window.so.Round('demoConfig', { breakPx: 1, x: 150, y: 150, lineWidth: 100, deep: 100 });
+            round2.draw(25, '#cccccc');
+            round2.draw(25);
+            round2.draw(30);
+            round2.draw(20);
         };
     </script>
 </head>
 <body>
+    <div>测试第一个：</div>
     <canvas id="yuanxing" style="border: 1px solid red;" width="100" height="100">您的浏览器不支持HTML5</canvas>
+    <div>测试参数可以宽高配置：</div>
+    <canvas id="demoConfig" style="border: 1px solid red;" width="300" height="300">您的浏览器不支持HTML5</canvas>
 </body>
 </html>
