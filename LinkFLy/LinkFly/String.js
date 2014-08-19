@@ -109,6 +109,19 @@
 
     } ();
 
-
+    linkFly.format = function (str, object) {
+        var array = Array.prototype.slice.call(arguments, 1);
+        //可以被\符转义
+        return str.replace(/\\?\${([^{}])\}}/gm, function (match, key) {
+            //匹配转义符"\"
+            //如果丧心病狂一点可以在这里匹配二次转义
+            if (match.charAt(0) == '\\')
+                return match.slice(1);
+            var index = Number(key);
+            if (index >= 0)
+                return array[index];
+            return object[key] ? object[key] : match;
+        });
+    };
 
 } (window));

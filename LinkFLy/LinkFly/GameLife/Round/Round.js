@@ -1,7 +1,6 @@
-﻿(function () {
+﻿(function (window, undefined) {
     var option = {
-        colors: ['#abd9ea', '#c5b0ed'],
-        //, '#ed7e89', '#fbaca7', '#fed17e', '#a0dcac'
+        colors: ['#abd9ea', '#c5b0ed', '#ed7e89', '#fbaca7', '#fed17e', '#a0dcac'],
         breakPx: 0,
         width: 100,
         start: 0,
@@ -40,35 +39,34 @@
                             //随机颜色不能和上一个重复
                             while ((tempRandom = Math.floor(Math.random() * config.colors.length)) === lastColor);
                             lastColor = tempRandom;
-                            console.log(lastColor);
                             return config.colors[lastColor];
                         }
-                        return lastColor = -1 && typeof (color) === 'string' && color.indexOf('#') !== -1 ? color : config.colors[color];
+                        return lastColor = -1 && typeof (color) === 'string' && color.indexOf('#') !== -1 ? color : config.colors[parseInt(color)] || config.colors[parseInt(color) % config.colors.length];
                     },
                     //这里的值按照百分比来给定
                     draw: function (value, color) {
                         if (canvas && value <= 100) {
                             //画扇形：arc(x坐标，y坐标，半径，扇形弧度起点，扇形弧度终点，顺时针（true）或逆时针（false）)
-                            //canvas.arc(config.x, config.y, config.deep, val(start), val(start + value - config.breakPx));
-                            //start += value;
-                            ////线宽
-                            //canvas.lineWidth = config.lineWidth;
-                            ////线颜色
-                            //canvas.strokeStyle = self.getColor(color);
-                            ////对线条的操作，所以描边
-                            //canvas.stroke();
-                            //canvas.beginPath(); //标识路径重新绘制
-
-
-                            /*
-                                填充式写法：
-                            */
-                            canvas.fillStyle = self.getColor(color);
-                            canvas.beginPath(); //开始绘图
-                            canvas.moveTo(50, 50);
-                            canvas.arc(config.x, config.y, config.deep, val(start), val(start + value - config.breakPx));
+                            canvas.arc(config.x, config.y, config.deep, val(start), val(start + value - config.breakPx / 2));
                             start += value;
-                            canvas.fill(); //开始绘图
+                            //线宽
+                            canvas.lineWidth = config.lineWidth;
+                            //线颜色
+                            canvas.strokeStyle = self.getColor(color);
+                            //对线条的操作，所以描边
+                            canvas.stroke();
+                            canvas.beginPath(); //标识路径重新绘制
+
+
+                            //                            /*
+                            //                                填充式写法：
+                            //                            */
+                            //                            canvas.fillStyle = self.getColor(color);
+                            //                            canvas.beginPath(); //开始绘图
+                            //                            canvas.moveTo(50, 50);
+                            //                            canvas.arc(config.x, config.y, config.deep, val(start), val(start + value - config.breakPx));
+                            //                            start += value;
+                            //                            canvas.fill(); //开始绘图
 
                         }
                         return self;
@@ -86,4 +84,4 @@
         };
     window.so = window.so || {};
     window.so.Round = Round;
-}());
+} (window));
