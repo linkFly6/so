@@ -10,7 +10,6 @@
         lineWidth: 20,
         deep: 40
     },
-        colorReg =
         extend = function () {
             if (arguments.length !== 2) return {};
             var target = arguments[0] || {},
@@ -61,19 +60,6 @@
                             canvas.beginPath(); //标识路径重新绘制
 
                             //画线条
-
-                            //                            canvas.moveTo(val(start), val(start + value / 2));
-                            //                            canvas.lineTo(80, 35);
-                            //                            canvas.lineWidth = 0.5;
-                            //                            canvas.strokeStyle = self.getColor(color);
-                            //                            canvas.stroke();
-                            //                            canvas.beginPath(); //标识路径重新绘制
-
-
-                            canvas.fillStyle = self.getColor(color);
-                            canvas.font = '15px Arial';
-                            canvas.fillText("60%", position(start - value), position(start + value / 2));
-
                             start += value;
                             //                            /*
                             //                                填充式写法：
@@ -84,7 +70,6 @@
                             //                            canvas.arc(config.x, config.y, config.deep, val(start), val(start + value - config.breakPx));
                             //                            start += value;
                             //                            canvas.fill(); //开始绘图
-
                         }
                         return self;
                     },
@@ -98,7 +83,7 @@
                     },
                     clear: function (x, y, width, height) {
                         if (canvas)
-                        //                            canvas.clearRect(0, 0, 100, 120);
+                            //                            canvas.clearRect(0, 0, 100, 120);
                             canvas.clearRect(x || 0, y || 0, width || config.width, height || config.height);
                         return self;
                     }
@@ -108,4 +93,4 @@
 
     window.so = window.so || {};
     window.so.Round = Round;
-} (window));
+}(window));
