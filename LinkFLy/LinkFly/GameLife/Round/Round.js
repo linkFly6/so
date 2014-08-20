@@ -2,10 +2,11 @@
     var option = {
         colors: ['#abd9ea', '#c5b0ed', '#ed7e89', '#fbaca7', '#fed17e', '#a0dcac'],
         breakPx: 0,
-        width: 100,
-        start: 0,
-        x: 50,
-        y: 50,
+        width: 200,
+        height: 200,
+        start: 100,
+        x: 100,
+        y: 100,
         lineWidth: 20,
         deep: 40
     },
@@ -19,6 +20,9 @@
                     target[key] = source[key];
             }
             return target;
+        },
+        position = function (value) {
+            return (value > 0 ? value / 100 : value) * 360;
         },
         val = function (value) {
             //百分比转角度再转弧度
@@ -48,7 +52,6 @@
                         if (canvas && value <= 100) {
                             //画扇形：arc(x坐标，y坐标，半径，扇形弧度起点，扇形弧度终点，顺时针（true）或逆时针（false）)
                             canvas.arc(config.x, config.y, config.deep, val(start), val(start + value - config.breakPx / 2));
-                            start += value;
                             //线宽
                             canvas.lineWidth = config.lineWidth;
                             //线颜色
@@ -57,7 +60,21 @@
                             canvas.stroke();
                             canvas.beginPath(); //标识路径重新绘制
 
+                            //画线条
 
+                            //                            canvas.moveTo(val(start), val(start + value / 2));
+                            //                            canvas.lineTo(80, 35);
+                            //                            canvas.lineWidth = 0.5;
+                            //                            canvas.strokeStyle = self.getColor(color);
+                            //                            canvas.stroke();
+                            //                            canvas.beginPath(); //标识路径重新绘制
+
+
+                            canvas.fillStyle = self.getColor(color);
+                            canvas.font = '15px Arial';
+                            canvas.fillText("60%", position(start - value), position(start + value / 2));
+
+                            start += value;
                             //                            /*
                             //                                填充式写法：
                             //                            */
@@ -78,10 +95,17 @@
                         self.draw(value, color);
                         start = temp;
                         return self;
+                    },
+                    clear: function (x, y, width, height) {
+                        if (canvas)
+                        //                            canvas.clearRect(0, 0, 100, 120);
+                            canvas.clearRect(x || 0, y || 0, width || config.width, height || config.height);
+                        return self;
                     }
                 };
             return self;
         };
+
     window.so = window.so || {};
     window.so.Round = Round;
 } (window));
