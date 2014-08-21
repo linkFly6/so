@@ -73,6 +73,10 @@
                         }
                         return self;
                     },
+                    angle: function () {
+                        //获取当前总共累加后的百分比
+                        return start;
+                    },
                     reDraw: function (value, color) {
                         //从最初的原点开始画图
                         var temp = start;
@@ -83,7 +87,7 @@
                     },
                     clear: function (x, y, width, height) {
                         if (canvas)
-                            //                            canvas.clearRect(0, 0, 100, 120);
+                        //                            canvas.clearRect(0, 0, 100, 120);
                             canvas.clearRect(x || 0, y || 0, width || config.width, height || config.height);
                         return self;
                     }
@@ -93,4 +97,4 @@
 
     window.so = window.so || {};
     window.so.Round = Round;
-}(window));
+} (window));
