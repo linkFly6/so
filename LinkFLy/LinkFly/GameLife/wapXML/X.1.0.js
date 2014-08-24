@@ -1,4 +1,10 @@
-﻿(function (window, undefined) {
+﻿/*!
+* Copyright 2014 linkFLy - http://www.cnblogs.com/silin6/
+* Released under the MIT license
+* http://opensource.org/licenses/mit-license.php
+* Date: 2014-8-24 20:17:18
+*/
+; (function (window, undefined) {
     var push = Array.prototype.push,
         splice = Array.prototype.splice,
         indexOf = Array.prototype.indexOf,
