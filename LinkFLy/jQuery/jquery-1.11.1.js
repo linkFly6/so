@@ -14,6 +14,7 @@
 
 (function (global, factory) {
 
+    //AMD规范
     if (typeof module === "object" && typeof module.exports === "object") {
         // For CommonJS and CommonJS-like environments where a proper window is present,
         // execute the factory and get jQuery
@@ -173,36 +174,36 @@
 
     jQuery.extend = jQuery.fn.extend = function () {
         var src, copyIsArray, copy, name, options, clone,
-		//合并的目标对象
+        //合并的目标对象
 		target = arguments[0] || {},
 		i = 1,
 		length = arguments.length,
-		//合并的深度
+        //合并的深度
 		deep = false;
 
         // Handle a deep copy situation
-		//如果第一个参数是boolean
+        //如果第一个参数是boolean
         if (typeof target === "boolean") {
-			//则把它转换为深度
+            //则把它转换为深度
             deep = target;
-			//target变量往后偏移一位
+            //target变量往后偏移一位
             // skip the boolean and the target
             target = arguments[i] || {};
-			//开始合并的对象索引往后偏移一位
+            //开始合并的对象索引往后偏移一位
             i++;
         }
 
         // Handle case when target is a string or something (possible in deep copy)
-		//如果target是一些乱七八糟的东西，给捏成对象
+        //如果target是一些乱七八糟的东西，给捏成对象
         if (typeof target !== "object" && !jQuery.isFunction(target)) {
             target = {};
         }
 
         // extend jQuery itself if only one argument is passed
-		//看这里，这里巧妙的转换，这里的this是jQuery或jQuery.fn
+        //看这里，这里巧妙的转换，这里的this是jQuery或jQuery.fn
         if (i === length) {
             target = this;
-			//校准变量i
+            //校准变量i
             i--;
         }
 
@@ -210,39 +211,39 @@
             // Only deal with non-null/undefined values
             if ((options = arguments[i]) != null) {
                 // Extend the base object
-				//拷贝对象开始
+                //拷贝对象开始
                 for (name in options) {//需要注意，for in循环无法遍历出valueOf和toString方法，因此jQuery.extend不支持这些特殊属性的扩展
-                    src = target[name];//目标对象属性
-                    copy = options[name];//合并对象属性
+                    src = target[name]; //目标对象属性
+                    copy = options[name]; //合并对象属性
 
                     // Prevent never-ending loop
-					//防止嵌套循环自我引用（内存溢出）
+                    //防止嵌套循环自我引用（内存溢出）
                     if (target === copy) {
                         continue;
                     }
 
                     // Recurse if we're merging plain objects or arrays
-					//深拷贝、有合并对象的属性值
-					//isPlaninObject判断一个对象是否是JavaScript对象（String、Number等），或者对象一个数组（类数组）
+                    //深拷贝、有合并对象的属性值
+                    //isPlaninObject判断一个对象是否是JavaScript对象（String、Number等），或者对象一个数组（类数组）
                     if (deep && copy && (jQuery.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)))) {
-						//如果是数组（类数组）
+                        //如果是数组（类数组）
                         if (copyIsArray) {
                             copyIsArray = false;
-							//判定是否是纯净对象和数组
+                            //判定是否是纯净对象和数组
                             clone = src && jQuery.isArray(src) ? src : [];
 
                         } else {
-							//判断目标对象的属性是不是纯净的对象，纯净的就直接使用，否则直接创建一个新对象
+                            //判断目标对象的属性是不是纯净的对象，纯净的就直接使用，否则直接创建一个新对象
                             clone = src && jQuery.isPlainObject(src) ? src : {};
                         }
 
                         // Never move original objects, clone them
-						//针对属性进行深拷贝
+                        //针对属性进行深拷贝
                         target[name] = jQuery.extend(deep, clone, copy);
 
                         // Don't bring in undefined values
                     } else if (copy !== undefined) {
-						//否则浅拷贝
+                        //否则浅拷贝
                         target[name] = copy;
                     }
                 }
@@ -487,6 +488,11 @@
         },
 
         grep: function (elems, callback, invert) {
+            /*
+            使用过滤函数过滤数组元素。
+            此函数至少传递两个参数：待过滤数组和过滤函数。过滤函数必须返回 true 以保留元素或 false 以删除元素。
+            如果 "invert" 为 false ，则函数返回数组中由过滤函数返回 true 的元素，当"invert" 为 true，则返回过滤函数中返回 false 的元素集。
+            */
             var callbackInverse,
 			matches = [],
 			i = 0,
@@ -599,6 +605,7 @@
         return type === "array" || length === 0 ||
 		typeof length === "number" && length > 0 && (length - 1) in obj;
     }
+    /*—————————————————————————————————————————————————————————Sizzle引擎*/
     var Sizzle =
     /*!
     * Sizzle CSS Selector Engine v1.10.19
@@ -2658,22 +2665,26 @@
 
     // Implement the identical functionality for filter and not
     function winnow(elements, qualifier, not) {
+        //jQuery内部使用的一个公用的过滤器
         if (jQuery.isFunction(qualifier)) {
             return jQuery.grep(elements, function (elem, i) {
                 /* jshint -W018 */
+                //返回结果为true而生成的数组
                 return !!qualifier.call(elem, i, elem) !== not;
             });
 
         }
 
         if (qualifier.nodeType) {
+            //如果是个Element，则执行类似inArray的行为，判断Elements中是否包含某个elem
             return jQuery.grep(elements, function (elem) {
                 return (elem === qualifier) !== not;
             });
 
         }
-
+        //如果是个String
         if (typeof qualifier === "string") {
+            //risSimple = /^.[^:#\[\.,]*$/
             if (risSimple.test(qualifier)) {
                 return jQuery.filter(qualifier, elements, not);
             }
@@ -2733,6 +2744,10 @@
             return this.pushStack(winnow(this, selector || [], true));
         },
         is: function (selector) {
+            //根据选择器、DOM元素或 jQuery 对象来检测匹配元素集合，如果其中至少有一个元素符合这个给定的表达式就返回true。
+            /*
+            如果没有元素符合，或者表达式无效，都返回'false'。 '''注意：'''在jQuery 1.3中才对所有表达式提供了支持。在先前版本中，如果提供了复杂的表达式，比如层级选择器（比如 + , ~ 和 > ），始终会返回true
+            */
             return !!winnow(
 			this,
 
@@ -2748,8 +2763,9 @@
 
 
     // Initialize a jQuery object
+    /*—————————————————————————————————————————————————————————————sizzle End*/
 
-
+    //————————————————————————————————————————————————————创建jQuery对象
     // A central reference to the root jQuery(document)
     var rootjQuery,
 
@@ -2873,6 +2889,14 @@
     rootjQuery = jQuery(document);
 
 
+    //————————————————————————————————————————————————————jQuery对象构建完成
+
+
+
+    //————————————————————————————————————————————————————jQuery DOM操作
+
+
+    //——————————————————————————————————————————————————————————————————————过滤（DOM筛选）
     var rparentsprev = /^(?:parents|prev(?:Until|All))/,
     // methods guaranteed to produce a unique set when starting from a unique set
 	guaranteedUnique = {
@@ -2884,13 +2908,15 @@
 
     jQuery.extend({
         dir: function (elem, dir, until) {
+            //进行目录式查找，就是支持js的基本DOM查找对象：'parent','next','sibling','childNodes'
             var matched = [],
 			cur = elem[dir];
-
+            //jQuery()的方法可以通过"xx:"搜索到，这里可以搜索下"is:" - 根据选择器、DOM元素或 jQuery 对象来检测匹配元素集合，如果其中至少有一个元素符合这个给定的表达式就返回true。
             while (cur && cur.nodeType !== 9 && (until === undefined || cur.nodeType !== 1 || !jQuery(cur).is(until))) {
                 if (cur.nodeType === 1) {
                     matched.push(cur);
                 }
+                //DOM循环小技巧
                 cur = cur[dir];
             }
             return matched;
@@ -2898,7 +2924,7 @@
 
         sibling: function (n, elem) {
             var r = [];
-
+            //淫荡的循环
             for (; n; n = n.nextSibling) {
                 if (n.nodeType === 1 && n !== elem) {
                     r.push(n);
@@ -2911,12 +2937,13 @@
 
     jQuery.fn.extend({
         has: function (target) {
+            //保留包含特定后代的元素，去掉那些不含有指定后代的元素。卧槽我怎么记得这玩意儿就是查有没有这个后代的？？？
             var i,
-			targets = jQuery(target, this),
+			targets = jQuery(target, this), //查找结果构成新的jQuery
 			len = targets.length;
-
             return this.filter(function () {
                 for (i = 0; i < len; i++) {
+                    //这里调用的是Sizzle的contains
                     if (jQuery.contains(this, targets[i])) {
                         return true;
                     }
@@ -2925,10 +2952,12 @@
         },
 
         closest: function (selectors, context) {
+            //从元素本身开始，逐级向上级元素匹配，并返回最先匹配的元素。
             var cur,
 			i = 0,
 			l = this.length,
 			matched = [],
+            //这个rneedsContext在Sizzle中定义
 			pos = rneedsContext.test(selectors) || typeof selectors !== "string" ?
 				jQuery(selectors, context || this.context) :
 				0;
@@ -2948,7 +2977,7 @@
                     }
                 }
             }
-
+            //这个pushStack要好好看看....
             return this.pushStack(matched.length > 1 ? jQuery.unique(matched) : matched);
         },
 
@@ -3291,39 +3320,39 @@
 			            jQuery.each(tuples, function (i, tuple) {
 			                var fn = jQuery.isFunction(fns[i]) && fns[i];
 			                // deferred[ done | fail | progress ] for forwarding actions to newDefer
-							//注意这里已经把then()里面的函数封装到了上一层deferred对象中
+			                //注意这里已经把then()里面的函数封装到了上一层deferred对象中
 			                deferred[tuple[1]](function () {
 			                    var returned = fn && fn.apply(this, arguments);
-								//什么情况下才为true呢？返回的结果是promise，那么什么情况下这个函数会返回promise呢？
+			                    //什么情况下才为true呢？返回的结果是promise，那么什么情况下这个函数会返回promise呢？
 			                    if (returned && jQuery.isFunction(returned.promise)) {
-									//如果是deferred和promise，那么再向下压一层
-									//那么这一层什么时候执行呢？
-									//newDefer就是deferred或promise
-									//但是这个returned会在哪儿执行呢？
-									//aron并没有讲解这个在什么时候触发的
-									//这里为什么是把newDefer的方法给扩展进去？？
+			                        //如果是deferred和promise，那么再向下压一层
+			                        //那么这一层什么时候执行呢？
+			                        //newDefer就是deferred或promise
+			                        //但是这个returned会在哪儿执行呢？
+			                        //aron并没有讲解这个在什么时候触发的
+			                        //这里为什么是把newDefer的方法给扩展进去？？
 
-									//newDefer这个时候是空的啊..为什么？？？？
-									//newDefer不为空，因为then最终返回的promise正是newDefer的promise
-									//then返回的promise.done，正是newDefer.done
+			                        //newDefer这个时候是空的啊..为什么？？？？
+			                        //newDefer不为空，因为then最终返回的promise正是newDefer的promise
+			                        //then返回的promise.done，正是newDefer.done
 			                        returned.promise()
 										.done(newDefer.resolve)
 										.fail(newDefer.reject)
 										.progress(newDefer.notify);
-									//其实这里的扩展，应该只是纯粹的对具有promise/A的扩展，只是留了这个功能，什么时候执行，并不是jQuery.Deferred关心的事情
+			                        //其实这里的扩展，应该只是纯粹的对具有promise/A的扩展，只是留了这个功能，什么时候执行，并不是jQuery.Deferred关心的事情
 			                    } else {
-									//这是then方法的本质，使用then()返回的promise对象依赖于newDefer对象
-									//then方法中，这里把上一层的返回值传递到下一层
-									//而现在的环境只能被最顶层的Deferred触发
-									//在触发顶层的Deferred中，触发then()中的Deferred
-									//这里的判定，为什么要做这一层对象的封装呢？
+			                        //这是then方法的本质，使用then()返回的promise对象依赖于newDefer对象
+			                        //then方法中，这里把上一层的返回值传递到下一层
+			                        //而现在的环境只能被最顶层的Deferred触发
+			                        //在触发顶层的Deferred中，触发then()中的Deferred
+			                        //这里的判定，为什么要做这一层对象的封装呢？
 			                        newDefer[tuple[0] + "With"](this === promise ? newDefer.promise() : this, fn ? [returned] : arguments);
 			                    }
 			                });
 			            });
-						//这里可以放心释放fns，在上面的each中，已经单独创建了对应了变量
+			            //这里可以放心释放fns，在上面的each中，已经单独创建了对应了变量
 			            fns = null;
-					//因为这里返回是promise，注意上面的returned，判断了是否有promise的行为
+			            //因为这里返回是promise，注意上面的returned，判断了是否有promise的行为
 			        }).promise();
 			    },
 			    // Get a promise for this deferred
@@ -3356,7 +3385,7 @@
                         state = stateString;
 
                         // [ reject_list | resolve_list ].disable; progress_list.lock
-						//这个位运算，在控制台跑一下就知道了
+                        //这个位运算，在控制台跑一下就知道了
                     }, tuples[i ^ 1][2].disable, tuples[2][2].lock);
                 }
 
@@ -3388,20 +3417,20 @@
 			length = resolveValues.length,
 
             // the count of uncompleted subordinates
-			//表明余下的个数，这里已经约定了如果只有一个参数，那么这个参数必然是Deferred对象（相对jQuery来说）
+            //表明余下的个数，这里已经约定了如果只有一个参数，那么这个参数必然是Deferred对象（相对jQuery来说）
 			remaining = length !== 1 || (subordinate && jQuery.isFunction(subordinate.promise)) ? length : 0,
 
             // the master Deferred. If resolveValues consist of only a single Deferred, just use that.
-			//如果长度是1，则使用这个Deferred对象，否则新建一个Deferred
+            //如果长度是1，则使用这个Deferred对象，否则新建一个Deferred
 			deferred = remaining === 1 ? subordinate : jQuery.Deferred(),
 
             // Update function for both resolve and progress values
 			updateFunc = function (i, contexts, values) {
-				//i表示当前循环的参数索引
-				//contexts是一个本来为空的数组
-				//values应该是一个Deferred对象
+			    //i表示当前循环的参数索引
+			    //contexts是一个本来为空的数组
+			    //values应该是一个Deferred对象
 			    return function (value) {
-					//对应的context设置为jQuery
+			        //对应的context设置为jQuery
 			        contexts[i] = this;
 
 			        values[i] = arguments.length > 1 ? slice.call(arguments) : value;
@@ -3417,13 +3446,13 @@
 			progressValues, progressContexts, resolveContexts;
 
             // add listeners to Deferred subordinates; treat others as resolved
-			//参数长度大于1，则把后续的函数委托进来
+            //参数长度大于1，则把后续的函数委托进来
             if (length > 1) {
                 progressValues = new Array(length);
                 progressContexts = new Array(length);
                 resolveContexts = new Array(length);
                 for (; i < length; i++) {
-					//保存参数存在，并且来自Deferred
+                    //保存参数存在，并且来自Deferred
                     if (resolveValues[i] && jQuery.isFunction(resolveValues[i].promise)) {
                         resolveValues[i].promise()
 						.done(updateFunc(i, resolveContexts, resolveValues))
