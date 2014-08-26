@@ -118,12 +118,20 @@
         // Take an array of elements and push it onto the stack
         // (returning the new matched element set)
         pushStack: function (elems) {
-
+            /*
+            jQuery入栈方法：jQuery对DOM操作的函数都依赖这个方法，这个方法的作用是将jQuery二次封装，封装了新的jQuery上下文属性
+            之所以这么做是因为链式回调的DOM操作（例如first()），都可以根据这些上下文属性找到上一层jQuery对象,
+            这个方法和end()对应：end()是出栈的方法
+            */
             // Build a new jQuery matched element set
+
+            //mergin合并两个数组（类数组）对象，这里创建了一个新的jQuery，并和elems合并
             var ret = jQuery.merge(this.constructor(), elems);
 
             // Add the old object onto the stack (as a reference)
+            //指定上一个jQuery对象
             ret.prevObject = this;
+            //指定上下文
             ret.context = this.context;
 
             // Return the newly-formed element set
@@ -134,6 +142,7 @@
         // (You can seed the arguments with an array of args, but this is
         // only used internally.)
         each: function (callback, args) {
+            
             return jQuery.each(this, callback, args);
         },
 
@@ -162,6 +171,7 @@
         },
 
         end: function () {
+            //参考pushStack()
             return this.prevObject || this.constructor(null);
         },
 
@@ -466,6 +476,7 @@
         },
 
         merge: function (first, second) {
+            //marge提供两个数组（类数组）合并，主要应用在jQuery内部和DOM合并上
             var len = +second.length,
 			j = 0,
 			i = first.length;
@@ -513,6 +524,10 @@
 
         // arg is for internal usage only
         map: function (elems, callback, arg) {
+			/*
+				jQuery.map()：
+					将一组元素转换为真正的数组，callback用于每个转换后的元素，arg表示callback的参数
+			*/
             var value,
 			i = 0,
 			length = elems.length,
@@ -521,6 +536,7 @@
 
             // Go through the array, translating each of the items to their new values
             if (isArray) {
+				//类数组
                 for (; i < length; i++) {
                     value = callback(elems[i], i, arg);
 
@@ -531,6 +547,7 @@
 
                 // Go through every key on the object,
             } else {
+				//对象
                 for (i in elems) {
                     value = callback(elems[i], i, arg);
 
@@ -2765,6 +2782,7 @@
     // Initialize a jQuery object
     /*—————————————————————————————————————————————————————————————sizzle End*/
 
+
     //————————————————————————————————————————————————————创建jQuery对象
     // A central reference to the root jQuery(document)
     var rootjQuery,
@@ -2935,6 +2953,7 @@
         }
     });
 
+    //这里怎么感觉还是和Sizzle挂钩啊？？？
     jQuery.fn.extend({
         has: function (target) {
             //保留包含特定后代的元素，去掉那些不含有指定后代的元素。卧槽我怎么记得这玩意儿就是查有没有这个后代的？？？
@@ -3066,6 +3085,7 @@
         }
     }, function (name, fn) {
         jQuery.fn[name] = function (until, selector) {
+            //map使用的很是精妙
             var ret = jQuery.map(this, fn, until);
 
             if (name.slice(-5) !== "Until") {
