@@ -142,7 +142,7 @@
         // (You can seed the arguments with an array of args, but this is
         // only used internally.)
         each: function (callback, args) {
-            
+
             return jQuery.each(this, callback, args);
         },
 
@@ -266,6 +266,7 @@
 
     jQuery.extend({
         // Unique for each copy of jQuery on the page
+		//每一个页面上唯一上的东西，这玩意儿翻译叫做“扩展”，这他喵的是个啥？？
         expando: "jQuery" + (version + Math.random()).replace(/\D/g, ""),
 
         // Assume jQuery is ready without the ready module
@@ -524,10 +525,10 @@
 
         // arg is for internal usage only
         map: function (elems, callback, arg) {
-			/*
-				jQuery.map()：
-					将一组元素转换为真正的数组，callback用于每个转换后的元素，arg表示callback的参数
-			*/
+            /*
+            jQuery.map()：
+            将一组元素转换为真正的数组，callback用于每个转换后的元素，arg表示callback的参数
+            */
             var value,
 			i = 0,
 			length = elems.length,
@@ -536,7 +537,7 @@
 
             // Go through the array, translating each of the items to their new values
             if (isArray) {
-				//类数组
+                //类数组
                 for (; i < length; i++) {
                     value = callback(elems[i], i, arg);
 
@@ -547,7 +548,7 @@
 
                 // Go through every key on the object,
             } else {
-				//对象
+                //对象
                 for (i in elems) {
                     value = callback(elems[i], i, arg);
 
@@ -3643,7 +3644,7 @@
     var strundefined = typeof undefined;
 
 
-
+    /*——————————————————————————————————————浏览器检测——————————————————————————————*/
     // Support: IE<9
     // Iteration over object's inherited properties before its own
     var i;
@@ -3693,7 +3694,7 @@
     });
 
 
-
+    /*——————————————————————————————————————浏览器检测End——————————————————————————————*/
 
     (function () {
         var div = document.createElement("div");
@@ -3713,19 +3714,22 @@
         div = null;
     })();
 
-
+    //———————————————————————————————————————jQuery Data&Cache————————————————————————————
     /**
     * Determines whether an object can have data
     */
     jQuery.acceptData = function (elem) {
+        //确定一个对象是否（可以）有Data 
         var noData = jQuery.noData[(elem.nodeName + " ").toLowerCase()],
 		nodeType = +elem.nodeType || 1;
 
         // Do not set data on non-element DOM nodes because it will not be cleared (#8335).
+        //不是DOM节点不能设置Data，因为不能清除？
         return nodeType !== 1 && nodeType !== 9 ?
 		false :
-
         // Nodes accept data unless otherwise specified; rejection can be conditional
+        //如果是jQuery.noData里面限定的节点的话，则返回false
+        //wow，如果节点是object，则限定flash的classid？？flash会有这么个奇葩的行为？？？？
 		!noData || noData !== true && elem.getAttribute("classid") === noData;
     };
 
@@ -3734,21 +3738,25 @@
 	rmultiDash = /([A-Z])/g;
 
     function dataAttr(elem, key, data) {
+        //获取Element的attribute（HTML5的data）
+
         // If nothing was found internally, try to fetch any
         // data from the HTML5 data-* attribute
         if (data === undefined && elem.nodeType === 1) {
-
+            //rmultiDash = /([A-Z])/g
+            //把每个大写单词替换成'data--单词'的格式，例如'AB'，替换成：data--a-b
             var name = "data-" + key.replace(rmultiDash, "-$1").toLowerCase();
-
             data = elem.getAttribute(name);
-
             if (typeof data === "string") {
+                //各种丧心病狂的拉取数据
                 try {
                     data = data === "true" ? true :
 					data === "false" ? false :
 					data === "null" ? null :
                     // Only convert to a number if it doesn't change the string
+                    //如果是数字 
 					+data + "" === data ? +data :
+                    //匹配json
 					rbrace.test(data) ? jQuery.parseJSON(data) :
 					data;
                 } catch (e) { }
@@ -3766,6 +3774,7 @@
 
     // checks a cache object for emptiness
     function isEmptyDataObject(obj) {
+		//检测是否是一个空的jQuery.data对象
         var name;
         for (name in obj) {
 
@@ -3782,6 +3791,12 @@
     }
 
     function internalData(elem, name, data, pvt /* Internal Use Only */) {
+		//添加一个data到jQuery缓存中
+
+		//这个pvt是个啥玩意儿？？
+		//pvt：是否是内部数据
+
+		//判定对象是否可以存数据
         if (!jQuery.acceptData(elem)) {
             return;
         }
@@ -3791,18 +3806,28 @@
 
         // We have to handle DOM nodes and JS objects differently because IE6-7
         // can't GC object references properly across the DOM-JS boundary
+		// 如果是DOM元素，
+		//为了避免javascript和DOM元素之间循环引用导致的浏览器(IE6/7)垃圾回收机制不起作用，
+		//要把数据存储在全局缓存对象jQuery.cache中；
+		//对于javascript对象，
+		//垃圾回收机制能够自动发生
+		//不会有内存泄露的问题
+		//因此数据可以查收存储在javascript对象上
 		isNode = elem.nodeType,
 
         // Only DOM nodes need the global jQuery cache; JS object data is
         // attached directly to the object so GC can occur automatically
+		//只有DOM节点才需要全局缓存，js对象是直接连接到对象的，GC在管理
 		cache = isNode ? jQuery.cache : elem,
 
         // Only defining an ID for JS objects if its cache already exists allows
         // the code to shortcut on the same path as a DOM node with no cache
+		//拉取key？？这又是干什么？
 		id = isNode ? elem[internalKey] : elem[internalKey] && internalKey;
 
         // Avoid doing any more work than we need to when trying to get data on an
         // object that has no data at all
+		//检测合法性，避免做更多的工作，pvt应该表示工作模式吧，如果为true，则进行深层查找
         if ((!id || !cache[id] || (!pvt && !cache[id].data)) && data === undefined && typeof name === "string") {
             return;
         }
@@ -3811,24 +3836,32 @@
             // Only DOM nodes need a new unique ID for each element since their data
             // ends up in the global cache
             if (isNode) {
+				//DOM需要有一个全新的全局id
                 id = elem[internalKey] = deletedIds.pop() || jQuery.guid++;
             } else {
+				//而对象不需要
                 id = internalKey;
             }
         }
-
+		//从cache中没有读取到
         if (!cache[id]) {
             // Avoid exposing jQuery metadata on plain JS objects when the object
             // is serialized using JSON.stringify
+			//创建一个新的cache对象，这个toJson是个空方法
             cache[id] = isNode ? {} : { toJSON: jQuery.noop };
+			// 对于javascript对象，设置方法toJSON为空函数，
+			//以避免在执行JSON.stringify()时暴露缓存数据。
+			//如果一个对象定义了方法toJSON()
+			//JSON.stringify()在序列化该对象时会调用这个方法来生成该对象的JSON元素
         }
 
         // An object can be passed to jQuery.data instead of a key/value pair; this gets
         // shallow copied over onto the existing cache
         if (typeof name === "object" || typeof name === "function") {
-            if (pvt) {
+            if (pvt) {//如果是内部数据
                 cache[id] = jQuery.extend(cache[id], name);
             } else {
+				//如果是自定义数据，则挂到data上
                 cache[id].data = jQuery.extend(cache[id].data, name);
             }
         }
@@ -3839,13 +3872,14 @@
         // cache in order to avoid key collisions between internal data and user-defined
         // data.
         if (!pvt) {
+			//内部数据，避免和自定义数据互斥
             if (!thisCache.data) {
                 thisCache.data = {};
             }
 
             thisCache = thisCache.data;
         }
-
+		//把数据挂载上去
         if (data !== undefined) {
             thisCache[jQuery.camelCase(name)] = data;
         }
@@ -3853,17 +3887,20 @@
         // Check for both converted-to-camel and non-converted data property names
         // If a data property was specified
         if (typeof name === "string") {
-
+			//如果参数是一个字符串
             // First Try to find as-is property data
+			//则抓取这个字符串对应的缓存
             ret = thisCache[name];
 
             // Test for null|undefined property data
+			//抓取失败，转换成驼峰再抓
             if (ret == null) {
 
                 // Try to find the camelCased property
                 ret = thisCache[jQuery.camelCase(name)];
             }
         } else {
+			//如果不是字符串，则按照对象的形式抓取
             ret = thisCache;
         }
 
@@ -3871,6 +3908,7 @@
     }
 
     function internalRemoveData(elem, name, pvt) {
+		//移除一个data到jQuery缓存中
         if (!jQuery.acceptData(elem)) {
             return;
         }
@@ -3884,29 +3922,33 @@
 
         // If there is already no cache entry for this object, there is no
         // purpose in continuing
+		//如果找不到缓存，不再继续
         if (!cache[id]) {
             return;
         }
 
         if (name) {
-
+			//获取数据
             thisCache = pvt ? cache[id] : cache[id].data;
 
             if (thisCache) {
 
                 // Support array or space separated string names for data keys
-                if (!jQuery.isArray(name)) {
+                if (!jQuery.isArray(name)) {//如果具有数组行为
 
                     // try the string as a key before any manipulation
                     if (name in thisCache) {
+						//检查缓存是否有这个对象
                         name = [name];
                     } else {
 
                         // split the camel cased version by spaces unless a key with the spaces exists
-                        name = jQuery.camelCase(name);
+						name = jQuery.camelCase(name);
+						//转换驼峰再次尝试
                         if (name in thisCache) {
                             name = [name];
                         } else {
+							//拿不到
                             name = name.split(" ");
                         }
                     }
@@ -3917,16 +3959,20 @@
                     // Since there is no way to tell _how_ a key was added, remove
                     // both plain key and camelCase key. #12786
                     // This will only penalize the array argument path.
+
+					//jQuery.map连接两个数组（或对象）并返回一个真正的数组
                     name = name.concat(jQuery.map(name, jQuery.camelCase));
                 }
 
                 i = name.length;
+				//删除缓存
                 while (i--) {
                     delete thisCache[name[i]];
                 }
 
                 // If there is no data left in the cache, we want to continue
                 // and let the cache object itself get destroyed
+				//如果是剩下的缓存中没有数据了，则完成了任务，否则继续
                 if (pvt ? !isEmptyDataObject(thisCache) : !jQuery.isEmptyObject(thisCache)) {
                     return;
                 }
@@ -3934,23 +3980,27 @@
         }
 
         // See jQuery.data for more information
+		//如果是jQuery内部使用
         if (!pvt) {
-            delete cache[id].data;
+            delete cache[id].data;// 再次删除
 
             // Don't destroy the parent cache unless the internal data object
             // had been the only thing left in it
+			//检测还有没有数据，还有数据则继续
             if (!isEmptyDataObject(cache[id])) {
                 return;
             }
         }
 
         // Destroy the cache
+		//如果是Element，则破坏缓存
         if (isNode) {
             jQuery.cleanData([elem], true);
 
             // Use delete when supported for expandos or `cache` is not a window per isWindow (#10080)
             /* jshint eqeqeq: false */
         } else if (support.deleteExpando || cache != cache.window) {
+			//不为window再次尝试删除，这里的判定什么意思呢？  ————————————————————————————————————————————————————————————————————————last read
             /* jshint eqeqeq: true */
             delete cache[id];
 
@@ -3961,10 +4011,12 @@
     }
 
     jQuery.extend({
+		//jQuery.cache对象
         cache: {},
 
         // The following elements (space-suffixed to avoid Object.prototype collisions)
         // throw uncatchable exceptions if you attempt to set expando properties
+		//这几个特殊的标签不能使用Data，可能属性有冲突？？？
         noData: {
             "applet ": true,
             "embed ": true,
