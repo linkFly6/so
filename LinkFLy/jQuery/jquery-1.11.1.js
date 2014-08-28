@@ -4023,6 +4023,7 @@
             // ...but Flash objects (which have this classid) *can* handle expandos
             "object ": "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
         },
+        //这里的代码真正部分在上面，这里只是调用上面的基础协同配合产生了这些API
 
         hasData: function (elem) {
             elem = elem.nodeType ? jQuery.cache[elem[jQuery.expando]] : elem[jQuery.expando];
@@ -4039,6 +4040,7 @@
 
         // For internal use only.
         _data: function (elem, name, data) {
+            //jQuery内部使用的
             return internalData(elem, name, data, true);
         },
 
@@ -4058,6 +4060,7 @@
 
             // Gets all values
             if (key === undefined) {
+                //获取
                 if (this.length) {
                     data = jQuery.data(elem);
 
@@ -4084,6 +4087,7 @@
 
             // Sets multiple values
             if (typeof key === "object") {
+                //设置
                 return this.each(function () {
                     jQuery.data(this, key);
                 });
@@ -4108,7 +4112,7 @@
         }
     });
 
-
+    //———————————————————————————————————————jQuery Data&Cache End————————————————————————————
     jQuery.extend({
         queue: function (elem, type, data) {
             var queue;
