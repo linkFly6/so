@@ -1,0 +1,25 @@
+﻿<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>测试ArrayLike的兼容性</title>
+</head>
+<body>
+    <div id="result"></div>
+    <span>test1</span>
+    <span>test2</span>
+    <span>test3</span>
+    <span>test4</span>
+    <span>test5</span>
+    <span>test6</span>
+</body>
+  <script>
+      var demo = document.getElementById('result');
+      try {
+          var spans = Array.prototype.slice.call(document.getElementsByTagName('span'), 0, 5);
+          alert(Object.prototype.toString.call(spans));
+      } catch (e) {
+          demo.innerHTML = '异常';
+      }
+  </script>
+</html>
