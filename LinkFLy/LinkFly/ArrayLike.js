@@ -1,5 +1,4 @@
 ﻿(function () {
-    var number = 1;
     !function () {
         //通过闭包实现
         var List = function () {
@@ -115,9 +114,11 @@
                 //强制引用__proto__,IE并不支持
                 __proto__: List.prototype,
                 add: function (item) {
-                    Array.prototype.push.call(this, item);
+                    push.call(this, item);
                 }
-            };
+            },
+            //cache
+            push = Array.prototype.push;
             return self;
         };
         console.group('第五种 - 修复instenceOf判定');
@@ -136,13 +137,13 @@
         //jQuery Array-Like实现
         var jQuery = function () {
             return new jQuery.fn.init();
-        };
+        }, push = Array.prototype.push;
         jQuery.fn = jQuery.prototype = {
             constructor: jQuery,
             length: 0,
             add: function (item) {
                 //使用Array.prototype.push添加元素，会自动维护length
-                Array.prototype.push.call(this, item);
+                push.call(this, item);
             }
         };
         jQuery.fn.init = function () {
@@ -163,12 +164,12 @@
 
     //最简单的类数组实现
     !function () {
-        var List = function () { };
+        var List = function () { }, push = Array.prototype.push;
         List.prototype = {
             constructor: List,
             length: 0,
             add: function (item) {
-                Array.prototype.push.call(this, item);
+                push.call(this, item);
             }
         };
         console.group('第七种 - 最简单的实现');

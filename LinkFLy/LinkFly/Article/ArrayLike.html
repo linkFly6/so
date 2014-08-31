@@ -13,7 +13,7 @@
         <div class="l-body">
             <div class="l-index">
                 <p>
-                    jQuery的崛起让<span class="l-codeRemark">ArrayLike（类数组）</span>在javascript中大放异彩，它的出现为一组数组的行为（函数）扩展提供了基础。
+                    jQuery的崛起让<span class="l-codeRemark">ArrayLike（类数组）</span>在javascript中大放异彩，它的出现为一组数据的行为（函数）扩展提供了基础。
                 </p>
                 <p>
                     类数组和数组相似，具有数组的某些行为，但是它相比数组可以更加自由的扩展，它的存在让一组数据的表现不再受限于数组，也无需去污染数组本身的原型——它来自javascript对象的挖掘和扩展，而并非javascript本身就存在的。简单的说，它来自数组，比数组更加适合扩展。
@@ -33,6 +33,7 @@
             </div>
             <h3 class="l-title"><a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">锋芒毕露的ArrayLike</a></h3>
             <div>
+                <p><span class="l-bold">如果你已经了解了ArrayLike，这一节可以略过。</span></p>
                 <p>
                     <span class="l-codeRemark">ArrayLike（类数组/伪数组）</span>即拥有数组的一部分行为，在DOM中早已表现出来，而jQuery的崛起让ArrayLike在javascript中大放异彩。正如它的翻译一样：它类似于数组。
                 </p>
@@ -60,7 +61,7 @@
                     爸爸妈妈对你期望很高，你要好好学习，但是舍友基佬教会了你打dota，整天拉你打dota让你没时间看书学习，结果呢，就是打得一手好dota学习掉下去了——但是如果，你开了分身斧，让你的分身去打dota，你自己仍然好好学习，dota学习两不误，而且你的分身不仅仅可以打dota，也可以去打wow，把妹，做你做不到的事情，是不是觉得这样不就碉堡了么！！！
                 </p>
                 <p>没错，ArrayLike就是要干这么碉堡的事情。</p>
-                <p class="l-bold">常见的ArrayLike有下面这几个，详见<a href="#other">其他</a>：</p>
+                <p class="l-bold">常见的ArrayLike有下面这几个，详见：<a href="#other">其他</a>。</p>
             </div>
             <ul style="list-style: none; line-height: 18px;">
                 <li>Arguments</li>
@@ -117,7 +118,7 @@
 </div>
                     </div>
                     <p><span class="l-bold">运行结果和demo对象结构：</span></p>
-                    <div></div>
+                    <div><p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%b8%80%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif" alt="" width="612" height="206" /></p></div>
                 </div>
                 <div>
                     <h3 class="l-limitTitle">第二种 - 通过继承实现：</h3>
@@ -152,7 +153,7 @@
 </div>
                     </div>
                     <p><span class="l-bold">运行结果和demo对象结构：</span></p>
-                    <div></div>
+                    <div><p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%ba%8c%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif" alt="" width="450" height="285" /></p></div>
                 </div>
                 <div>
                     <h3 class="l-limitTitle">第三种 - 通过自我维护实现：</h3>
@@ -183,7 +184,7 @@
 </pre>
 </div></div>
                     <p><span class="l-bold">运行结果和demo对象结构：</span></p>
-                    <div></div>
+                    <div><p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%b8%89%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif" alt="" width="502" height="205" /></p></div>
                 </div>
                 <div>
                     <h3 class="l-limitTitle">第四种 - 针对第一种优化：</h3>
@@ -217,12 +218,12 @@
 </pre>
 </div></div>
                     <p><span class="l-bold">运行结果和demo对象结构：</span></p>
-                    <div></div>
+                    <div><p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e5%9b%9b%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif" alt="" width="452" height="202" /></p></div>
                 </div>
                 <div>
-                    <h3 class="l-limitTitle">第五种 - 修复instenceOf判定：</h3>
+                    <h3 class="l-limitTitle">第五种 - 修复instenceof判定：</h3>
                     <p class="l-txtBlock">
-                        这种修复有点勉强，因为在ie下并没有<span class="l-codeRemark">__proto__</span>，所以这里所谓的修复只不过是针对现代浏览器而已，只是提供一种思路，关于<span class="l-codeRemark">instenceOf</span>请参考请参考：<a href="#other">其他</a>。
+                        这种修复有点勉强，因为在ie下并没有<span class="l-codeRemark">__proto__</span>，所以这里所谓的修复只不过是针对现代浏览器而已，只是提供一种思路，关于<span class="l-codeRemark">instenceof</span>请参考请参考：<a href="#other">其他</a>。
                     </p>
                     <div class="l-code">
                         <div class="cnblogs_Highlighter">
@@ -242,9 +243,11 @@
                 //强制引用__proto__,IE并不支持
                 __proto__: List.prototype,
                 add: function (item) {
-                    Array.prototype.push.call(this, item);
+                    push.call(this, item);
                 }
-            };
+            },
+            //cache
+            push = Array.prototype.push;
             return self;
         };
         console.group('第五种 - 修复instenceOf判定');
@@ -260,26 +263,26 @@
 </pre>
 </div>
                         <p><span class="l-bold">运行结果和demo对象结构：</span></p>
-                    <div></div>
+                    <div><p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%ba%94%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif" alt="" width="462" height="202" /></p></div>
                     </div>
                 </div>
                 <div>
                     <h3 class="l-limitTitle">第六种 - jQuery的实现：</h3>
                     <p class="l-txtBlock">
-                        jQuery构造函数繁琐的实现不仅仅只是为了去new化，同时也修复了针对jQuery对象的判定，巧妙的将原型重新指向，让<span class="l-codeRemark">instenceOf</span>可以在原型链中查找到jQuery构造函数，使得<span class="l-codeRemark">instenceOf</span>判定有效，让jQuery直逼真正的javascript对象。
+                        jQuery构造函数繁琐的实现不仅仅只是为了去new化，同时也修复了针对jQuery对象的判定，巧妙的将原型重新指向，让<span class="l-codeRemark">instenceof</span>可以在原型链中查找到jQuery构造函数，使得<span class="l-codeRemark">instenceOf</span>判定有效，让jQuery直逼真正的javascript对象。
                     </p>
                     <div class="l-code"><div class="cnblogs_Highlighter">
 <pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
-        //jQuery Array-Like实现
+         //jQuery Array-Like实现
         var jQuery = function () {
             return new jQuery.fn.init();
-        };
+        }, push = Array.prototype.push;
         jQuery.fn = jQuery.prototype = {
             constructor: jQuery,
             length: 0,
             add: function (item) {
                 //使用Array.prototype.push添加元素，会自动维护length
-                Array.prototype.push.call(this, item);
+                push.call(this, item);
             }
         };
         jQuery.fn.init = function () {
@@ -301,7 +304,7 @@
 </div>
 </div>
                     <p><span class="l-bold">运行结果和demo对象结构：</span></p>
-                    <div></div>
+                    <div><p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e5%85%ad%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif" alt="" width="700" height="345" /></p></div>
                 </div>
                 <div>
                     <h3 class="l-limitTitle">第七种 - 最简单的实现：</h3>
@@ -311,12 +314,12 @@
                     <div class="l-code"><div class="cnblogs_Highlighter">
 <pre class="brush:javascript;collapse:true;;gutter:true;">    //最简单的类数组实现
     !function () {
-        var List = function () { };
+        var List = function () { }, push = Array.prototype.push;
         List.prototype = {
             constructor: List,
             length: 0,
             add: function (item) {
-                Array.prototype.push.call(this, item);
+                push.call(this, item);
             }
         };
         console.group('第七种 - 最简单的实现');
@@ -332,7 +335,7 @@
 </pre>
 </div></div>
                     <p><span class="l-bold">运行结果和demo对象结构：</span></p>
-                    <div></div>
+                    <div><p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%b8%83%e7%a7%8d.gif" alt="" width="700" height="306" /></p></div>
                 </div>
                 <div>
                     <h3 class="l-limitTitle">第八种 - jQuery拆解版：</h3>
@@ -352,7 +355,9 @@
                 Array.prototype.push.call(this, item);
             }
         };
+        //就是jQuery的jQuery.fn.init.prototype = jQuery.fn;
         ArrayLike.prototype = List.prototype;
+        //测试
         console.group('第八种 - jQuery拆解版');
         var demo = List(); //这样就不用new了
         demo.add('List - add()');
@@ -366,12 +371,15 @@
 </pre>
 </div></div>
                     <p><span class="l-bold">运行结果和demo对象结构：</span></p>
-                    <div></div>
+                    <div><p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e5%85%ab%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif" alt="" width="600" height="306" /></p></div>
                 </div>
             </div>
+            <p>其实应该叫做类数组对象的7次实现...有点标题党的意思.....不要打脸...</p>
             <h3 class="l-title"><a name="other" href="javascript:;" style="color: white; text-decoration: none;">其他</a></h3>
             <div class="l-author">
                 <ul style="list-style: none; padding: 0; font-size: 15px;margin:0;">
+                    <li style="padding:0;">完整源码：<a target="_blank" href="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/ArrayLike.js"
+                        style="color: #259ec7;">https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/ArrayLike.js</a></li>
                         <li style="padding:0;">参考文章：<a target="_blank" href="http://blog.csdn.net/hztgcl1986/article/details/9203389"
                         style="color: #259ec7;">JavaScript类数组对象参考</a></li>
                         <li style="padding:0;">参考文章：<a target="_blank" href="http://kb.cnblogs.com/page/77478/"
