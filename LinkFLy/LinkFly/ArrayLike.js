@@ -8,7 +8,6 @@
                     constructor: List,
                     //如果希望更像原生一点，将length定义为属性，那么length则需要自己维护
                     length: function () { return list.length; },
-                    __proto__: List.prototype,
                     add: function (item) {
                         list.push(item);
                     },
@@ -19,18 +18,18 @@
             return self;
         };
         //测试
-        console.group('第 ' + (number++) + ' 种Array-Like测试');
+        console.group('第一种 - 通过闭包实现');
         var demo = new List();
         demo.add('List - add()');
-        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;');
+        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:red;');
         console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
-        //无法通过demo[0]这种方式访问
-        console.log('[ ' + demo.eq(0) + ' , ' + demo.eq(1) + ' ]');
+        //无法通过索引demo[0]这种方式访问
+        console.log('成员：[ ' + demo.eq(0) + ' , ' + demo.eq(1) + ' ]');
         console.log('length：' + demo.length());
-        console.log('%c注意看demo对象', 'color:red');
+        //注意看demo对象
         console.log(demo);
         console.groupEnd();
-    } ();
+    }();
 
     !function () {
         //通过继承数组实现，数组原生方法会被继承过来
@@ -41,7 +40,7 @@
             this.push(item);
         };
         //测试
-        console.group('第 ' + (number++) + ' 种Array-Like测试');
+        console.group('第二种 - 通过继承实现');
         var demo = new List();
         //源于继承
         demo.push('Array - push()');
@@ -50,10 +49,10 @@
         console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
         console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
         console.log('length：' + demo.length);
-        console.log('%c注意看demo对象', 'color:red');
+        //注意看demo对象
         console.log(demo);
         console.groupEnd();
-    } ();
+    }();
 
     !function () {
         //通过自动维护length实现
@@ -64,44 +63,41 @@
             //让对象模拟Array的行为
             this[this.length++] = item;
         };
-        console.group('第 ' + (number++) + ' 种Array-Like测试');
+        console.group('第三种 - 通过自我维护实现');
         var demo = new List();
         demo.add('List - add()');
         console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue');
         console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
         console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
         console.log('length：' + demo.length);
-        console.log('%c注意看demo对象', 'color:red');
+        //注意看demo对象
         console.log(demo);
         console.groupEnd();
-
-    } ();
+    }();
 
     !function () {
         //第四种Array-Like
         var List = function () {
-            //这才是List本尊
             var self = {
                 constructor: List,
                 length: 0,
                 add: function (item) {
                     //本质在这里，交给Array的自动维护
-                    [ ].push.call(this, item);
+                    [].push.call(this, item);
                 }
             };
             return self;
         };
-        console.group('第 ' + (number++) + ' 种Array-Like测试');
+        console.group('第四种 - 针对第一种优化');
         var demo = new List();
         demo.add('List - add()');
-        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:red;'); //但是demo的原型链上检测不到List.prototype
+        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:red;');
         console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
         console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
         console.log('length：' + demo.length);
-        console.log('%c注意看demo对象', 'color:red');
         console.log(demo);
         console.groupEnd();
-    } ();
+    }();
 
     !function () {
         //第五种，我们看见上面那种instanceOf并不能返回正确的结果，于是我们修正它
@@ -118,25 +114,22 @@
                 length: 0,
                 //强制引用__proto__,IE并不支持
                 __proto__: List.prototype,
-                prototype: List.prototype, //这里并没有修复，这里并没有生成__proto__
                 add: function (item) {
-                    [ ].push.call(this, item);
+                    Array.prototype.push.call(this, item);
                 }
             };
             return self;
         };
-        console.group('第 ' + (number++) + ' 种Array-Like 修复instanceOf 测试');
+        console.group('第五种 - 修复instenceOf判定');
         var demo = new List();
         demo.add('List - add()');
-        console.log('%cprototype的对比：' + (self.prototype === List.prototype), 'color:blue');
         console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;'); //但是他们仍然不相等
         console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
         console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
         console.log('length：' + demo.length);
-        console.log('%c注意看demo对象', 'color:red');
         console.log(demo);
         console.groupEnd();
-    } ();
+    }();
 
     //jQuery
     !function () {
@@ -157,17 +150,16 @@
         };
         //漂亮的重置prototype
         jQuery.fn.init.prototype = jQuery.fn;
-        console.group('第 ' + (number++) + ' 种，jQuery Array-Like测试');
+        console.group('第六种 - jQuery的实现');
         var demo = new jQuery();
         demo.add('List - add()');
         console.log('demo instanceof jQuery ： %c' + (demo instanceof jQuery), 'color:blue');
         console.log('demo.constructor === jQuery ： %c' + (demo.constructor === jQuery), 'color:blue');
         console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
         console.log('length：' + demo.length);
-        console.log('%c注意看demo对象', 'color:red');
         console.log(demo);
         console.groupEnd();
-    } ();
+    }();
 
     //最简单的类数组实现
     !function () {
@@ -179,17 +171,16 @@
                 Array.prototype.push.call(this, item);
             }
         };
-        console.group('第 ' + (number++) + ' 种Array-Like - 最简单的实现 测试');
+        console.group('第七种 - 最简单的实现');
         var demo = new List();//只是需要new
         demo.add('List - add()');
         console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;'); //但是他们仍然不相等
         console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
         console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
         console.log('length：' + demo.length);
-        console.log('%c注意看demo对象', 'color:red');
         console.log(demo);
         console.groupEnd();
-    } ();
+    }();
 
     (function () {
         var List = function () {
@@ -204,14 +195,13 @@
             }
         };
         ArrayLike.prototype = List.prototype;
-        console.group('第 ' + (number++) + ' 种Array-Like - 闭包内建两个对象 测试');
+        console.group('第八种 - jQuery拆解版');
         var demo = List(); //这样就不用new了
         demo.add('List - add()');
         console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;'); //但是他们仍然不相等
         console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
         console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
         console.log('length：' + demo.length);
-        console.log('%c注意看demo对象', 'color:red');
         console.log(demo);
         console.groupEnd();
     })();

@@ -1,54 +1,11 @@
 ﻿<!doctype html public "-//w3c//dtd xhtml 1.0 transitional//en" "http://www.w3.org/tr/xhtml1/dtd/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Javascript - Arraylike的思考与7种实现方式</title>
-    <style type="text/css">
-        /*日志页面*/
-        .l-body { font: 14px/24px 'Helvetica Neue',Helvetica,Arial, 'Microsoft Yahei',sans-serif!important; text-indent: 2em; text-align: justify; padding: 0 5px; word-break: break-all!important; }
-
-            .l-body p { text-indent: 2em!important; line-height: 27px!important; margin: 10px 5px!important; }
-
-            .l-body li { margin: 0!important; padding: 5px 10px; }
-        /*头部备注*/
-        .l-remark { color: #388db0; font-size: 13px; line-height: 15px; padding: 10px 8px 0; }
-        /*文章序*/
-        .l-index { background: #f6f6f6; border: 1px dashed #ccc; color: #444; margin: 10px 0; padding: 10px 5px; font: 14px/24px 'Helvetica Neue',Helvetica,Arial, 'Microsoft Yahei',sans-serif; text-indent: 2em; line-height: 25px; }
-
-        /*文章标题*/
-        .l-title { text-shadow: 2px 2px 3px #222222; background: #6495ED; color: White; font-size: 14pt; font-weight: bold; border-radius: 3px; padding: 5px 0; margin: 15px 0 5px; animation: 1s ease 0.2s normal both 1 bounceInLeft; transition: all 0.4s linear 0s; }
-
-            .l-title a { color: white; text-decoration: none; }
-            /*空间不支持*/
-            .l-title:hover { color: #ff7227; padding-left: 12px; }
-
-        .l-limitTitle { border-bottom: 1px solid #CCC; margin: 0 10px!important; padding: 10px 0; }
-        /*关键字*/
-        .l-marked { color: red; background: #f8f8f8; border: 1px solid #eaeaea; border-radius: 3px; margin-left: 2px; margin-right: 2px; padding: 0 4px; }
-        /*代码关键字*/
-        .l-codeRemark { color: #1483b7; background: #f8f8f8; border: 1px solid #eaeaea; border-radius: 3px; font-family: Consolas,monospace; margin-left: 2px; margin-right: 2px; padding: 0 4px; line-height: 21px; text-indent: 0!important; display: inline-block; }
-        /*导航链接样式*/
-        .l-navigation { color: #2d7e54; }
-        /*文字块*/
-        .l-txtBlock { background: #F8F8F8; margin: 10px 0; border: 1px dotted #CCC; }
-
-        .l-txtBlock { padding: 5px; }
-        /*非关键字（次要文字）*/
-        .l-notMarked { color: #888; padding: 0 5px; }
-        /*加粗文字*/
-        .l-bold { font-weight: bold; }
-        /*作者声明*/
-        .l-author { margin-top: 25px; border: 1px dotted #CCC; color: #666; padding: 15px 30px; text-indent: initial; background: #fafafa; font: 14px/24px 'Helvetica Neue',Helvetica,Arial,'Microsoft Yahei',sans-serif; line-height: 25px; }
-
-        .l-txt { }
-        /*代码容器，代码引用模板：Xcode，黑色是：Tomorrow_night_eighties*/
-        .l-code { padding: 10px 0; }
-        /*other：文章特有的一些class*/
-        .l-boldBlock { font-weight: bold; display: inline-block; vertical-align: top; width: 220px; height: 20px; text-align: left; }
-
-        /*这个发布的时候可以忽略*/
-        .cnblogs_code { background-color: #f5f5f5; border: 1px solid #cccccc; font-family: Courier New; font-size: 12px; margin: 5px 0; overflow: auto; padding: 5px; width: 95%; word-break: break-all; }
-
-        pre { font-family: Courier New; font-size: 12px; margin-bottom: 5px; margin-top: 5px; padding: 5px; }
+    <title>Javascript - Arraylike的7种实现</title>
+    <link href="../../Themes/Article.css" rel="stylesheet" />
+    <script src="../../jQuery/jquery-2.1.1.js" type="text/javascript"></script>
+    <style>
+        test { text-decoration: none; }
     </style>
 </head>
 <body>
@@ -56,747 +13,399 @@
         <div class="l-body">
             <div class="l-index">
                 <p>
-                    代码的本质突出<span style="color: red; background: #f8f8f8; border: 1px solid #eaeaea; border-radius: 3px; margin-left: 2px; margin-right: 2px; padding: 0 4px;">顺序、有序</span>这一概念，尤其在javascript——毕竟javascript是单线程引擎。
+                    jQuery的崛起让<span class="l-codeRemark">ArrayLike（类数组）</span>在javascript中大放异彩，它的出现为一组数组的行为（函数）扩展提供了基础。
                 </p>
                 <p>
-                    javascript拥有<span class="l-marked">函数式编程</span>的特性，而又因为javascript单线程引擎，我们的函数总是需要有序的执行。优秀代码常常
-                    把函数切割成各自的模块，然后在某一特定条件下执行，既然这些函数是有序的执行，那么我们为什么不编写一个统一管理的对象，来帮助我们管理这些函数——于是，<span class="l-codeRemark">Callbacks</span>（回调函数）诞生。
+                    类数组和数组相似，具有数组的某些行为，但是它相比数组可以更加自由的扩展，它的存在让一组数据的表现不再受限于数组，也无需去污染数组本身的原型——它来自javascript对象的挖掘和扩展，而并非javascript本身就存在的。简单的说，它来自数组，比数组更加适合扩展。
                 </p>
                 <p>
-                    本文原创于<a style="color: #259ec7;" href="www.cnblogs.com/silin6/">linkFly</a>，<a style="color: #259ec7;" href="http://www.cnblogs.com/silin6/p/Callbacks.html">原文地址</a>，<a style="color: #259ec7;" href="http://zh.wikipedia.org/wiki/MIT_License">遵循MIT协议</a>。
+                    本文原创于<a style="color: #259ec7;" target="_blank" href="http://www.cnblogs.com/silin6/">linkFly</a>，<a style="color: #259ec7;"
+                        href="http://www.cnblogs.com/silin6/p/ArrayLike.html" target="_blank">原文地址</a>。
                 </p>
                 <p>
                     这篇文章主要分为以下知识
                 </p>
                 <ul>
-                    <li style="padding:0px"><a class="l-navigation" href="#callbacks" title="点击阅读相关内容">什么是Callbacks</a></li>
-                    <li style="padding:0px"><a class="l-navigation" href="#model" title="点击阅读相关内容">Callbacks模型</a></li>
-                    <li style="padding:0px"><a class="l-navigation" href="#module" title="点击阅读相关内容">基本模块实现</a></li>
-                    <li style="padding:0px"><a class="l-navigation" href="#once" title="点击阅读相关内容">once和auto(memory)</a></li>
-                    <li style="padding:0px"><a class="l-navigation" href="#end" title="点击阅读相关内容">源码</a></li>
-                    <li style="padding:0px"><a class="l-navigation" href="#download" title="点击阅读相关内容">源码下载</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#muddle" title="点击阅读相关内容">锋芒毕露的ArrayLike</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#arraylike" title="点击阅读相关内容">ArrayLike的实现</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#other" title="点击阅读相关内容">其他</a></li>
                 </ul>
             </div>
-            <h3 class="l-title"><a name="callbacks" href="javascript:;" style="color: white; text-decoration: none;">什么是Callbacks</a></h3>
-            <p>
-                javascript中充斥着函数编程，例如最简单的<span class="l-codeRemark">window.onload</span>承接的就是一个函数，悲催的是window.onload直接赋值的话只能接收一个函数，如果有好几个函数想要在onload中执行，那么我们就需要编写如下代码：
-            </p>
-            <div class="cnblogs_code">
-<pre>        <span style="color: #0000ff;">function</span><span style="color: #000000;"> a(elem) {
-            elem.innerHTML </span>= '我是函数a，我要改变Element的HTML结构'<span style="color: #000000;">;
+            <h3 class="l-title"><a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">锋芒毕露的ArrayLike</a></h3>
+            <div>
+                <p>
+                    <span class="l-codeRemark">ArrayLike（类数组/伪数组）</span>即拥有数组的一部分行为，在DOM中早已表现出来，而jQuery的崛起让ArrayLike在javascript中大放异彩。正如它的翻译一样：它类似于数组。
+                </p>
+                <p>ArrayLike对象的精妙在于它和javascript原生的Array类似，但是它是自由构建的，它来自开发者对javascript对象的扩展，也就是说：对于它的原型（prototype）我们可以自由定义，而不会污染到javascript原生的Array。</p>
+                <p>过去针对一组数据的扩展是下面这个样子的：</p>
+                <div class="l-code">
+                    <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">        //污染Array实现扩展
+        Array.prototype.demo = function () {
+            //check
         };
-        </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> b(elem) {
-            elem.innerHTML </span>= '我的函数b，我要改变Element的style'<span style="color: #000000;">;
-        }
-        window.onload </span>= <span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
-            </span><span style="color: #0000ff;">var</span> elem = document.getElementById('test'<span style="color: #000000;">);
-            a(elem);
-            b(elem);
-        };</span></pre>
+        var test = [];
+        test.demo();
+</pre>
 </div>
-            <p>
-                <span class="l-codeRemark">回调函数</span>初衷就是建立在这么个玩意儿的上面，不再让我们分散这些函数，而是把这些函数统一整理。可以看见，我们在window.onload中希望针对一个Element做两件事情：先改变html结构，然后改变这个html的style。两个函数同样是针对一个Element操作，而这两个函数最终的执行都是<span class="l-marked">有序</span>进行的。那么我们为什么不编写一个这样的对象管理这些函数呢。当然，
-                这只是回调函数的最基础的存在意义，我们需要的不仅仅是这样一个简单的回调函数对象，我们需要一个更加强大的回调函数。好吧，这只是一个简单的用例，那么我可以告诉你这个回调函数除了一个个执行函数之外，它还可以做什么。
-            </p>
-            <div class="l-txtBlock">
+             </div>
                 <p>
-                    <span class="l-codeRemark">Callbacks</span>本质就是控制函数有序的执行，Javascript是单线程引擎，也就说，javascript同一时间只会有一处代码在运行——即便是<span class="l-codeRemark">Ajax</span>、<span class="l-codeRemark">setTimeout</span>。
-                这两个函数看起来好像都是异步的，其实并非如此，浏览器在运行javascript代码的时候，这些代码都会被有序的压入一个<span class="l-codeRemark">队列</span>中，当你运行<span class="l-codeRemark">Ajax</span>的时候，浏览器会把<span class="l-codeRemark">Ajax</span>
-                    压入代码队列，<span class="l-marked">浏览器在处理javascript代码是从这个代码队列中一个一个取代码执行的</span>——<span class="l-codeRemark">Callbacks</span>，迎合了这种单线程引擎。
+                    上面代码你们懂的，污染了Array，在协同式开发中这简直就是作孽啊——ArrayLike应此诞生。
                 </p>
                 <p>
-                    当然，我们要的，不仅仅是这样一个简单的工具对象——在<span class="l-codeRemark">jQuery</span>源码中，<span class="l-codeRemark">Callbacks</span>提供了一组函数的基本管理，为<span class="l-codeRemark">Deferred（异步队列）</span>提供了基础，同时也服务于<span class="l-codeRemark">Queue（同步队列）</span>。
-                    <span class="l-codeRemark">Deferred</span>用于<span class="l-codeRemark">抹平/扁平化</span><span class="l-codeRemark">金字塔</span>编程（大量的回调函数嵌套，例如<span class="l-codeRemark">Ajax</span>中需要根据请求返回码决定执行的代码）；
-                    而<span class="l-codeRemark">Queue</span>，驱动着<span class="l-codeRemark">jQuery.animate（动画引擎）</span>。
+                    ArrayLike让你对一组数据的扩展不再受限于Array本身，同时也不会影响到Array，说白了就是：一组数据，肯定是有数组来存，但是如果要对这组数据进行扩展，会影响到数组原型，ArrayLike的出现则提供了一个中间数据桥梁，ArrayLike有数组的特性，
+                但是对ArrayLike的扩展并不会影响到原生的数组。举个栗子：
                 </p>
+                <p class="l-txtBlock">
+                    爸爸妈妈对你期望很高，你要好好学习，但是舍友基佬教会了你打dota，整天拉你打dota让你没时间看书学习，结果呢，就是打得一手好dota学习掉下去了——但是如果，你开了分身斧，让你的分身去打dota，你自己仍然好好学习，dota学习两不误，而且你的分身不仅仅可以打dota，也可以去打wow，把妹，做你做不到的事情，是不是觉得这样不就碉堡了么！！！
+                </p>
+                <p>没错，ArrayLike就是要干这么碉堡的事情。</p>
+                <p class="l-bold">常见的ArrayLike有下面这几个，详见<a href="#other">其他</a>：</p>
             </div>
-            <p>那么我们就来编写一个<span class="l-codeRemark">Callbacks</span>吧。</p>
-            <h3 class="l-title"><a name="model" href="javascript:;" style="color: white; text-decoration: none;">Callbacks模型</a></h3>
+            <ul style="list-style: none; line-height: 18px;">
+                <li>Arguments</li>
+                <li>NodeList</li>
+                <li>StyleSheetList</li>
+                <li>HTMLCollection</li>
+                <li>HTMLFormControlsCollection (继承HTMLCollection)</li>
+                <li>HTMLOptionsCollection(继承HTMLCollection)</li>
+                <li>HTMLAllCollection</li>
+                <li>DOMTokenList</li>
+            </ul>
+            <h3 class="l-title"><a name="arraylike" href="javascript:;" style="color: white; text-decoration: none;">ArrayLike的实现</a></h3>
             <div>
-                <div class="l-txtBlock">
-                    <h3 class="l-limitTitle">Array（数组）：</h3>
-                    <p>
-                        既然我们<span class="l-codeRemark">Callbacks</span>要承接一系列函数，那么必然需要有一个容器。我们可以使用一个数组，并把每一个函数压到该数组中，需要执行的时候，循环数组项执行。
+                <div>
+                    <h3 class="l-limitTitle">第一种 - 通过闭包实现：</h3>
+                    <p class="l-txtBlock">
+                        通过闭包实现，内部采用一个Array作为基础，API是针对数组进行操作，在API的实现上较差。并且不支持直接通过<span class="l-codeRemark">索引（array[0]）</span>来访问元素，通过闭包实现上会丢失<span class="l-remark">instanceof</span>的判定，优点是够轻。
                     </p>
-                </div>
-                <div class="l-txtBlock">
-                    <h3 class="l-limitTitle">工作模型：</h3>
-                    <div>
-                        这个<span class="l-codeRemark">Callbacks</span>需要非常的强大，并不仅仅是压入函数，然后执行这么简单，这个<span class="l-codeRemark">Callbacks</span>应该拥有良好的执行模型。
-                                    <ul>
-                                        <li><span class="l-bold">once：</span>当前<span class="l-codeRemark">Callbacks</span>对象中所有的函数只会执行一次，执行一次完之后就会被释放掉，我们可以为使用<span class="l-codeRemark">Callbacks</span>对象的用户提供一个稳定有效的方案，确保函数只会执行一次，之后不再执行，稳定了这些函数的线程。</li>
-                                        <li><span class="l-bold">auto：</span>自动执行模型，这是个有意思的模型，有些函数依赖上一层函数，例如函数b的执行依赖于函数a，那么我们提供一个自动执行的模型：第一次执行这个<span class="l-codeRemark">Callbacks</span>之后，每次添加函数到<span class="l-codeRemark">Callbacks</span>的时候，自动执行过去添加的那些函数，并把最后一次给定的参数数据传递给过去的那些函数，这样就从<span class="l-codeRemark">Callbacks</span>中抹平了这些依赖函数之间需要反复触发的关系，这是个有意思的模型。</li>
-                                        <li><span class="l-bold">once&auto：</span>我们可以让它更强大，同时工作<span class="l-codeRemark">once</span>和<span class="l-codeRemark">auto</span>模型，即：当每次添加函数到<span class="l-codeRemark">Callbacks</span>中的时候，过去的函数都会执行，<span class="l-marked">然后，释放掉这些过去的函数，下次继续添加函数的时候，过去的那些函数不会再执行，因为once模型，已经把它们释放掉了</span>。</li>
-                                    </ul>
-                    </div>
-                </div>
-                <div class="l-txtBlock">
-                    <h3 class="l-limitTitle">API：</h3>
-                    <div>
-                        <ul>
-                            <li><span class="l-boldBlock">add(<span class="l-notMarked">function</span>) - </span>添加一个（或多个）函数到<span class="l-codeRemark">Callbacks</span>对象中：当然，如果你并不添加函数只是好奇看看<span class="l-codeRemark">Callbacks</span>，我们也将让你继续享受你的乐趣——我们并不会抛出异常，因为这对于我们来说并不擅长。</li>
-                            <li><span class="l-boldBlock">remove(<span class="l-notMarked">function</span>) - </span>移除一个<span class="l-codeRemark">Callbacks</span>中的一个函数：既然有了添加，那么我们也应该提供反悔的方案，我们是多么的平易近人，容忍着别人过去所做的一切。</li>
-                            <li><span class="l-boldBlock">has(<span class="l-notMarked">function</span>) - </span>判断<span class="l-codeRemark">Callbacks</span>中是否包含一个函数：哦？你竟然不确定是否包含这个函数，当初可是你丢进来的啊！你怎么如此马虎？不过既然你问我的话，我仍然会告诉你<span class="l-codeRemark">Callbacks</span>是否包含这个函数，我知道你很繁忙，并不能记住和确定所有的事情。</li>
-                            <li><span class="l-boldBlock">empty() - </span>清空<span class="l-codeRemark">Callbacks</span>：这些函数对于你失去了意义了么？什么？已经执行过你就不想要了？所以你希望可以清空它？好吧，为了内存君我还是忍下你这个需求。</li>
-                            <li><span class="l-boldBlock">disable() - </span>废掉一个<span class="l-codeRemark">Callbacks</span>：为了和别人的代码稳定的存在，我选择了自我牺牲——没错，这个方法可以废掉<span class="l-codeRemark">Callbacks</span>，彻底的废掉，就如同它曾经尚未存在过一般。</li>
-                            <li><span class="l-boldBlock">disabled() - </span>判断这个<span class="l-codeRemark">Callbacks</span>是否已经被废掉：如果你仍然不相信<span class="l-codeRemark">Callbacks</span>是否真的自我牺牲，那么这个方法可以让你安心。</li>
-                            <li><span class="l-boldBlock">lock(<span class="l-notMarked">boolean</span>) - </span>锁定这个<span class="l-codeRemark">Callbacks</span>对象：你害怕它并不稳定，但是你又不想舍弃它，lock是个不错的方法，它接收一个<span class="l-codeRemark">Boolean</span>的参数，表示是否需要锁定这个对象，当然，无参的它用于让你确定<span class="l-codeRemark">Callbacks</span>是否被锁定。</li>
-                            <li><span class="l-boldBlock">fire(<span class="l-notMarked">data</span>) - </span>执行这个<span class="l-codeRemark">Callbacks</span>中的函数：我们做的这一切，不都是为了这一刻执行的宿命么？参数将会成为这些需要执行的函数的参数。</li>
-                            <li><span class="l-boldBlock">fireWith(<span class="l-notMarked">context,data</span>) - </span>执行<span class="l-codeRemark">Callbacks</span>中的函数，并且指定上下文。在fire()里，所有的函数的<span class="l-codeRemark">Context(上下文)</span>都是<span class="l-codeRemark">Callbacks</span>对象，而fireWidth()，可以让你重新定义这些要执行的函数的上下文，多么自由的编程啊，<span class="l-codeRemark">Callbacks</span>为你考虑了一切。</li>
-                            <li><span class="l-boldBlock">fired() - </span>判断这个<span class="l-codeRemark">Callbacks</span>过去是否已经执行过：我们相信，多数时候你并不知道过去做过什么，但是我们记录了你做的一切，如果你过去曾经执行过这个<span class="l-codeRemark">Callbacks</span>对象，那么你休想否认，因为我们知道过去你是否执行了这个<span class="l-codeRemark">Callbacks</span>。</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <h3 class="l-title"><a name="module" href="javascript:;" style="color: white; text-decoration: none;">基本模块实现</a></h3>
-            <div>
-                <h3 class="l-limitTitle">简单的实现：</h3>
-                <p>
-                    我们先来简单的实现一个<span class="l-codeRemark">Callbacks</span>：
-                </p>
-                <div class="cnblogs_code">
-                    <pre>(<span style="color: #0000ff;">function</span><span style="color: #000000;"> (window, undefined) {
-            </span><span style="color: #0000ff;">var</span> Callbacks = <span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
-                </span><span style="color: #008000;">//</span><span style="color: #008000;">通过闭包保护这些私有变量</span>
-                <span style="color: #0000ff;">var</span> list = [],<span style="color: #008000;">//</span><span style="color: #008000;">回调函数列表</span>
-                    fired;<span style="color: #008000;">//</span><span style="color: #008000;">是否执行过</span>
-                <span style="color: #008000;">//</span><span style="color: #008000;">返回一个闭包的Callbakcs对象</span>
-                <span style="color: #0000ff;">return</span><span style="color: #000000;"> {
-                    add: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (fn) {
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">当Callbacks废弃掉的时候，list为undefined</span>
-                        <span style="color: #0000ff;">if</span><span style="color: #000000;"> (list) {
-                            </span><span style="color: #008000;">//</span><span style="color: #008000;">添加一个回调函数</span>
-<span style="color: #000000;">                            list.push(fn);
-                            </span><span style="color: #008000;">//</span><span style="color: #008000;">支持链式回调</span>
-<span style="color: #000000;">                        }
-                        </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
+                    <div class="l-code">
+                        <div class="cnblogs_Highlighter">
+<div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
+        //通过闭包实现
+        var List = function () {
+            var list = [],
+                self = {
+                    constructor: List,
+                    //如果希望更像原生一点，将length定义为属性，那么length则需要自己维护
+                    length: function () { return list.length; },
+                    add: function (item) {
+                        list.push(item);
                     },
-                    fireWith: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (context, data) {
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">触发回调函数，并指定上下文</span>
-                        <span style="color: #0000ff;">if</span><span style="color: #000000;"> (list) {
-                            fired </span>= <span style="color: #0000ff;">true</span><span style="color: #000000;">;
-                            </span><span style="color: #0000ff;">for</span> (<span style="color: #0000ff;">var</span> i = 0, len = list.length; i &lt; len; i++<span style="color: #000000;">) {
-                                </span><span style="color: #008000;">//</span><span style="color: #008000;">当Callbacks中某一个函数返回false的时候，停止Callbacks后续的执行</span>
-                                <span style="color: #0000ff;">if</span> (list[i].apply(context, data) === <span style="color: #0000ff;">false</span><span style="color: #000000;">)
-                                    </span><span style="color: #0000ff;">break</span><span style="color: #000000;">;
-                            }
-                        }
-                        </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-                    },
-                    fire: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">触发回调函数</span>
-                        <span style="color: #008000;">//</span><span style="color: #008000;">调用fireWith并指定上下文</span>
-                        <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span>.fireWith(<span style="color: #0000ff;">this</span><span style="color: #000000;">, arguments);
-                    },
-                    empty: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">清空list即可</span>
-                        <span style="color: #0000ff;">if</span> (list)<span style="color: #008000;">//</span><span style="color: #008000;">当这个Callbacks废弃掉的时候，Callbacks不应该可以继续使用</span>
-                            list =<span style="color: #000000;"> [];
-                        </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-                    },
-                    disable: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">废弃这个Callbacks对象，后续的回调函数列表不再执行</span>
-                        list =<span style="color: #000000;"> undefined;
-                        </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-                    },
-                    disabled: </span><span style="color: #0000ff;">function</span> () {<span style="color: #008000;">//</span><span style="color: #008000;">检测这个Callbacks是否已经废掉</span>
-                        <span style="color: #008000;">//</span><span style="color: #008000;">转换为boolean返回</span>
-                        <span style="color: #0000ff;">return</span> !<span style="color: #000000;">list;
-                    },
-                    fired: </span><span style="color: #0000ff;">function</span> () {<span style="color: #008000;">//</span><span style="color: #008000;">这个callbacks是否执行过</span>
-                        <span style="color: #0000ff;">return</span> !!<span style="color: #000000;">fired;
+                    eq: function (index) {
+                        return list[index];
                     }
                 };
-            };
-            </span><span style="color: #008000;">//</span><span style="color: #008000;">注册到window下</span>
-            window.Callbacks =<span style="color: #000000;"> Callbacks;
-        }(window));</span></pre>
+            return self;
+        };
+        //测试
+        console.group('第一种 - 通过闭包实现');
+        var demo = new List();
+        demo.add('List - add()');
+        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:red;');
+        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
+        //无法通过索引demo[0]这种方式访问
+        console.log('成员：[ ' + demo.eq(0) + ' , ' + demo.eq(1) + ' ]');
+        console.log('length：' + demo.length());
+        //注意看demo对象
+        console.log(demo);
+        console.groupEnd();
+    }();
+</pre>
+</div>
+</div>
+                    </div>
+                    <p><span class="l-bold">运行结果和demo对象结构：</span></p>
+                    <div></div>
                 </div>
-                <p>然后我们测试一下这个Callbacks：</p>
-                <div class="cnblogs_code">
-                    <pre>        <span style="color: #0000ff;">var</span> test = <span style="color: #0000ff;">new</span><span style="color: #000000;"> Callbacks();
-        test.add(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (value) {
-            console.log(</span>'函数1，value是：' +<span style="color: #000000;"> value);
-        });
-        test.add(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (value) {
-            console.log(</span>'函数2，value是：' +<span style="color: #000000;"> value);
-        });
-        test.fire(</span>'这是函数1和函数2的值'<span style="color: #000000;">);
-        console.log(</span>'查看函数是否执行过：' +<span style="color: #000000;"> test.fired());
-        test.disable();</span><span style="color: #008000;">//</span><span style="color: #008000;">废弃这个Callbacks</span>
-        console.log('查看函数是否被废弃：' +<span style="color: #000000;"> test.disabled());
-        test.add(</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> () {
-            console.log(</span>'添加第三个函数，这个函数不应该被执行'<span style="color: #000000;">);
-        });
-        test.fire();</span></pre>
+                <div>
+                    <h3 class="l-limitTitle">第二种 - 通过继承实现：</h3>
+                    <p class="l-txtBlock">
+                        主要亮点（应用）在<span class="l-marked">保留Array的API</span>，在Array上二次封装，可以通过索引来访问。
+                    </p>
+                    <div class="l-code">
+                        <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
+        //通过继承数组实现，数组原生方法会被继承过来
+        var List = function () { };
+        List.prototype = [];
+        List.prototype.constructor = List;
+        List.prototype.add = function (item) {
+            this.push(item);
+        };
+        //测试
+        console.group('第二种 - 通过继承实现');
+        var demo = new List();
+        //源于继承
+        demo.push('Array - push()');
+        demo.add('List - add()');
+        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;');
+        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
+        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
+        console.log('length：' + demo.length);
+        //注意看demo对象
+        console.log(demo);
+        console.groupEnd();
+    }();
+</pre>
+</div>
+                    </div>
+                    <p><span class="l-bold">运行结果和demo对象结构：</span></p>
+                    <div></div>
                 </div>
-                <p>打开浏览器的控制台我们可以看见运行结果正常。</p>
-            </div>
-            <h3 class="l-title"><a name="once" href="javascript:;" style="color: white; text-decoration: none;">once和auto(memory)实现</a></h3>
-            <div>
-                <h3 class="l-limitTitle">once：</h3>
-                <p>
-                    once让这个callbacks中的函数运行一次之后就不再运行。原理非常的简单，上面的代码中，我们可以看见有一个变量list承接函数列表，所以我们只需要把过去执行过的代码清空即可。我们用一个全局变量，保存当前执行模型，如果是<span class="l-codeRemark">once模型</span>，就在<span class="l-codeRemark">fireWith()</span>里让这个list失效即可：
-                </p>
-                <div class="cnblogs_code">
-                    <pre>(<span style="color: #0000ff;">function</span><span style="color: #000000;"> (window, undefined) {
-            </span><span style="color: #0000ff;">var</span> Callbacks = <span style="color: #0000ff;">function</span><span style="color: #000000;"> (once) {
-                </span><span style="color: #008000;">//</span><span style="color: #008000;">通过闭包保护这些私有变量</span>
-                <span style="color: #0000ff;">var</span> list = [],<span style="color: #008000;">//</span><span style="color: #008000;">回调函数列表</span>
-                    fired;<span style="color: #008000;">//</span><span style="color: #008000;">是否执行过</span>
-                <span style="color: #008000;">//</span><span style="color: #008000;">返回一个闭包的Callbakcs对象</span>
-                <span style="color: #0000ff;">return</span><span style="color: #000000;"> {
-                    </span><span style="color: #008000;">//</span><span style="color: #008000;">...省略部分代码</span>
-                    fireWith: <span style="color: #0000ff;">function</span><span style="color: #000000;"> (context, data) {
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">触发回调函数，并指定上下文</span>
-                        <span style="color: #0000ff;">if</span><span style="color: #000000;"> (list) {
-                            fired </span>= <span style="color: #0000ff;">true</span><span style="color: #000000;">;
-                            </span><span style="color: #0000ff;">for</span> (<span style="color: #0000ff;">var</span> i = 0, len = list.length; i &lt; len; i++<span style="color: #000000;">) {
-                                </span><span style="color: #008000;">//</span><span style="color: #008000;">当Callbacks中某一个函数返回false的时候，停止Callbacks后续的执行</span>
-                                <span style="color: #0000ff;">if</span> (list[i].apply(context, data) === <span style="color: #0000ff;">false</span><span style="color: #000000;">)
-                                    </span><span style="color: #0000ff;">break</span><span style="color: #000000;">;
-                            }
-                        }
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">如果配置了once模型，则全局变量once为true，则list重置</span>
-                        <span style="color: #0000ff;">if</span> (once) list =<span style="color: #000000;"> undefined;
-                        </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-                    }
-                    </span><span style="color: #008000;">//</span><span style="color: #008000;">...省略部分代码</span>
-<span style="color: #000000;">                };
-            };
-            </span><span style="color: #008000;">//</span><span style="color: #008000;">注册到window下</span>
-            window.Callbacks =<span style="color: #000000;"> Callbacks;
-        }(window));</span></pre>
+                <div>
+                    <h3 class="l-limitTitle">第三种 - 通过自我维护实现：</h3>
+                    <p class="l-txtBlock">
+                        在增删改上需要自我维护length，相比下来很是折腾和繁琐，只是提供一种代码思路，并不提倡，可以通过索引访问，
+                    </p>
+                    <div class="l-code"><div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
+        //通过自动维护length实现
+        var List = function () {
+            this.length = 0;
+        };
+        List.prototype.add = function (item) {
+            //让对象模拟Array的行为
+            this[this.length++] = item;
+        };
+        console.group('第三种 - 通过自我维护实现');
+        var demo = new List();
+        demo.add('List - add()');
+        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue');
+        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
+        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
+        console.log('length：' + demo.length);
+        //注意看demo对象
+        console.log(demo);
+        console.groupEnd();
+    }();
+</pre>
+</div></div>
+                    <p><span class="l-bold">运行结果和demo对象结构：</span></p>
+                    <div></div>
                 </div>
-                <h3 class="l-limitTitle">auto：</h3>
-                <p>
-                    <span class="l-codeRemark">auto（memory）</span>模型在jQuery中是以memory命名的，最初被这个命名给混淆了，仔细看了用法才确定改成auto——它的作用就是“第一次<span class="l-codeRemark">fire()</span>之后，后续<span class="l-codeRemark">add()</span>的函数自动执行”，以下情况可以用到：当添加一组函数到<span class="l-codeRemark">Callbacks</span>之后，临时又需要追加一个函数，那么即时运行这个新追加的函数——不得不说，为了使用的便利，这个模式变得有点难以理解。实现起来就是在<span class="l-codeRemark">add()</span>的时候判断是否是<span class="l-codeRemark">auto</span>模型，如果是<span class="l-codeRemark">auto</span>模型，则执行这个函数。
-                    但是，我们需要在第一次<span class="l-codeRemark">fire()</span>之后才自动执行，没有<span class="l-codeRemark">fire()</span>过的<span class="l-codeRemark">Callbacks</span>并不该被自动执行，并且，每次自动执行后，还需要把最后一次使用的参数传递传递给这个自动执行的函数。
-                </p>
-                <p>
-                    或许大家会想到如下代码：
-                </p>
-                <div class="cnblogs_code">
-                    <pre>(<span style="color: #0000ff;">function</span><span style="color: #000000;"> (window, undefined) {
-            </span><span style="color: #0000ff;">var</span> Callbacks = <span style="color: #0000ff;">function</span><span style="color: #000000;"> (once, auto) {
-                </span><span style="color: #0000ff;">var</span> list =<span style="color: #000000;"> [],
-                    fired,
-                    lastData;</span><span style="color: #008000;">//</span><span style="color: #008000;">保存最后一次执行的参数</span>
-                <span style="color: #0000ff;">return</span><span style="color: #000000;"> {
-                    add: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (fn) {
-                        </span><span style="color: #0000ff;">if</span><span style="color: #000000;"> (list) {
-                            list.push(fn);
-                            </span><span style="color: #008000;">//</span><span style="color: #008000;"> &mdash; 自动执行模式</span>
-                            <span style="color: #008000;">//</span><span style="color: #008000;">最后一次使用的参数传递过去，这里丢失了Context(上下文)</span>
-                            <span style="color: #008000;">//</span><span style="color: #008000;">为了不让这里丢失上下文，我们或许还需要声明一个变量保存最后一次使用的Context</span>
-                            <span style="color: #0000ff;">if</span> (auto) <span style="color: #0000ff;">this</span><span style="color: #000000;">.fire(lastData);
-                        }
-                        </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-                    },
-                    fireWith: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (context, data) {
-                        </span><span style="color: #0000ff;">if</span><span style="color: #000000;"> (list) {
-                            lastData </span>= data;<span style="color: #008000;">//</span><span style="color: #008000;"> &mdash; 记录最后一次使用的参数</span>
-                            fired = <span style="color: #0000ff;">true</span><span style="color: #000000;">;
-                            </span><span style="color: #0000ff;">for</span> (<span style="color: #0000ff;">var</span> i = 0, len = list.length; i &lt; len; i++<span style="color: #000000;">) {
-                                </span><span style="color: #0000ff;">if</span> (list[i].apply(context, data) === <span style="color: #0000ff;">false</span><span style="color: #000000;">)
-                                    </span><span style="color: #0000ff;">break</span><span style="color: #000000;">;
-                            }
-                        }
-                        </span><span style="color: #0000ff;">if</span> (once) list =<span style="color: #000000;"> [];
-                        </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-                    }
-                    </span><span style="color: #008000;">//</span><span style="color: #008000;">部分代码省略</span>
-<span style="color: #000000;">                };
+                <div>
+                    <h3 class="l-limitTitle">第四种 - 针对第一种优化：</h3>
+                    <p class="l-txtBlock">
+                        在add中通过Array原生的API<span class="l-codeRemark">Array.prototype.push</span>来实现，原理是只要调用过Array原生的增删改API操作函数（仅第一次即可），则可以通过索引来访问元素，但是<span class="l-remark">instanceof</span>的判定仍未修复。
+                    </p>
+                    <div class="l-code"><div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
+        //第四种Array-Like
+        var List = function () {
+            var self = {
+                constructor: List,
+                length: 0,
+                add: function (item) {
+                    //本质在这里，交给Array的自动维护
+                    [].push.call(this, item);
+                }
             };
-            </span><span style="color: #008000;">//</span><span style="color: #008000;">注册到window下</span>
-            window.Callbacks =<span style="color: #000000;"> Callbacks;
-        }(window));</span></pre>
+            return self;
+        };
+        console.group('第四种 - 针对第一种优化');
+        var demo = new List();
+        demo.add('List - add()');
+        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:red;');
+        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
+        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
+        console.log('length：' + demo.length);
+        console.log(demo);
+        console.groupEnd();
+    }();
+</pre>
+</div></div>
+                    <p><span class="l-bold">运行结果和demo对象结构：</span></p>
+                    <div></div>
                 </div>
-                <p>但是在jQuery里采用了更奇妙的用法，获取jQuery作者也自豪这种用法，所以命名这个模型为<span class="l-codeRemark">memory</span>——就是让上面的变量<span class="l-marked">auto不仅仅表示当前是auto执行模式，并且作为最后一次参数的容器</span>，它既表示了<span class="l-codeRemark">auto</span>，也表示了<span class="l-codeRemark">memory</span>。（下面的代码非jQuery是根据jQuery代码思路而写，非源码）：</p>
-                <div class="cnblogs_code">
-                    <pre>(<span style="color: #0000ff;">function</span><span style="color: #000000;"> (window, undefined) {
-            </span><span style="color: #0000ff;">var</span> Callbacks = <span style="color: #0000ff;">function</span><span style="color: #000000;"> (auto) {
-                </span><span style="color: #0000ff;">var</span> list =<span style="color: #000000;"> [],
-                    fired,
-                    memory,</span><span style="color: #008000;">//</span><span style="color: #008000;">主演在这里，就是memory</span>
-                    coreFire = <span style="color: #0000ff;">function</span><span style="color: #000000;"> (data) {
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">真正的触发函数方法</span>
-                        <span style="color: #0000ff;">if</span><span style="color: #000000;"> (list) {
-                            </span><span style="color: #008000;">//</span><span style="color: #008000;">&amp;&amp;表达式妙用</span>
-                            memory = auto &amp;&amp; data;<span style="color: #008000;">//</span><span style="color: #008000;">记录最后一次的参数，如果不是auto模式则不会记录这个参数</span>
-                            <span style="color: #008000;">//</span><span style="color: #008000;">如果是auto模式，那么这个auto将不会为false，它会是一个数组</span>
-                            fired = <span style="color: #0000ff;">true</span><span style="color: #000000;">;
-                            </span><span style="color: #0000ff;">for</span> (<span style="color: #0000ff;">var</span> i = 0, len = list.length; i &lt; len; i++<span style="color: #000000;">) {
-                                </span><span style="color: #0000ff;">if</span> (list[i].apply(data[0], data[1]) === <span style="color: #0000ff;">false</span><span style="color: #000000;">)
-                                    </span><span style="color: #0000ff;">break</span><span style="color: #000000;">;
-                            }
-                        }
-                    };
-                </span><span style="color: #0000ff;">return</span><span style="color: #000000;"> {
-                    add: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (fn) {
-                        </span><span style="color: #0000ff;">if</span><span style="color: #000000;"> (list) {
-                            </span><span style="color: #008000;">//</span><span style="color: #008000;">添加一个回调函数</span>
-<span style="color: #000000;">                            list.push(fn);
-                            </span><span style="color: #008000;">//</span><span style="color: #008000;">自动执行模式，注意如果auto模型</span>
-                            <span style="color: #008000;">//</span><span style="color: #008000;">memory是在coreFire()里赋值的，默认是false</span>
-                            <span style="color: #0000ff;">if</span><span style="color: #000000;"> (memory) coreFire(auto);
-                        }
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">支持链式回调</span>
-                        <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-                    },
-                    fireWith: </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (context, data) {
-                        </span><span style="color: #0000ff;">if</span> (once) list =<span style="color: #000000;"> [];
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">这里调用coreFire，把参数转换为数组了</span>
-<span style="color: #000000;">                        coreFire([context, data]);
-                        </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-                    }
-                    </span><span style="color: #008000;">/*</span><span style="color: #008000;">部分代码省略</span><span style="color: #008000;">*/</span><span style="color: #000000;">
-                };
+                <div>
+                    <h3 class="l-limitTitle">第五种 - 修复instenceOf判定：</h3>
+                    <p class="l-txtBlock">
+                        这种修复有点勉强，因为在ie下并没有<span class="l-codeRemark">__proto__</span>，所以这里所谓的修复只不过是针对现代浏览器而已，只是提供一种思路，关于<span class="l-codeRemark">instenceOf</span>请参考请参考：<a href="#other">其他</a>。
+                    </p>
+                    <div class="l-code">
+                        <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
+        //第五种，我们看见上面那种instanceOf并不能返回正确的结果，于是我们修正它
+        var List = function () {
+            /*
+            instanceof 检测一个对象A是不是另一个对象B的实例的原理是：
+            查看对象B的prototype指向的对象是否在对象A的[[prototype]]链上。
+            如果在，则返回true,如果不在则返回false。
+            不过有一个特殊的情况，当对象B的prototype为null将会报错(类似于空指针异常)。
+            reference:http://kb.cnblogs.com/page/77478/
+            */
+            self = {
+                constructor: List,
+                length: 0,
+                //强制引用__proto__,IE并不支持
+                __proto__: List.prototype,
+                add: function (item) {
+                    Array.prototype.push.call(this, item);
+                }
             };
-            window.Callbacks </span>=<span style="color: #000000;"> Callbacks;
-        }(window));</span></pre>
+            return self;
+        };
+        console.group('第五种 - 修复instenceOf判定');
+        var demo = new List();
+        demo.add('List - add()');
+        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;'); //但是他们仍然不相等
+        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
+        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
+        console.log('length：' + demo.length);
+        console.log(demo);
+        console.groupEnd();
+    }();
+</pre>
+</div>
+                        <p><span class="l-bold">运行结果和demo对象结构：</span></p>
+                    <div></div>
+                    </div>
                 </div>
-                <ul>
-                    <li>我们在上一个auto实现的代码中看到我们丢失了<span class="l-codeRemark">Context</span>，jQuery早在<span class="l-codeRemark">fireWith()</span>中修复了这个bug——在<span class="l-codeRemark">fireWith()</span>中修复参数。jQuery把<span class="l-codeRemark">fireWith()</span>中本来应该执行函数的逻辑给抽离出来，我们暂时将它命名为<span class="l-codeRemark">coreFire()</span>，在原<span class="l-codeRemark">fireWith()</span>中，将参数拼接成一个数组：第一个参数表示上下文，第二个参数表示传递进来的参数。然后执行<span class="l-codeRemark">coreFire()</span>。</li>
-                    <li>在<span class="l-codeRemark">add()</span>的时候，jQuery并没有给变量<span class="l-codeRemark">auto（memory）</span>赋值，而是选择在<span class="l-codeRemark">coreFire()</span>中给<span class="l-codeRemark">auto（memory）</span>赋值，这样就保证了第一次<span class="l-codeRemark">fire()</span>之后才会开启自动执行。</li>
-                    <li>按照上面所说，<span class="l-codeRemark">coreFire()</span>接收的参数其实是一个数组，第一个参数是上下文，第二个参数是外面传递进来的参数。同时把这个数组赋值给<span class="l-codeRemark">auto（memory）</span>，这样，变量<span class="l-marked">auto（是否自动执行模式）</span>的定义就变成了<span class="l-marked">memory（记忆最后一次传递的参数）</span>。</li>
-                </ul>
-                <p>真是一石二鸟的神思路，神想法，不得不点赞。我定义这个为<span class="l-codeRemark">auto</span>是因为它的本身就是一个自动执行的模型，顺便保存了最后一次<span class="l-codeRemark">fire()</span>的参数，而jQuery定义为<span class="l-codeRemark">memory</span>或许也是作者感叹这里的鬼斧神工吧。</p>
-                <p>至于<span class="l-codeRemark">once&auto</span>就是把这两个代码揉合到一起而已，只需要在<span class="l-codeRemark">coreFire()</span>里判定如果是<span class="l-codeRemark">auto</span>模式，那么就把list重置为一个新的数组，否则直接设置为undefined即可。</p>
-            </div>
-            <h3 class="l-title"><a name="end" href="javascript:;" style="color: white; text-decoration: none;">源码</a></h3>
-            <div>
-                <p>这份代码是自己对应jQuery手写的一份，将一些jQuery公有的函数都写了进来，并非代码片段，所以可以直接引用运行。</p>
-                <div class="cnblogs_code">
-                    <pre>(<span style="color: #0000ff;">function</span><span style="color: #000000;"> (window, undefined) {
-    </span><span style="color: #008000;">/*</span><span style="color: #008000;">
-    * 一个回调函数工具对象，注意这个工作对象工作完成之后就会清空数组:
-    *   提供一组普通的API，但它有如下工作模型 - 
-    *                     once - 单次执行模型：每次工作一次，后续不再工作
-    *                     auto - 自动执行模型：每添加一个回调函数，自动执行现有的回调函数集合里的所有回调函数，并将本次的参数传递给所有的回调函数
-    *
-    </span><span style="color: #008000;">*/</span>
-
-    <span style="color: #008000;">//</span><span style="color: #008000;">工具函数</span>
-    <span style="color: #0000ff;">var</span> isIndexOf = Array.prototype.indexOf,    <span style="color: #008000;">//</span><span style="color: #008000;">Es6</span>
-        toString = Object.prototype.toString,   <span style="color: #008000;">//</span><span style="color: #008000;">缓存toString方法</span>
-        toSlice = Array.prototype.slice,        <span style="color: #008000;">//</span><span style="color: #008000;">缓存slice方法</span>
-        isFunction = (<span style="color: #0000ff;">function</span> () {             <span style="color: #008000;">//</span><span style="color: #008000;">判定一个对象是否是Function</span>
-            <span style="color: #0000ff;">return</span> "object" === <span style="color: #0000ff;">typeof</span> document.getElementById ?<span style="color: #000000;">
-            isFunction </span>= <span style="color: #0000ff;">function</span><span style="color: #000000;"> (fn) {
-                </span><span style="color: #008000;">//</span><span style="color: #008000;">ie下对DOM和BOM的识别有问题</span>
-                <span style="color: #0000ff;">try</span><span style="color: #000000;"> {
-                    </span><span style="color: #0000ff;">return</span> /^\s*\bfunction\b/.test("" +<span style="color: #000000;"> fn);
-                } </span><span style="color: #0000ff;">catch</span><span style="color: #000000;"> (x) {
-                    </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">false</span><span style="color: #000000;">
-                }
-            } :
-            isFunction </span>= <span style="color: #0000ff;">function</span> (fn) { <span style="color: #0000ff;">return</span> toString.call(fn) === '[object Function]'<span style="color: #000000;">; };
-        })(),
-        each </span>= <span style="color: #0000ff;">function</span> () {                    <span style="color: #008000;">//</span><span style="color: #008000;">循环遍历方法</span>
-            <span style="color: #008000;">//</span><span style="color: #008000;">第一个参数表示要循环的数组，第二个参数是每次循环执行的函数</span>
-            <span style="color: #0000ff;">if</span> (arguments.length &lt; 2 || !isFunction(arguments[1])) <span style="color: #0000ff;">return</span><span style="color: #000000;">;
-            </span><span style="color: #008000;">//</span><span style="color: #008000;">为什么slice无效？？</span>
-            <span style="color: #0000ff;">var</span> list = toSlice.call(arguments[0<span style="color: #000000;">]),
-                fn </span>= arguments[1<span style="color: #000000;">],
-                item;
-            </span><span style="color: #0000ff;">while</span> ((item = list.shift())) {<span style="color: #008000;">//</span><span style="color: #008000;">没有直接判定length，加速</span>
-                <span style="color: #008000;">//</span><span style="color: #008000;"> 为什么这里用call就可以，而apply就不行？</span>
-                <span style="color: #008000;">//</span><span style="color: #008000;">搞定 - apply的第二个参数必须是一个array对象（没有验证array-like是否可以，而call没有这个要求）</span>
-                <span style="color: #008000;">//</span><span style="color: #008000;">apply是这样描述的：如果 argArray（第二个参数） 不是一个有效的数组或者不是 arguments 对象，那么将导致一个 TypeError。 </span>
-<span style="color: #000000;">                fn.call(window, item);
-            }
-        },
-        inArray </span>= <span style="color: #0000ff;">function</span> () {                     <span style="color: #008000;">//</span><span style="color: #008000;">检测数组中是否包含某项，返回该项索引</span>
-            <span style="color: #008000;">//</span><span style="color: #008000;">预编译</span>
-            <span style="color: #0000ff;">return</span> isIndexOf ? <span style="color: #0000ff;">function</span><span style="color: #000000;"> (array, elem, i) {
-                </span><span style="color: #0000ff;">if</span><span style="color: #000000;"> (array)
-                    </span><span style="color: #0000ff;">return</span><span style="color: #000000;"> isIndexOf.call(array, elem, i);
-                </span><span style="color: #0000ff;">return</span> -1<span style="color: #000000;">;
-            } : </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (elem, array, i) {
-                </span><span style="color: #0000ff;">var</span><span style="color: #000000;"> len;
-                </span><span style="color: #0000ff;">if</span><span style="color: #000000;"> (array) {
-                    len </span>=<span style="color: #000000;"> array.length;
-                    i </span>= i ? i &lt; 0 ? Math.max(0, len + i) : i : 0<span style="color: #000000;">;
-                    </span><span style="color: #0000ff;">for</span> (; i &lt; len; i++<span style="color: #000000;">) {
-                        </span><span style="color: #0000ff;">if</span> (i <span style="color: #0000ff;">in</span> array &amp;&amp; array[i] ===<span style="color: #000000;"> elem) {
-                            </span><span style="color: #0000ff;">return</span><span style="color: #000000;"> i;
-                        }
-                    }
-                }
-                </span><span style="color: #0000ff;">return</span> -1<span style="color: #000000;">;
-            }
-        }();
-
-    </span><span style="color: #0000ff;">var</span> Callbacks = <span style="color: #0000ff;">function</span><span style="color: #000000;"> (option) {
-        option </span>= toString.call(option) === '[object Object]' ?<span style="color: #000000;"> option : {};
-        </span><span style="color: #008000;">//</span><span style="color: #008000;">使用闭包，因为每个新建的callbacks都有自己的状态</span>
-        <span style="color: #0000ff;">var</span> list = [],      <span style="color: #008000;">//</span><span style="color: #008000;">回调列表</span>
-            _list = [],     <span style="color: #008000;">//</span><span style="color: #008000;">如果锁定这个callbacks对象，则清空list，将原list置入_list</span>
-            fired,          <span style="color: #008000;">//</span><span style="color: #008000;">是否执行过</span>
-            firingStart,    <span style="color: #008000;">//</span><span style="color: #008000;">当前回调函数列表执行的函数索引（起点）</span>
-            firingLength,   <span style="color: #008000;">//</span><span style="color: #008000;">回调函数的数组长度</span>
-            auto,   <span style="color: #008000;">//</span><span style="color: #008000;">标志是否自动执行，如果需要自动执行，则auto记忆着最后一次回调的参数（最后一次fire的参数），这是一个很诡异的且奇葩的用法</span>
-            <span style="color: #008000;">//</span><span style="color: #008000;">这个变量用法很诡异和犀利，既包含了是否指定执行的标志，又记录了数据</span>
-            <span style="color: #008000;">//</span><span style="color: #008000;">这个auto配合once简直就是丧心病狂：【第一次】执行了fire后才会自动执行，配合once可以做到：一次执行，后面不再追加和执行代码，保证了一组回调数据的稳定和安全</span>
-            stack = !option.once &amp;&amp; [],     <span style="color: #008000;">//</span><span style="color: #008000;">一个callbacks栈，如果当前正在执行回调数组，而在执行中又新添了回调函数，那么把新的回调函数，那么新的回调函数都会压入该栈</span>
-            firing = <span style="color: #0000ff;">false</span>, <span style="color: #008000;">//</span><span style="color: #008000;">callbacks是否正在工作/执行</span>
-        <span style="color: #008000;">//</span><span style="color: #008000;">触发回调函数</span>
-            fire = <span style="color: #0000ff;">function</span><span style="color: #000000;"> (data) {
-                </span><span style="color: #008000;">//</span><span style="color: #008000;">注意这个data是个数组，如果配置了auto模式，那么auto永远不会为false，因为auto会是个数组</span>
-                auto = option.auto &amp;&amp; data; <span style="color: #008000;">//</span><span style="color: #008000;">在这里，如果配置要求记忆最后的参数，则记忆这个参数（非常犀利的用法，直接取了数据）</span>
-                fired = <span style="color: #0000ff;">true</span><span style="color: #000000;">;
-                firingIndex </span>= firingStart || 0<span style="color: #000000;">;
-                firingStart </span>= 0;<span style="color: #008000;">//</span><span style="color: #008000;">清空firingStart（不清空下次执行有出问题啦）</span>
-                firingLength = list.length;         <span style="color: #008000;">//</span><span style="color: #008000;">缓存list长度，外界可以访问</span>
-                firing = <span style="color: #0000ff;">true</span>; <span style="color: #008000;">//</span><span style="color: #008000;">正在执行回调函数</span>
-                <span style="color: #0000ff;">for</span> (; firingIndex &lt; firingLength; firingIndex++<span style="color: #000000;">) {
-                    </span><span style="color: #0000ff;">if</span> (list[firingIndex].apply(data[0], data[1]) === <span style="color: #0000ff;">false</span><span style="color: #000000;">) {
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">注意，如果配置了option.auto（自动执行），并且stack（栈）里存在函数，那么add()代码里有一段对于auto判定会直接执行本方法的代码</span>
-                        <span style="color: #008000;">//</span><span style="color: #008000;">我们要阻止掉那段代码，所以设置auto为false</span>
-                        auto = <span style="color: #0000ff;">false</span><span style="color: #000000;">;
-                        </span><span style="color: #0000ff;">break</span><span style="color: #000000;">;
-                    }</span><span style="color: #008000;">//</span><span style="color: #008000;">当函数返回false，终止执行后续队列</span>
-<span style="color: #000000;">                }
-                firing </span>= <span style="color: #0000ff;">false</span>; <span style="color: #008000;">//</span><span style="color: #008000;">标志状态已经执行完毕回调函数[stack(栈)里面的函数尚未执行]</span>
-                <span style="color: #008000;">//</span><span style="color: #008000;">如果这个栈在没有配置once的情况下肯定是[]，所以一定存在</span>
-                <span style="color: #008000;">//</span><span style="color: #008000;">这里主要作用是，如果没有配置once，则拦截下面的代码，如果配置了once，执行完代码清空数据</span>
-                <span style="color: #0000ff;">if</span><span style="color: #000000;"> (stack) {
-                    </span><span style="color: #0000ff;">if</span> (stack.length)<span style="color: #008000;">//</span><span style="color: #008000;">先把下面清空list状态的代码拦截掉，再判定是否有栈</span>
-                        fire(stack.shift()); <span style="color: #008000;">//</span><span style="color: #008000;">从栈头部取出，并递归fire()方法</span>
-<span style="color: #000000;">                }
-                </span><span style="color: #0000ff;">else</span> <span style="color: #0000ff;">if</span> (auto)    <span style="color: #008000;">//</span><span style="color: #008000;">代码走到这里，证明已经配置了option.once（只执行一次），于是把list清空</span>
-                    list =<span style="color: #000000;"> [];
-                </span><span style="color: #0000ff;">else</span>                <span style="color: #008000;">//</span><span style="color: #008000;">证明没有配置auto，但是配置了once，那么祭出终极大法，直接废了这个callbacks对象</span>
-<span style="color: #000000;">                    self.disable();
-            };
-        </span><span style="color: #0000ff;">var</span> self =<span style="color: #000000;"> {
-            add: </span><span style="color: #0000ff;">function</span> () {<span style="color: #008000;">//</span><span style="color: #008000;">添加一个回调函数</span>
-                <span style="color: #0000ff;">if</span><span style="color: #000000;"> (list) {
-                    </span><span style="color: #0000ff;">var</span> start =<span style="color: #000000;"> list.length;
-                    (</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> addCallback(args) {
-                        each(args, </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (item) {
-                            </span><span style="color: #0000ff;">if</span> (isFunction(item)) {<span style="color: #008000;">//</span><span style="color: #008000;">是函数，则压入回调列表</span>
-<span style="color: #000000;">                                list.push(item);
-                                </span><span style="color: #008000;">//</span><span style="color: #008000;">注意typeof 和Object.prototype.toString是不一样的</span>
-                            } <span style="color: #0000ff;">else</span> <span style="color: #0000ff;">if</span> (toString.call(item) === '[object Array]') {<span style="color: #008000;">//</span><span style="color: #008000;">如果是个数组，则递归压入回调列表，这个判定抛弃了array-like</span>
-<span style="color: #000000;">                                addCallback(item);
-                            }
-                        });
-                    })(arguments);
-                }
-                </span><span style="color: #0000ff;">if</span> (firing)<span style="color: #008000;">//</span><span style="color: #008000;">如果当前正有回调函数在执行，那么需要更新当前回调函数列表的length，否则这个新压入的回调函数就会被掠过。</span>
-                    firingLength =<span style="color: #000000;"> list.length;
-                </span><span style="color: #0000ff;">else</span> <span style="color: #0000ff;">if</span> (auto) {<span style="color: #008000;">//</span><span style="color: #008000;">如果当前没有执行回调函数，并且要求自动执行</span>
-                    <span style="color: #008000;">//</span><span style="color: #008000;">注意这里是给firingStart赋值，上面fire方法中正在使用的是firingIndex，这里不会影响到上面代码的执行线路</span>
-                    firingStart =<span style="color: #000000;"> start;
-                    </span><span style="color: #008000;">//</span><span style="color: #008000;">执行我们新加入的小伙伴</span>
-<span style="color: #000000;">                    fire(auto);
-                }
-                </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-            },
-            fire: </span><span style="color: #0000ff;">function</span> () {<span style="color: #008000;">//</span><span style="color: #008000;">触发回调函数</span>
-                self.fireWith(<span style="color: #0000ff;">this</span><span style="color: #000000;">, arguments);
-                </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-            },
-            fireWith: </span><span style="color: #0000ff;">function</span> (context, args) {<span style="color: #008000;">//</span><span style="color: #008000;">触发回调函数，并指定上下文</span>
-                <span style="color: #008000;">//</span><span style="color: #008000;">如果配置了once，stack将为undefined，而once又需要保证只执行一次，所以一旦执行过一次，这里的代码不会再执行</span>
-                <span style="color: #0000ff;">if</span> (list &amp;&amp; (!fired ||<span style="color: #000000;"> stack)) {
-                    </span><span style="color: #008000;">//</span><span style="color: #008000;">修正参数</span>
-                    <span style="color: #008000;">//</span><span style="color: #008000;">在这里,context索引为0</span>
-                    <span style="color: #008000;">//</span><span style="color: #008000;">而参数列表索引为2</span>
-                    <span style="color: #008000;">//</span><span style="color: #008000;">转换为数组访问是因为对象表示更加的消耗资源，在顶层的fire()代码中有auto[记忆参数，自动执行]这个功能，如果采用对象则开销了更大的内存</span>
-                    args =<span style="color: #000000;"> [context,
-                        args </span>?<span style="color: #000000;">
-                        args.slice </span>&amp;&amp;<span style="color: #000000;"> args.slice()
-                        </span>||<span style="color: #000000;"> toSlice.call(args) :
-                        []
-                    ];
-                    fire(args);
-                }
-                </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-            },
-            remove: </span><span style="color: #0000ff;">function</span> () {<span style="color: #008000;">//</span><span style="color: #008000;">移除一个回调函数</span>
-                <span style="color: #0000ff;">if</span><span style="color: #000000;"> (list) {
-                    each(arguments, </span><span style="color: #0000ff;">function</span><span style="color: #000000;"> (item) {
-                        </span><span style="color: #0000ff;">var</span><span style="color: #000000;"> index;
-                        </span><span style="color: #008000;">//</span><span style="color: #008000;">可能有多项，index可以在循环中表示检索的范围，之前检索的过的可以不用再检索</span>
-                        <span style="color: #0000ff;">while</span> ((index = inArray(item, list, index)) &gt; -1<span style="color: #000000;">) {
-                            list.splice(index, </span>1<span style="color: #000000;">);
-                            </span><span style="color: #0000ff;">if</span><span style="color: #000000;"> (firing) {
-                                </span><span style="color: #008000;">//</span><span style="color: #008000;">保证上面fire中正在执行的函数列表能够正确运行，fire中设定全局这些变量为的就是这里可以异步移除</span>
-                                <span style="color: #0000ff;">if</span> (index &lt;= firingLength)<span style="color: #008000;">//</span><span style="color: #008000;">修正长度</span>
-                                    firingLength--<span style="color: #000000;">;
-                                </span><span style="color: #0000ff;">if</span> (index &lt;= firingLength)<span style="color: #008000;">//</span><span style="color: #008000;">修正索引</span>
-                                    firingIndex--<span style="color: #000000;">;
-                            }
-                        }
-                    });
-                }
-                </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-            },
-            has: </span><span style="color: #0000ff;">function</span> (fn) {<span style="color: #008000;">//</span><span style="color: #008000;">是否包含一个回调函数</span>
-                <span style="color: #0000ff;">return</span> fn ? inArray(fn, list) &gt; -1 : list &amp;&amp;<span style="color: #000000;"> list.length;
-            },
-            empty: </span><span style="color: #0000ff;">function</span> () {<span style="color: #008000;">//</span><span style="color: #008000;">清空这个callbacks对象</span>
-                list =<span style="color: #000000;"> [];
-                firingLength </span>= 0<span style="color: #000000;">;
-                </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-            },
-            disable: </span><span style="color: #0000ff;">function</span> () {<span style="color: #008000;">//</span><span style="color: #008000;">废掉这个callbacks对象，后续的回调函数列表不再执行</span>
-                list = stack = auto =<span style="color: #000000;"> undefined;
-                </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-            },
-            disabled: </span><span style="color: #0000ff;">function</span> () {<span style="color: #008000;">//</span><span style="color: #008000;">是否已经废掉</span>
-                <span style="color: #0000ff;">return</span> !list; <span style="color: #008000;">//</span><span style="color: #008000;">转换为boolean</span>
-<span style="color: #000000;">            },
-            lock: </span><span style="color: #0000ff;">function</span> (isLock) {<span style="color: #008000;">//</span><span style="color: #008000;">锁定或解锁这个callbacks对象</span>
-                <span style="color: #008000;">//</span><span style="color: #008000;">无参，判断这个callbacks是否被锁定</span>
-                <span style="color: #0000ff;">if</span> (isLock == <span style="color: #0000ff;">null</span>) <span style="color: #0000ff;">return</span> !!<span style="color: #000000;">_list;
-                </span><span style="color: #0000ff;">if</span> (isLock) {<span style="color: #008000;">//</span><span style="color: #008000;">锁</span>
-                    _list = stack &amp;&amp; list.concat(stack) ||<span style="color: #000000;"> list;
-                    list </span>=<span style="color: #000000;"> undefined;
-                } </span><span style="color: #0000ff;">else</span> {<span style="color: #008000;">//</span><span style="color: #008000;">解锁，jQuery并没有提供解锁功能，解锁让Callbacks变得不稳定</span>
-                    list =<span style="color: #000000;"> _list;
-                    _list </span>=<span style="color: #000000;"> undefined;
-                }
-                </span><span style="color: #0000ff;">return</span> <span style="color: #0000ff;">this</span><span style="color: #000000;">;
-            },
-            fired: </span><span style="color: #0000ff;">function</span> () {<span style="color: #008000;">//</span><span style="color: #008000;">这个callbacks是否执行过</span>
-                <span style="color: #008000;">//</span><span style="color: #008000;">转换为boolean，包括undefined，null,''等</span>
-                <span style="color: #0000ff;">return</span> !!<span style="color: #000000;">fired;
+                <div>
+                    <h3 class="l-limitTitle">第六种 - jQuery的实现：</h3>
+                    <p class="l-txtBlock">
+                        jQuery构造函数繁琐的实现不仅仅只是为了去new化，同时也修复了针对jQuery对象的判定，巧妙的将原型重新指向，让<span class="l-codeRemark">instenceOf</span>可以在原型链中查找到jQuery构造函数，使得<span class="l-codeRemark">instenceOf</span>判定有效，让jQuery直逼真正的javascript对象。
+                    </p>
+                    <div class="l-code"><div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
+        //jQuery Array-Like实现
+        var jQuery = function () {
+            return new jQuery.fn.init();
+        };
+        jQuery.fn = jQuery.prototype = {
+            constructor: jQuery,
+            length: 0,
+            add: function (item) {
+                //使用Array.prototype.push添加元素，会自动维护length
+                Array.prototype.push.call(this, item);
             }
         };
-        </span><span style="color: #0000ff;">return</span><span style="color: #000000;"> self;
-    };
-    window.$ </span>= window.$ ||<span style="color: #000000;"> {};
-    window.$.Callbacks </span>= window.Callbacks =<span style="color: #000000;"> Callbacks;
-}(window));</span></pre>
+        jQuery.fn.init = function () {
+            return this;
+        };
+        //漂亮的重置prototype
+        jQuery.fn.init.prototype = jQuery.fn;
+        console.group('第六种 - jQuery的实现');
+        var demo = new jQuery();
+        demo.add('List - add()');
+        console.log('demo instanceof jQuery ： %c' + (demo instanceof jQuery), 'color:blue');
+        console.log('demo.constructor === jQuery ： %c' + (demo.constructor === jQuery), 'color:blue');
+        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
+        console.log('length：' + demo.length);
+        console.log(demo);
+        console.groupEnd();
+    }();
+</pre>
+</div>
+</div>
+                    <p><span class="l-bold">运行结果和demo对象结构：</span></p>
+                    <div></div>
+                </div>
+                <div>
+                    <h3 class="l-limitTitle">第七种 - 最简单的实现：</h3>
+                    <p class="l-txtBlock">
+                        并没有采用闭包，而是通过定义原型实现，实现方法类似第四种，但是原型指向正确，<span class="l-codeRemark">instenceof</span>判定有效。
+                    </p>
+                    <div class="l-code"><div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">    //最简单的类数组实现
+    !function () {
+        var List = function () { };
+        List.prototype = {
+            constructor: List,
+            length: 0,
+            add: function (item) {
+                Array.prototype.push.call(this, item);
+            }
+        };
+        console.group('第七种 - 最简单的实现');
+        var demo = new List();//只是需要new
+        demo.add('List - add()');
+        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;'); //但是他们仍然不相等
+        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
+        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
+        console.log('length：' + demo.length);
+        console.log(demo);
+        console.groupEnd();
+    }();
+</pre>
+</div></div>
+                    <p><span class="l-bold">运行结果和demo对象结构：</span></p>
+                    <div></div>
+                </div>
+                <div>
+                    <h3 class="l-limitTitle">第八种 - jQuery拆解版：</h3>
+                    <p class="l-txtBlock">
+                        为了更好的理解jQuery的构造函数实现，所以给出了这种，<span class="l-codeRemark">jQuery.fn.init</span>就是本例中的<span class="l-codeRemark">ArrayLike</span>对象，jQuery只是把<span class="l-codeRemark">init</span>挂载到<span class="l-codeRemark">jQuery.prototype</span>上了而已。
+                    </p>
+                    <div class="l-code"><div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">    (function () {
+        var List = function () {
+            return new ArrayLike();
+        }, ArrayLike = function () {//这个array-like就是jQuery拆解版的实现
+        };
+        List.prototype = {
+            constructor: List,
+            length: 0,
+            add: function (item) {
+                Array.prototype.push.call(this, item);
+            }
+        };
+        ArrayLike.prototype = List.prototype;
+        console.group('第八种 - jQuery拆解版');
+        var demo = List(); //这样就不用new了
+        demo.add('List - add()');
+        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;'); //但是他们仍然不相等
+        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
+        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
+        console.log('length：' + demo.length);
+        console.log(demo);
+        console.groupEnd();
+    })();
+</pre>
+</div></div>
+                    <p><span class="l-bold">运行结果和demo对象结构：</span></p>
+                    <div></div>
                 </div>
             </div>
-            <h3 class="l-title"><a name="download" href="javascript:;" style="color: white; text-decoration: none;">下载</a></h3>
-            <div style="border: 1px dotted #CCC; color: #666; padding: 15px 0; background: #fafafa; font: 14px/24px 'Helvetica Neue',Helvetica,Arial,'Microsoft Yahei',sans-serif; text-indent: 2em; line-height: 25px;">
-                <ul style="list-style: none; padding: 0; font-size: 15px;">
-                    <li>Github：<a target="_blank" href="https://github.com/linkFly6/linkfly.so/blob/master/Callbacks.js" style="color: #259ec7;">https://github.com/linkFly6/linkfly.so/blob/master/Callbacks.js</a></li>
+            <h3 class="l-title"><a name="other" href="javascript:;" style="color: white; text-decoration: none;">其他</a></h3>
+            <div class="l-author">
+                <ul style="list-style: none; padding: 0; font-size: 15px;margin:0;">
+                        <li style="padding:0;">参考文章：<a target="_blank" href="http://blog.csdn.net/hztgcl1986/article/details/9203389"
+                        style="color: #259ec7;">JavaScript类数组对象参考</a></li>
+                        <li style="padding:0;">参考文章：<a target="_blank" href="http://kb.cnblogs.com/page/77478/"
+                        style="color: #259ec7;">理解instanceof实现原理</a></li>
                 </ul>
             </div>
             <div class="l-author">
-                <div>作者：linkFly</div>
-                <div>原文：<a href="http://www.cnblogs.com/silin6/p/Callbacks.html" style="color: #259ec7;">http://www.cnblogs.com/silin6/p/Callbacks.html</a></div>
-                <div>出处：<a href="http://www.cnblogs.com/silin6/" style="color: #259ec7;">www.cnblogs.com/silin6/</a></div>
-                <div>声明：嘿！你都拷走上面那么一大段了，我觉得你应该也不介意顺便拷走这一小段，希望你能够在每一次的引用中都保留这一段声明，尊重作者的辛勤劳动成果，本文与博客园共享。</div>
+                <div>
+                    作者：linkFly</div>
+                <div>
+                    原文：<a href="http://www.cnblogs.com/silin6/p/ArrayLike.html" style="color: #259ec7;">http://www.cnblogs.com/silin6/p/ArrayLike.html</a></div>
+                <div>
+                    出处：<a href="http://www.cnblogs.com/silin6/" style="color: #259ec7;">www.cnblogs.com/silin6/</a></div>
+                <div>
+                    声明：嘿！你都拷走上面那么一大段了，我觉得你应该也不介意顺便拷走这一小段，希望你能够在每一次的引用中都保留这一段声明，尊重作者的辛勤劳动成果，本文与博客园共享。</div>
             </div>
         </div>
     </div>
     <script src="../轮子/CallbacksDemo.js" type="text/javascript"></script>
     <script type="text/javascript">
-        //window.onload
-
-        function a(elem) {
-            elem.innerHTML = '我是函数a，我要改变Element的HTML结构';
+        //污染Array实现扩展
+        Array.prototype.demo = function () {
+            //check
         };
-        function b(elem) {
-            elem.innerHTML = '我的函数b，我要改变Element的style';
-        }
-        window.onload = function () {
-            var elem = document.getElementById('test');
-            a(elem);
-            b(elem);
-        };
+        var test = [];
+        test.demo();
     </script>
     <script type="text/javascript">
-        //callbacks基本实现
-
-        (function (window, undefined) {
-            var Callbacks = function () {
-                //通过闭包保护这些私有变量
-                var list = [],//回调函数列表
-                    fired;//是否执行过
-                //返回一个闭包的Callbakcs对象
-                return {
-                    add: function (fn) {
-                        //当Callbacks废弃掉的时候，list为undefined
-                        if (list) {
-                            //添加一个回调函数
-                            list.push(fn);
-                            //支持链式回调
-                        }
-                        return this;
-                    },
-                    fireWith: function (context, data) {
-                        //触发回调函数，并指定上下文
-                        if (list) {
-                            fired = true;
-                            for (var i = 0, len = list.length; i < len; i++) {
-                                //当Callbacks中某一个函数返回false的时候，停止Callbacks后续的执行
-                                if (list[i].apply(context, data) === false)
-                                    break;
-                            }
-                        }
-                        return this;
-                    },
-                    fire: function () {
-                        //触发回调函数
-                        //调用fireWith并指定上下文
-                        return this.fireWith(this, arguments);
-                    },
-                    empty: function () {
-                        //清空list即可
-                        if (list)//当这个Callbacks废弃掉的时候，Callbacks不应该可以继续使用
-                            list = [];
-                        return this;
-                    },
-                    disable: function () {
-                        //废弃这个Callbacks对象，后续的回调函数列表不再执行
-                        list = undefined;
-                        return this;
-                    },
-                    disabled: function () {//检测这个Callbacks是否已经废掉
-                        //转换为boolean返回
-                        return !list;
-                    },
-                    fired: function () {//这个callbacks是否执行过
-                        return !!fired;
-                    }
-                };
-            };
-            //注册到window下
-            window.Callbacks = Callbacks;
-        }(window));
-
     </script>
     <script type="text/javascript">
-        //请在现代浏览器中运行这个用例
-        //结果都输出在浏览器控制台中
-        var test = new Callbacks();
-        test.add(function (value) {
-            console.log('函数1，value是：' + value);
-        });
-        test.add(function (value) {
-            console.log('函数2，value是：' + value);
-        });
-        test.fire('这是函数1和函数2的值');
-        console.log('查看函数是否执行过：' + test.fired());
-        test.disable();//废弃这个Callbacks
-        console.log('查看函数是否被废弃：' + test.disabled());
-        test.add(function () {
-            console.log('添加第三个函数，这个函数不应该被执行');
-        });
-        test.fire();
     </script>
     <script type="text/javascript">
-        //once实现
-        (function (window, undefined) {
-            var Callbacks = function (once) {
-                //通过闭包保护这些私有变量
-                var list = [],//回调函数列表
-                    fired;//是否执行过
-                //返回一个闭包的Callbakcs对象
-                return {
-                    //...省略部分代码
-                    fireWith: function (context, data) {
-                        //触发回调函数，并指定上下文
-                        if (list) {
-                            fired = true;
-                            for (var i = 0, len = list.length; i < len; i++) {
-                                //当Callbacks中某一个函数返回false的时候，停止Callbacks后续的执行
-                                if (list[i].apply(context, data) === false)
-                                    break;
-                            }
-                        }
-                        //如果配置了once模型，则全局变量once为true，则list重置
-                        if (once) list = undefined;
-                        return this;
-                    }
-                    //...省略部分代码
-                };
-            };
-            //注册到window下
-            window.Callbacks = Callbacks;
-        }(window));
-
-
     </script>
     <script type="text/javascript">
-        //auto的普通实现
-        (function (window, undefined) {
-            var Callbacks = function (once, auto) {
-                var list = [],
-                    fired,
-                    lastData;//保存最后一次执行的参数
-                return {
-                    add: function (fn) {
-                        if (list) {
-                            list.push(fn);
-                            // — 自动执行模式
-                            //最后一次使用的参数传递过去，这里丢失了Context(上下文)
-                            //为了不让这里丢失上下文，我们或许还需要声明一个变量保存最后一次使用的Context
-                            if (auto) this.fire(lastData);
-                        }
-                        return this;
-                    },
-                    fireWith: function (context, data) {
-                        if (list) {
-                            lastData = data;// — 记录最后一次使用的参数
-                            fired = true;
-                            for (var i = 0, len = list.length; i < len; i++) {
-                                if (list[i].apply(context, data) === false)
-                                    break;
-                            }
-                        }
-                        if (once) list = [];
-                        return this;
-                    }
-                    //部分代码省略
-                };
-            };
-            //注册到window下
-            window.Callbacks = Callbacks;
-        }(window));
-    </script>
-    <script type="text/javascript">
-        //jQuery的auto
-        (function (window, undefined) {
-            var Callbacks = function (auto) {
-                var list = [],
-                    fired,
-                    memory,//主演在这里，就是memory
-                    coreFire = function (data) {
-                        //真正的触发函数方法
-                        if (list) {
-                            //&&表达式妙用
-                            memory = auto && data;//记录最后一次的参数，如果不是auto模式则不会记录这个参数
-                            //如果是auto模式，那么这个auto将不会为false，它会是一个数组
-                            fired = true;
-                            for (var i = 0, len = list.length; i < len; i++) {
-                                if (list[i].apply(data[0], data[1]) === false)
-                                    break;
-                            }
-                        }
-                    };
-                return {
-                    add: function (fn) {
-                        if (list) {
-                            //添加一个回调函数
-                            list.push(fn);
-                            //自动执行模式，注意如果auto模型
-                            //memory是在coreFire()里赋值的，默认是false
-                            if (memory) coreFire(auto);
-                        }
-                        //支持链式回调
-                        return this;
-                    },
-                    fireWith: function (context, data) {
-                        if (once) list = [];
-                        //这里调用coreFire，把参数转换为数组了
-                        coreFire([context, data]);
-                        return this;
-                    }
-                    /*部分代码省略*/
-                };
-            };
-            window.Callbacks = Callbacks;
-        }(window));
     </script>
 </body>
 </html>
