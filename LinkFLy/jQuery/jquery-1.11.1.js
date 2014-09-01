@@ -36,7 +36,7 @@
     }
 
     // Pass this if window is not defined yet
-} (typeof window !== "undefined" ? window : this, function (window, noGlobal) {
+}(typeof window !== "undefined" ? window : this, function (window, noGlobal) {
 
     // Can't do this because several apps including ASP.NET trace
     // the stack via arguments.caller.callee and Firefox dies if
@@ -64,7 +64,7 @@
 
 
 
-    var 
+    var
 	version = "1.11.1",
 
     // Define a local copy of jQuery
@@ -266,7 +266,7 @@
 
     jQuery.extend({
         // Unique for each copy of jQuery on the page
-		//每一个页面上唯一上的东西，这玩意儿翻译叫做“扩展”，这他喵的是个啥？？
+        //每一个页面上唯一上的东西，这玩意儿翻译叫做“扩展”，这他喵的是个啥？？
         expando: "jQuery" + (version + Math.random()).replace(/\D/g, ""),
 
         // Assume jQuery is ready without the ready module
@@ -775,7 +775,7 @@
 	    // Support: Firefox<24
 	    // Workaround erroneous numeric interpretation of +"0x"
 	    return high !== high || escapedWhitespace ?
-			escaped :
+	        escaped :
 			high < 0 ?
 	    // BMP codepoint
 				String.fromCharCode(high + 0x10000) :
@@ -793,22 +793,23 @@
         // Detect silently failing push.apply
         arr[preferredDoc.childNodes.length].nodeType;
     } catch (e) {
-        push = { apply: arr.length ?
+        push = {
+            apply: arr.length ?
 
-            // Leverage slice if possible
-		function (target, els) {
-		    push_native.apply(target, slice.call(els));
-		} :
+                // Leverage slice if possible
+            function (target, els) {
+                push_native.apply(target, slice.call(els));
+            } :
 
-            // Support: IE<9
-            // Otherwise append directly
-		function (target, els) {
-		    var j = target.length,
-				i = 0;
-		    // Can't trust NodeList.length
-		    while ((target[j++] = els[i++])) { }
-		    target.length = j - 1;
-		}
+                // Support: IE<9
+                // Otherwise append directly
+            function (target, els) {
+                var j = target.length,
+                    i = 0;
+                // Can't trust NodeList.length
+                while ((target[j++] = els[i++])) { }
+                target.length = j - 1;
+            }
         };
     }
 
@@ -1471,8 +1472,8 @@
 
                 // IE 9's matchesSelector returns false on disconnected nodes
                 if (ret || support.disconnectedMatch ||
-                // As well, disconnected nodes are said to be in a document
-                // fragment in IE 9
+                    // As well, disconnected nodes are said to be in a document
+                    // fragment in IE 9
 					elem.document && elem.document.nodeType !== 11) {
                     return ret;
                 }
@@ -1503,7 +1504,7 @@
 			undefined;
 
         return val !== undefined ?
-		val :
+            val :
 		support.attributes || !documentIsHTML ?
 			elem.getAttribute(name) :
 			(val = elem.getAttributeNode(name)) && val.specified ?
@@ -1663,9 +1664,9 @@
 
                     // Strip excess characters from unquoted arguments
                 } else if (unquoted && rpseudo.test(unquoted) &&
-                // Get excess from tokenize (recursively)
+                    // Get excess from tokenize (recursively)
 				(excess = tokenize(unquoted, true)) &&
-                // advance to the next closing parenthesis
+                    // advance to the next closing parenthesis
 				(excess = unquoted.indexOf(")", unquoted.length - excess) - unquoted.length)) {
 
                     // excess is a negative index
@@ -1772,7 +1773,7 @@
 
 				            while ((node = ++nodeIndex && node && node[dir] ||
 
-				            // Fallback to seeking `elem` from the start
+				                // Fallback to seeking `elem` from the start
 								(diff = nodeIndex = 0) || start.pop())) {
 
 				                // When found, cache indexes on `parent` and break
@@ -2033,7 +2034,7 @@
 
             "lt": createPositionalPseudo(function (matchIndexes, length, argument) {
                 var i = argument < 0 ? argument + length : argument;
-                for (; --i >= 0; ) {
+                for (; --i >= 0;) {
                     matchIndexes.push(i);
                 }
                 return matchIndexes;
@@ -2041,7 +2042,7 @@
 
             "gt": createPositionalPseudo(function (matchIndexes, length, argument) {
                 var i = argument < 0 ? argument + length : argument;
-                for (; ++i < length; ) {
+                for (; ++i < length;) {
                     matchIndexes.push(i);
                 }
                 return matchIndexes;
@@ -2267,7 +2268,7 @@
 					[] :
 
             // ...otherwise use results directly
-					results :
+                results :
 				matcherIn;
 
             // Find primary matches
@@ -2350,7 +2351,7 @@
 				(checkContext = context).nodeType ?
 					matchContext(elem, context, xml) :
 					matchAnyContext(elem, context, xml));
-		} ];
+		}];
 
         for (; i < len; i++) {
             if ((matcher = Expr.relative[tokens[i].type])) {
@@ -2988,7 +2989,7 @@
                     if (cur.nodeType < 11 && (pos ?
 					pos.index(cur) > -1 :
 
-                    // Don't pass non-elements to Sizzle
+                        // Don't pass non-elements to Sizzle
 					cur.nodeType === 1 &&
 						jQuery.find.matchesSelector(cur, selectors))) {
 
@@ -3323,7 +3324,7 @@
 				["resolve", "done", jQuery.Callbacks("once memory"), "resolved"],
 				["reject", "fail", jQuery.Callbacks("once memory"), "rejected"],
 				["notify", "progress", jQuery.Callbacks("memory")]
-			],
+            ],
 			state = "pending",
 			promise = {
 			    state: function () {
@@ -3774,7 +3775,7 @@
 
     // checks a cache object for emptiness
     function isEmptyDataObject(obj) {
-		//检测是否是一个空的jQuery.data对象
+        //检测是否是一个空的jQuery.data对象
         var name;
         for (name in obj) {
 
@@ -3791,16 +3792,17 @@
     }
 
     function internalData(elem, name, data, pvt /* Internal Use Only */) {
-		//添加一个data到jQuery缓存中
+        //添加一个data到jQuery缓存中
 
-		//这个pvt是个啥玩意儿？？
-		//pvt：是否是内部数据
+        //这个pvt是个啥玩意儿？？
+        //pvt：是否是内部数据
 
-		//判定对象是否可以存数据
+        //判定对象是否可以存数据
         if (!jQuery.acceptData(elem)) {
             return;
         }
         var ret, thisCache,
+        //内部key，来自就jQuery随机数（每一个页面上唯一且不变的）
 		internalKey = jQuery.expando,
 
         // We have to handle DOM nodes and JS objects differently because IE6-7
@@ -3821,37 +3823,37 @@
 
         // Only defining an ID for JS objects if its cache already exists allows
         // the code to shortcut on the same path as a DOM node with no cache
-		//拉取key？？这又是干什么？
+		//如果是DOM，则获取ID
 		id = isNode ? elem[internalKey] : elem[internalKey] && internalKey;
 
         // Avoid doing any more work than we need to when trying to get data on an
         // object that has no data at all
-		//检测合法性，避免做更多的工作，pvt应该表示工作模式吧，如果为true，则进行深层查找
+        //检测合法性，避免做更多的工作，pvt应该表示工作模式吧，如果为true，则表示内部数据
         if ((!id || !cache[id] || (!pvt && !cache[id].data)) && data === undefined && typeof name === "string") {
             return;
         }
-
+        //没有ID，则赋上ID
         if (!id) {
             // Only DOM nodes need a new unique ID for each element since their data
             // ends up in the global cache
             if (isNode) {
-				//DOM需要有一个全新的全局id
+                //DOM需要有一个全新的全局id，这个deletedIds是什么？？？只在jQuery.cleanData()里面push()了数据
                 id = elem[internalKey] = deletedIds.pop() || jQuery.guid++;
             } else {
-				//而对象不需要
+                //而对象不需要
                 id = internalKey;
             }
         }
-		//从cache中没有读取到
+        //从cache中没有读取到
         if (!cache[id]) {
             // Avoid exposing jQuery metadata on plain JS objects when the object
             // is serialized using JSON.stringify
-			//创建一个新的cache对象，这个toJson是个空方法
+            //创建一个新的cache对象，这个toJson是个空方法
             cache[id] = isNode ? {} : { toJSON: jQuery.noop };
-			// 对于javascript对象，设置方法toJSON为空函数，
-			//以避免在执行JSON.stringify()时暴露缓存数据。
-			//如果一个对象定义了方法toJSON()
-			//JSON.stringify()在序列化该对象时会调用这个方法来生成该对象的JSON元素
+            // 对于javascript对象，设置方法toJSON为空函数，
+            //以避免在执行JSON.stringify()时暴露缓存数据。
+            //如果一个对象定义了方法toJSON()
+            //JSON.stringify()在序列化该对象时会调用这个方法来生成该对象的JSON元素
         }
 
         // An object can be passed to jQuery.data instead of a key/value pair; this gets
@@ -3860,7 +3862,7 @@
             if (pvt) {//如果是内部数据
                 cache[id] = jQuery.extend(cache[id], name);
             } else {
-				//如果是自定义数据，则挂到data上
+                //如果是自定义数据，则挂到data上
                 cache[id].data = jQuery.extend(cache[id].data, name);
             }
         }
@@ -3871,14 +3873,14 @@
         // cache in order to avoid key collisions between internal data and user-defined
         // data.
         if (!pvt) {
-			//内部数据，避免和自定义数据互斥
+            //内部数据，避免和自定义数据互斥
             if (!thisCache.data) {
                 thisCache.data = {};
             }
 
             thisCache = thisCache.data;
         }
-		//把数据挂载上去
+        //把数据挂载上去
         if (data !== undefined) {
             thisCache[jQuery.camelCase(name)] = data;
         }
@@ -3886,20 +3888,20 @@
         // Check for both converted-to-camel and non-converted data property names
         // If a data property was specified
         if (typeof name === "string") {
-			//如果参数是一个字符串
+            //如果参数是一个字符串
             // First Try to find as-is property data
-			//则抓取这个字符串对应的缓存
+            //则抓取这个字符串对应的缓存
             ret = thisCache[name];
 
             // Test for null|undefined property data
-			//抓取失败，转换成驼峰再抓
+            //抓取失败，转换成驼峰再抓
             if (ret == null) {
 
                 // Try to find the camelCased property
                 ret = thisCache[jQuery.camelCase(name)];
             }
         } else {
-			//如果不是字符串，则按照对象的形式抓取
+            //如果不是字符串，则按照对象的形式抓取
             ret = thisCache;
         }
 
@@ -3907,7 +3909,7 @@
     }
 
     function internalRemoveData(elem, name, pvt) {
-		//移除一个data到jQuery缓存中
+        //移除一个data到jQuery缓存中
         if (!jQuery.acceptData(elem)) {
             return;
         }
@@ -3921,13 +3923,13 @@
 
         // If there is already no cache entry for this object, there is no
         // purpose in continuing
-		//如果找不到缓存，不再继续
+        //如果找不到缓存，不再继续
         if (!cache[id]) {
             return;
         }
 
         if (name) {
-			//获取数据
+            //获取数据
             thisCache = pvt ? cache[id] : cache[id].data;
 
             if (thisCache) {
@@ -3937,17 +3939,17 @@
 
                     // try the string as a key before any manipulation
                     if (name in thisCache) {
-						//检查缓存是否有这个对象
+                        //检查缓存是否有这个对象
                         name = [name];
                     } else {
 
                         // split the camel cased version by spaces unless a key with the spaces exists
-						name = jQuery.camelCase(name);
-						//转换驼峰再次尝试
+                        name = jQuery.camelCase(name);
+                        //转换驼峰再次尝试
                         if (name in thisCache) {
                             name = [name];
                         } else {
-							//拿不到
+                            //拿不到
                             name = name.split(" ");
                         }
                     }
@@ -3959,19 +3961,19 @@
                     // both plain key and camelCase key. #12786
                     // This will only penalize the array argument path.
 
-					//jQuery.map连接两个数组（或对象）并返回一个真正的数组
+                    //jQuery.map连接两个数组（或对象）并返回一个真正的数组
                     name = name.concat(jQuery.map(name, jQuery.camelCase));
                 }
 
                 i = name.length;
-				//删除缓存
+                //删除缓存
                 while (i--) {
                     delete thisCache[name[i]];
                 }
 
                 // If there is no data left in the cache, we want to continue
                 // and let the cache object itself get destroyed
-				//如果是剩下的缓存中没有数据了，则完成了任务，否则继续
+                //如果是剩下的缓存中没有数据了，则完成了任务，否则继续
                 if (pvt ? !isEmptyDataObject(thisCache) : !jQuery.isEmptyObject(thisCache)) {
                     return;
                 }
@@ -3979,27 +3981,27 @@
         }
 
         // See jQuery.data for more information
-		//如果是jQuery内部使用
+        //如果是jQuery内部使用
         if (!pvt) {
             delete cache[id].data;// 再次删除
 
             // Don't destroy the parent cache unless the internal data object
             // had been the only thing left in it
-			//检测还有没有数据，还有数据则继续
+            //检测还有没有数据，还有数据则继续
             if (!isEmptyDataObject(cache[id])) {
                 return;
             }
         }
 
         // Destroy the cache
-		//如果是Element，则破坏缓存
+        //如果是Element，则破坏缓存
         if (isNode) {
             jQuery.cleanData([elem], true);
 
             // Use delete when supported for expandos or `cache` is not a window per isWindow (#10080)
             /* jshint eqeqeq: false */
         } else if (support.deleteExpando || cache != cache.window) {
-			//不为window再次尝试删除，这里的判定什么意思呢？  ————————————————————————————————————————————————————————————————————————last read
+            //不为window再次尝试删除，这里的判定什么意思呢？  ————————————————————————————————————————————————————————————————————————last read
             /* jshint eqeqeq: true */
             delete cache[id];
 
@@ -4010,12 +4012,12 @@
     }
 
     jQuery.extend({
-		//jQuery.cache对象
+        //jQuery.cache对象
         cache: {},
 
         // The following elements (space-suffixed to avoid Object.prototype collisions)
         // throw uncatchable exceptions if you attempt to set expando properties
-		//这几个特殊的标签不能使用Data，可能属性有冲突？？？
+        //这几个特殊的标签不能使用Data，可能属性有冲突？？？
         noData: {
             "applet ": true,
             "embed ": true,
@@ -4303,7 +4305,7 @@
         }
 
         return chainable ?
-		elems :
+            elems :
 
         // Gets
 		bulk ?
@@ -4699,7 +4701,7 @@
             while ((cur = eventPath[i++]) && !event.isPropagationStopped()) {
 
                 event.type = i > 1 ?
-				bubbleType :
+                    bubbleType :
 				special.bindType || type;
 
                 // jQuery handler
@@ -5080,7 +5082,7 @@
 				src.defaultPrevented === undefined &&
             // Support: IE < 9, Android < 4.0
 				src.returnValue === false ?
-			returnTrue :
+                returnTrue :
 			returnFalse;
 
             // Event type
@@ -5748,7 +5750,7 @@
 
                             // String was a bare <thead> or <tfoot>
 							wrap[1] === "<table>" && !rtbody.test(elem) ?
-								tmp :
+                                tmp :
 								0;
 
                             j = elem && elem.childNodes.length;
@@ -6316,7 +6318,7 @@
             // Support: IE
             // IE returns zIndex value as an integer.
             return ret === undefined ?
-			ret :
+                ret :
 			ret + "";
         };
     } else if (document.documentElement.currentStyle) {
@@ -6368,7 +6370,7 @@
             // Support: IE
             // IE returns zIndex value as an integer.
             return ret === undefined ?
-			ret :
+                ret :
 			ret + "" || "auto";
         };
     }
@@ -6568,7 +6570,7 @@
     };
 
 
-    var 
+    var
 		ralpha = /alpha\([^)]*\)/i,
 	ropacity = /opacity\s*=\s*([^)]*)/,
 
@@ -7158,7 +7160,7 @@
 
 
 
-    var 
+    var
 	fxNow, timerId,
 	rfxtypes = /^(?:toggle|show|hide)$/,
 	rfxnum = new RegExp("^(?:([+-])=|)(" + pnum + ")([a-z%]*)$", "i"),
@@ -7212,7 +7214,7 @@
 	        }
 
 	        return tween;
-	    } ]
+	    }]
 	};
 
     // Animations created synchronously will run synchronously
@@ -7663,7 +7665,7 @@
                     }
                 }
 
-                for (index = timers.length; index--; ) {
+                for (index = timers.length; index--;) {
                     if (timers[index].elem === this && (type == null || timers[index].queue === type)) {
                         timers[index].anim.stop(gotoEnd);
                         dequeue = false;
@@ -7702,7 +7704,7 @@
                 }
 
                 // look for any active animations, and finish them
-                for (index = timers.length; index--; ) {
+                for (index = timers.length; index--;) {
                     if (timers[index].elem === this && timers[index].queue === type) {
                         timers[index].anim.stop(true);
                         timers.splice(index, 1);
@@ -7937,7 +7939,7 @@
                 get: function (elem) {
                     var val = jQuery.find.attr(elem, "value");
                     return val != null ?
-					val :
+                        val :
                     // Support: IE10-11+
                     // option.text throws exceptions (#14686, #14858)
 					jQuery.trim(jQuery.text(elem));
@@ -7952,7 +7954,7 @@
 					values = one ? null : [],
 					max = one ? index + 1 : options.length,
 					i = index < 0 ?
-						max :
+                        max :
 						one ? index : 0;
 
                     // Loop through all the selected options
@@ -7961,7 +7963,7 @@
 
                         // oldIE doesn't update selected after form reset (#2551)
                         if ((option.selected || i === index) &&
-                        // Don't return options that are disabled or in a disabled optgroup
+                            // Don't return options that are disabled or in a disabled optgroup
 							(support.optDisabled ? !option.disabled : option.getAttribute("disabled") === null) &&
 							(!option.parentNode.disabled || !jQuery.nodeName(option.parentNode, "optgroup"))) {
 
@@ -8104,7 +8106,7 @@
 
                 // Non-existent attributes return null, we normalize to undefined
                 return ret == null ?
-				undefined :
+                    undefined :
 				ret;
             }
         },
@@ -8350,12 +8352,12 @@
 
             if (value !== undefined) {
                 return hooks && "set" in hooks && (ret = hooks.set(elem, value, name)) !== undefined ?
-				ret :
+                    ret :
 				(elem[name] = value);
 
             } else {
                 return hooks && "get" in hooks && (ret = hooks.get(elem, name)) !== null ?
-				ret :
+                    ret :
 				elem[name];
             }
         },
@@ -8423,9 +8425,9 @@
 	"useMap",
 	"frameBorder",
 	"contentEditable"
-], function () {
-    jQuery.propFix[this.toLowerCase()] = this;
-});
+    ], function () {
+        jQuery.propFix[this.toLowerCase()] = this;
+    });
 
     // IE6/7 call enctype encoding
     if (!support.enctype) {
@@ -8700,7 +8702,7 @@
     };
 
 
-    var 
+    var
     // Document location
 	ajaxLocParts,
 	ajaxLocation,
@@ -10171,7 +10173,7 @@
     */
     function getWindow(elem) {
         return jQuery.isWindow(elem) ?
-		elem :
+            elem :
 		elem.nodeType === 9 ?
 			elem.defaultView || elem.parentWindow :
 			false;
@@ -10432,7 +10434,7 @@
 
 
 
-    var 
+    var
     // Map over jQuery in case of overwrite
 	_jQuery = window.jQuery,
 
