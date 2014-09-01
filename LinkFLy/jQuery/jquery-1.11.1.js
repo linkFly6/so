@@ -3800,7 +3800,6 @@
         if (!jQuery.acceptData(elem)) {
             return;
         }
-
         var ret, thisCache,
 		internalKey = jQuery.expando,
 
