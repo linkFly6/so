@@ -3819,16 +3819,18 @@
         // Only DOM nodes need the global jQuery cache; JS object data is
         // attached directly to the object so GC can occur automatically
 		//只有DOM节点才需要全局缓存，js对象是直接连接到对象的，GC在管理
+        //如果是DOM，则cache连接到jQuery.cache
 		cache = isNode ? jQuery.cache : elem,
 
         // Only defining an ID for JS objects if its cache already exists allows
         // the code to shortcut on the same path as a DOM node with no cache
-		//如果是DOM，则获取ID
+		//如果是DOM，则获取ID，如果是DOM第一次读取，则读取不到id
 		id = isNode ? elem[internalKey] : elem[internalKey] && internalKey;
 
         // Avoid doing any more work than we need to when trying to get data on an
         // object that has no data at all
         //检测合法性，避免做更多的工作，pvt应该表示工作模式吧，如果为true，则表示内部数据
+        //这个cache[id]的检测是个什么玩意儿？第一次cache有东西？
         if ((!id || !cache[id] || (!pvt && !cache[id].data)) && data === undefined && typeof name === "string") {
             return;
         }
@@ -3838,6 +3840,7 @@
             // ends up in the global cache
             if (isNode) {
                 //DOM需要有一个全新的全局id，这个deletedIds是什么？？？只在jQuery.cleanData()里面push()了数据
+                //为DOM建立一个jQuery的全局id
                 id = elem[internalKey] = deletedIds.pop() || jQuery.guid++;
             } else {
                 //而对象不需要
@@ -3858,8 +3861,10 @@
 
         // An object can be passed to jQuery.data instead of a key/value pair; this gets
         // shallow copied over onto the existing cache
+        //对象
         if (typeof name === "object" || typeof name === "function") {
             if (pvt) {//如果是内部数据
+                //挂到cache上
                 cache[id] = jQuery.extend(cache[id], name);
             } else {
                 //如果是自定义数据，则挂到data上
@@ -3873,7 +3878,7 @@
         // cache in order to avoid key collisions between internal data and user-defined
         // data.
         if (!pvt) {
-            //内部数据，避免和自定义数据互斥
+            //如果不是内部数据（即用户自定义数据），则挂到jQuery.chche.data上
             if (!thisCache.data) {
                 thisCache.data = {};
             }
