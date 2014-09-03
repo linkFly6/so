@@ -3940,7 +3940,7 @@
             if (thisCache) {
 
                 // Support array or space separated string names for data keys
-                if (!jQuery.isArray(name)) {//如果具有数组行为
+                if (!jQuery.isArray(name)) {//如果并不具有数组行为
 
                     // try the string as a key before any manipulation
                     if (name in thisCache) {
@@ -3966,7 +3966,8 @@
                     // both plain key and camelCase key. #12786
                     // This will only penalize the array argument path.
 
-                    //jQuery.map连接两个数组（或对象）并返回一个真正的数组
+                    //jQuery.map将一个类数组转转换成真正的数组
+                    //注意这里使用了连接，即如果删除失败则采用驼峰命名再次尝试删除，逻辑好严谨
                     name = name.concat(jQuery.map(name, jQuery.camelCase));
                 }
 
@@ -3986,9 +3987,9 @@
         }
 
         // See jQuery.data for more information
-        //如果是jQuery内部使用
+        //如果不是jQuery内部使用
         if (!pvt) {
-            delete cache[id].data;// 再次删除
+            delete cache[id].data;// 连data也删除
 
             // Don't destroy the parent cache unless the internal data object
             // had been the only thing left in it
@@ -4006,12 +4007,13 @@
             // Use delete when supported for expandos or `cache` is not a window per isWindow (#10080)
             /* jshint eqeqeq: false */
         } else if (support.deleteExpando || cache != cache.window) {
-            //不为window再次尝试删除，这里的判定什么意思呢？  ————————————————————————————————————————————————————————————————————————last read
+            //不为window的情况下，或者可以浏览器检测可以删除属性，再次尝试删除，这里的判定什么意思呢？
             /* jshint eqeqeq: true */
             delete cache[id];
 
             // When all else fails, null
         } else {
+            //否则，直接null
             cache[id] = null;
         }
     }
