@@ -3792,6 +3792,8 @@
     }
 
     function internalData(elem, name, data, pvt /* Internal Use Only */) {
+        //pvt：private
+
         //添加一个data到jQuery缓存中
 
         //这个pvt是个啥玩意儿？？
@@ -3862,6 +3864,7 @@
         // An object can be passed to jQuery.data instead of a key/value pair; this gets
         // shallow copied over onto the existing cache
         //对象
+        //这里的判定没有调用jQuery.type()...当然在于作者的心态了...
         if (typeof name === "object" || typeof name === "function") {
             if (pvt) {//如果是内部数据
                 //挂到cache上

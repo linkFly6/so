@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>jQuery.Data演示</title>
+    <script src="../../jQuery/jquery-1.11.1.js"></script>
+    <script>
+        window.onload = function () {
+            var demo = $('#result'), demo2 = $('#result2');
+            demo.data('once', { 'hehe': 'go', 'test': 1 });
+            demo.data('once', 'overflow');
+            demo.html(demo.data('once'));
+            demo2.data('test', 'data');
+            demo2.html(demo2.data('test'));
+            
+        };
+    </script>
+</head>
+<body>
+    <div id="result"></div>
+    <div id="result2"></div>
+</body>
+</html>
