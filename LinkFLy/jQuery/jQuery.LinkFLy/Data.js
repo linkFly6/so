@@ -33,6 +33,11 @@
 
     },
     isEmptyDataObject = function () { },
+    cleanData = function () {
+        //因为jQuery.data服役于jQuery.event，在最终清除data的时候，需要对jQuery.event模型破坏
+        //这里的的cleanData()内部实现牵扯到event模型，这里略过实现
+        //简单的说，这个方法在这里是打酱油的~~~
+    },
     internalData = function (elem, name, data, isPrivate) {
         //添加一个Data
         if (!acceptData(elem)) return;
@@ -156,8 +161,16 @@
             delete cache[id].data;
             if (!isEmptyDataObject(cache[id])) return;
         }
-        //TODO
-
+        if (isNode) {
+            //因为jQuery.data服役于jQuery.event，所以这里进行event模型破坏
+            //这里的的cleanData()内部实现牵扯到event模型，这里略过实现
+            cleanData([elem], true);
+        } else if (cache != cache.window) {//如果数据挂在window下，同时还需要检测浏览器是否支持删除window的属性
+            delete cache[id];
+        } else {
+            //最终强制null
+            cache[id] = null;
+        }
     };
 
 })(window);

@@ -6,18 +6,21 @@
     <script src="../../jQuery/jquery-1.11.1.js"></script>
     <script>
         window.onload = function () {
-            var demo = $('#result'), demo2 = $('#result2');
+            var demo = $('#result'), demo2 = $('#result2'), res = $('#result3');
             demo.data('once', { 'hehe': 'go', 'test': 1 });
             demo.data('once', 'overflow');
             demo.html(demo.data('once'));
             demo2.data('test', 'data');
-            demo2.html(demo2.data('test'));
-            
+            demo2.data('once', 'hehe');
+            demo2.html(demo2.data('once'));
+            demo2.removeData('once');
+            res.html(demo2.data('once'));
         };
     </script>
 </head>
 <body>
     <div id="result"></div>
     <div id="result2"></div>
+    <div id="result3"></div>
 </body>
 </html>
