@@ -9,6 +9,7 @@
     //页面唯一key
     pageKey = 'linkFly' + Math.random().toString().replace(/\D/g, ""),
     globalCache = {},
+    globalId = 0,
     acceptData = function (elem) {
         //确定一个Element对象是否可以拥有Data
         var tempData = noData[(elem.nodeName + '').toLowerCase()],
@@ -25,6 +26,13 @@
         //转换为驼峰
 
     },
+    isArray = function (name) { },
+    map = function (elem, fn) {
+    },
+    isEmptyObject = function (obj) {
+
+    },
+    isEmptyDataObject = function () { },
     internalData = function (elem, name, data, isPrivate) {
         //添加一个Data
         if (!acceptData(elem)) return;
@@ -50,8 +58,8 @@
         //上面验证通过之后，确定了肯定是存放数据而不是捣乱的，开始干活...
         if (id) {
             //如果是第一次放数据，肯定是读不到id的...
-            //如果是Element，先把key挂到Element上，数据嘛，可以瞎放个数据，因为用不到...没人拦着你..
-            if (isNode) id = elem[key] = '';
+            //如果是Element，把key挂到Element上，这里的id是全局唯一id
+            if (isNode) id = elem[key] = globalId++;
             else id = key;//如果是对象的话那就不霸占对象了
         }
         if (cache) {
@@ -100,6 +108,55 @@
     },
     //移除数据
     internalRemoveData = function (elem, name, isPrivate) {
+        if (!acceptData(elem)) return;
+        var thisCache,
+            i,
+            isNode = elem.nodeType,
+            cache = isNode ? globalCache : elem,
+            id = isNode ? elem[pageKey] : pageKey;
+        if (cache[id]) return;//找不到data，那还搞个毛线啊
+        if (name) {
+            thisCache = isPrivate ? cache[id] : cache[id].data;
+            if (thisCache) {
+                if (!isArray(name))//（类）数组判定，支持批量删除
+                {
+                    //检测name是在cache中
+                    if (name in thisCache)
+                        name = [name];
+                    else {
+                        //检测失败，转换为驼峰再次检测
+                        name = camelCase(name);
+                        if (name in thisCache)
+                            name = [name];
+                        else//再次检测失败，那么按照空格来切割array，既严谨也让API更加的强大
+                            name.split(' ');
+                    }
+                } else {
+                    //把为array创建一份经过驼峰转换的版本，和当前的array连接
+                    //这样可以保证经过驼峰转换的data也可以被删除
+                    name = Array.prototype.concat.call(name, map(name, camelCase));
+                }
+                i = name.length;
+                //删除data
+                while (i--)
+                    delete thisCache[name[i]];
+                /*
+                    注意这里的判定：
+                        这里的判定检测了thisCache是否为空，如果不为空，则表示任务已经完成
+                        如果为空，则需要把thiaCache彻底重置？
+                */
+                if (isPrivate ? !isEmptyDataObject(thisCache) : !isEmptyObject(thisCache))
+                    return;
+            }
+        }
+        /*
+            如果到了这里，证明data已经删除干净了，那么顺便把cache.data也给清理掉
+        */
+        if (!isPrivate) {
+            delete cache[id].data;
+            if (!isEmptyDataObject(cache[id])) return;
+        }
+        //TODO
 
     };
 
