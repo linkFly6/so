@@ -148,7 +148,7 @@
                 /*
                     注意这里的判定：
                         这里的判定检测了thisCache是否为空，如果不为空，则表示任务已经完成
-                        如果为空，则需要把thiaCache彻底重置？
+                        如果为空，则进入后续的代码，需要把thiaCache彻底重置？
                 */
                 if (isPrivate ? !isEmptyDataObject(thisCache) : !isEmptyObject(thisCache))
                     return;
