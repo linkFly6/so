@@ -3505,7 +3505,7 @@
         return owner.nodeType === 1 || owner.nodeType === 9 || !(+owner.nodeType);
     };
 
-
+    //构建jQuery 数据缓存对象，作者：Rick Waldron
     function Data() {
         // Support: Android < 4,
         // Old WebKit does not have Object.preventExtensions/freeze method,
@@ -3515,7 +3515,7 @@
                 return {};
             }
         });
-
+        //钥匙
         this.expando = jQuery.expando + Math.random();
     }
 
@@ -3523,30 +3523,39 @@
     Data.accepts = jQuery.acceptData;
 
     Data.prototype = {
+        //获取缓存的钥匙
         key: function (owner) {
             // We can accept data for non-element nodes in modern browsers,
             // but we should not, see #8335.
             // Always return the key for a frozen object.
             if (!Data.accepts(owner)) {
-                return 0;
+                return 0; //return false
             }
 
             var descriptor = {},
             // Check if the owner object already has a cache key
+            //又再Element上挂载jQuery属性？？？
 			unlock = owner[this.expando];
 
             // If not, create one
+            //如果没有则创建
             if (!unlock) {
                 unlock = Data.uid++;
 
                 // Secure it in a non-enumerable, non-writable property
                 try {
+                    //属性格式：{ 'jQuery随机数':{ 'value' : Data.uid++ } }
                     descriptor[this.expando] = { value: unlock };
-                    Object.defineProperties(owner, descriptor);
 
+                    //参考：http://msdn.microsoft.com/zh-cn/library/ie/ff800817%28v=vs.94%29.aspx
+                    //这个属性不会被枚举
+                    //过去的jQuery是定义defineProperty重写valueOf实现
+                    Object.defineProperties(owner, descriptor);
+                    //兼容android < 4
                     // Support: Android < 4
                     // Fallback to a less secure definition
                 } catch (e) {
+                    //如果没有Object.defineProperties，则采用jQuery.extend
                     descriptor[this.expando] = unlock;
                     jQuery.extend(owner, descriptor);
                 }
@@ -3556,7 +3565,7 @@
             if (!this.cache[unlock]) {
                 this.cache[unlock] = {};
             }
-
+            //返回这个钥匙
             return unlock;
         },
         set: function (owner, data, value) {
@@ -3564,7 +3573,9 @@
             // There may be an unlock assigned to this node,
             // if there is no entry for this "owner", create one inline
             // and set the unlock as though an owner entry had always existed
+            //拿钥匙（int）
 			unlock = this.key(owner),
+            //拿缓存
 			cache = this.cache[unlock];
 
             // Handle: [ owner, key, value ] args
