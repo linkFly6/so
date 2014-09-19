@@ -13,14 +13,14 @@
         <div class="l-body">
             <div class="l-index">
                 <p>
-                    jQuery的崛起让<span class="l-codeRemark">ArrayLike（类数组）</span>在javascript中大放异彩，它的出现为一组数据的行为（函数）扩展提供了基础。
+                    <span class="l-codeRemark">jQuery.data</span>在1.2后引入数据缓存系统，主要的作用是让一组自定义的数据可以DOM元素相关联——浅显的说：就是让一个对象和一组数据相关联。
                 </p>
                 <p>
-                    类数组和数组相似，具有数组的某些行为，但是它相比数组可以更加自由的扩展，它的存在让一组数据的表现不再受限于数组，也无需去污染数组本身的原型——它来自javascript对象的挖掘和扩展，而并非javascript本身就存在的。简单的说，它来自数组，比数组更加适合扩展。
+                    一组和Element相关的数据如何关联着这个Element一直是web前端的大姨妈，而最初的jQuery事件系统照搬Dean Edwards的<a href="http://dean.edwards.name/weblog/2005/10/add-event/">addEvent.js</a>：将回调挂载在EventTarget上，这样下来，循环引用是不可忽视的问题。而在web前端中，数据和DOM的关系太过基情和紧张，于是jQuery在1.2中，正式缔造了<span class="l-codeRemark">jQuery.data</span>，就是为了解决这段孽缘：自定义数据和DOM进行关联。
                 </p>
                 <p>
                     本文原创于<a style="color: #259ec7;" target="_blank" href="http://www.cnblogs.com/silin6/">linkFly</a>，<a
-                        style="color: #259ec7;" href="http://www.cnblogs.com/silin6/p/ArrayLike.html"
+                        style="color: #259ec7;" href="http://www.cnblogs.com/silin6/p/jQuery.data.html"
                         target="_blank">原文地址</a>。
                 </p>
                 <p>
@@ -37,7 +37,7 @@
                 <a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">锋芒毕露的ArrayLike</a></h3>
             <div>
                 <p>
-                    <span class="l-bold">如果你已经了解了ArrayLike，这一节可以略过。</span></p>
+                    它把事件的回调都放在相应的EventTarget上，当回调中再引用EventTarget的时候，会造成循环引用</p>
                 <p>
                     <span class="l-codeRemark">ArrayLike（类数组/伪数组）</span>即拥有数组的一部分行为，在DOM中早已表现出来，而jQuery的崛起让ArrayLike在javascript中大放异彩。正如它的翻译一样：它类似于数组。
                 </p>
