@@ -5,7 +5,9 @@
     <link href="../../Themes/Article.css" rel="stylesheet" />
     <script src="../../jQuery/jquery-2.1.1.js" type="text/javascript"></script>
     <style>
-        test { text-decoration: none; }
+        test {
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -27,24 +29,32 @@
                     这篇文章主要分为以下知识
                 </p>
                 <ul>
-                    <li style="padding: 0px"><a class="l-navigation" href="#muddle" title="点击阅读相关内容">锋芒毕露的ArrayLike</a></li>
-                    <li style="padding: 0px"><a class="l-navigation" href="#arraylike" title="点击阅读相关内容">
-                        ArrayLike的实现</a></li>
-                    <li style="padding: 0px"><a class="l-navigation" href="#other" title="点击阅读相关内容">其他</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#muddle" title="点击阅读相关内容">jQuery.data模型</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#data-1-7" title="点击阅读相关内容">jQuery.1.7中的jQuery.data实现</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#data-2-1" title="点击阅读相关内容">jQuery.2.1中jQuery.data实现</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#data-2-x" title="点击阅读相关内容">jQuery.2.x中jQuery.data最初的实现</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#other" title="点击阅读相关内容">其他实现</a></li>
                 </ul>
             </div>
+            <span class="l-codeRemark"></span>
+            <span class="l-codeRemark"></span>
+            <span class="l-codeRemark"></span>
+            <span class="l-codeRemark"></span>
             <h3 class="l-title">
-                <a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">锋芒毕露的ArrayLike</a></h3>
+                <a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">jQuery.data模型</a></h3>
             <div>
                 <p>
-                    它把事件的回调都放在相应的EventTarget上，当回调中再引用EventTarget的时候，会造成循环引用</p>
-                <p>
-                    <span class="l-codeRemark">ArrayLike（类数组/伪数组）</span>即拥有数组的一部分行为，在DOM中早已表现出来，而jQuery的崛起让ArrayLike在javascript中大放异彩。正如它的翻译一样：它类似于数组。
+                    一组数据，如何与DOM相关联一直是web前端的痛处，因为浏览器的兼容性等因素。最初的jQuery事件系统照搬Dean Edwards的<a href="http://dean.edwards.name/weblog/2005/10/add-event/">addEvent.js</a>：将回调挂载在EventTarget上，这样下来，循环引用是不可忽视的问题，它把事件的回调都放在相应的EventTarget上，当回调中再引用EventTarget的时候，会造成循环引用。于是缔造了<span class="l-codeRemark">jQuery.data</span>，在<span class="l-codeRemark">jQuery.event</span>中通过<span class="l-codeRemark">jQuery.data</span>挂载回调函数，这样解决了回调函数的循环引用，随时时间的推移，<span class="l-codeRemark">jQuery.data</span>应用越来越广,例如后来的<span class="l-codeRemark">jQuery.queue</span>。
                 </p>
                 <p>
-                    ArrayLike对象的精妙在于它和javascript原生的Array类似，但是它是自由构建的，它来自开发者对javascript对象的扩展，也就是说：对于它的原型（prototype）我们可以自由定义，而不会污染到javascript原生的Array。</p>
+                    首先我们要搞清楚<span class="l-codeRemark">jQuery.data</span>解决的需求，有一组和DOM相关/描述Element的数据，如何存放和挂载呢？可能有人是这样的：
+                </p>
                 <p>
-                    过去针对一组数据的扩展是下面这个样子的：</p>
+                    ArrayLike对象的精妙在于它和javascript原生的Array类似，但是它是自由构建的，它来自开发者对javascript对象的扩展，也就是说：对于它的原型（prototype）我们可以自由定义，而不会污染到javascript原生的Array。
+                </p>
+                <p>
+                    过去针对一组数据的扩展是下面这个样子的：
+                </p>
                 <div class="l-code">
                     <div class="cnblogs_Highlighter">
                         <pre class="brush:javascript;gutter:true;">        //污染Array实现扩展
@@ -67,9 +77,11 @@
                     爸爸妈妈对你期望很高，你要好好学习，但是舍友基佬教会了你打dota，整天拉你打dota让你没时间看书学习，结果呢，就是打得一手好dota学习掉下去了——但是如果，你开了分身斧，让你的分身去打dota，你自己仍然好好学习，dota学习两不误，而且你的分身不仅仅可以打dota，也可以去打wow，把妹，做你做不到的事情，是不是觉得这样不就碉堡了么！！！
                 </p>
                 <p>
-                    没错，ArrayLike就是要干这么碉堡的事情。</p>
+                    没错，ArrayLike就是要干这么碉堡的事情。
+                </p>
                 <p class="l-bold">
-                    常见的ArrayLike有下面这几个，详见：<a href="#other">其他</a>。</p>
+                    常见的ArrayLike有下面这几个，详见：<a href="#other">其他</a>。
+                </p>
             </div>
             <ul style="list-style: none; line-height: 18px;">
                 <li>Arguments</li>
@@ -82,12 +94,10 @@
                 <li>DOMTokenList</li>
             </ul>
             <h3 class="l-title">
-                <a name="arraylike" href="javascript:;" style="color: white; text-decoration: none;">
-                    ArrayLike的实现</a></h3>
+                <a name="arraylike" href="javascript:;" style="color: white; text-decoration: none;">ArrayLike的实现</a></h3>
             <div>
                 <div>
-                    <h3 class="l-limitTitle">
-                        第一种 - 通过闭包实现：</h3>
+                    <h3 class="l-limitTitle">第一种 - 通过闭包实现：</h3>
                     <p class="l-txtBlock">
                         通过闭包实现，内部采用一个Array作为基础，API是针对数组进行操作，在API的实现上较差。并且不支持直接通过<span class="l-codeRemark">索引（array[0]）</span>来访问元素，通过闭包实现上会丢失<span
                             class="l-remark">instanceof</span>的判定，优点是够轻。
@@ -130,16 +140,17 @@
                         </div>
                     </div>
                     <p>
-                        <span class="l-bold">运行结果和demo对象结构：</span></p>
+                        <span class="l-bold">运行结果和demo对象结构：</span>
+                    </p>
                     <div>
                         <p>
                             <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%b8%80%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                                alt="" width="612" height="206" /></p>
+                                alt="" width="612" height="206" />
+                        </p>
                     </div>
                 </div>
                 <div>
-                    <h3 class="l-limitTitle">
-                        第二种 - 通过继承实现：</h3>
+                    <h3 class="l-limitTitle">第二种 - 通过继承实现：</h3>
                     <p class="l-txtBlock">
                         主要亮点（应用）在<span class="l-marked">保留Array的API</span>，在Array上二次封装，可以通过索引来访问。
                     </p>
@@ -171,16 +182,17 @@
                         </div>
                     </div>
                     <p>
-                        <span class="l-bold">运行结果和demo对象结构：</span></p>
+                        <span class="l-bold">运行结果和demo对象结构：</span>
+                    </p>
                     <div>
                         <p>
                             <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%ba%8c%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                                alt="" width="450" height="285" /></p>
+                                alt="" width="450" height="285" />
+                        </p>
                     </div>
                 </div>
                 <div>
-                    <h3 class="l-limitTitle">
-                        第三种 - 通过自我维护实现：</h3>
+                    <h3 class="l-limitTitle">第三种 - 通过自我维护实现：</h3>
                     <p class="l-txtBlock">
                         在增删改上需要自我维护length，相比下来很是折腾和繁琐，只是提供一种代码思路，并不提倡，可以通过索引访问，
                     </p>
@@ -210,16 +222,17 @@
                         </div>
                     </div>
                     <p>
-                        <span class="l-bold">运行结果和demo对象结构：</span></p>
+                        <span class="l-bold">运行结果和demo对象结构：</span>
+                    </p>
                     <div>
                         <p>
                             <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%b8%89%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                                alt="" width="502" height="205" /></p>
+                                alt="" width="502" height="205" />
+                        </p>
                     </div>
                 </div>
                 <div>
-                    <h3 class="l-limitTitle">
-                        第四种 - 针对第一种优化：</h3>
+                    <h3 class="l-limitTitle">第四种 - 针对第一种优化：</h3>
                     <p class="l-txtBlock">
                         在add中通过Array原生的API<span class="l-codeRemark">Array.prototype.push</span>来实现，原理是只要调用过Array原生的增删改API操作函数（仅第一次即可），则可以通过索引来访问元素，但是<span
                             class="l-remark">instanceof</span>的判定仍未修复。
@@ -253,16 +266,17 @@
                         </div>
                     </div>
                     <p>
-                        <span class="l-bold">运行结果和demo对象结构：</span></p>
+                        <span class="l-bold">运行结果和demo对象结构：</span>
+                    </p>
                     <div>
                         <p>
                             <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e5%9b%9b%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                                alt="" width="452" height="202" /></p>
+                                alt="" width="452" height="202" />
+                        </p>
                     </div>
                 </div>
                 <div>
-                    <h3 class="l-limitTitle">
-                        第五种 - 修复instenceof判定：</h3>
+                    <h3 class="l-limitTitle">第五种 - 修复instenceof判定：</h3>
                     <p class="l-txtBlock">
                         这种修复有点勉强，因为在ie下并没有<span class="l-codeRemark">__proto__</span>，所以这里所谓的修复只不过是针对现代浏览器而已，只是提供一种思路，关于<span
                             class="l-codeRemark">instenceof</span>请参考请参考：<a href="#other">其他</a>。
@@ -305,17 +319,18 @@
 </pre>
                         </div>
                         <p>
-                            <span class="l-bold">运行结果和demo对象结构：</span></p>
+                            <span class="l-bold">运行结果和demo对象结构：</span>
+                        </p>
                         <div>
                             <p>
                                 <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%ba%94%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                                    alt="" width="462" height="202" /></p>
+                                    alt="" width="462" height="202" />
+                            </p>
                         </div>
                     </div>
                 </div>
                 <div>
-                    <h3 class="l-limitTitle">
-                        第六种 - jQuery的实现：</h3>
+                    <h3 class="l-limitTitle">第六种 - jQuery的实现：</h3>
                     <p class="l-txtBlock">
                         jQuery构造函数繁琐的实现不仅仅只是为了去new化，同时也修复了针对jQuery对象的判定，巧妙的将原型重新指向，让<span class="l-codeRemark">instenceof</span>可以在原型链中查找到jQuery构造函数，使得<span
                             class="l-codeRemark">instenceOf</span>判定有效，让jQuery直逼真正的javascript对象。
@@ -354,16 +369,17 @@
                         </div>
                     </div>
                     <p>
-                        <span class="l-bold">运行结果和demo对象结构：</span></p>
+                        <span class="l-bold">运行结果和demo对象结构：</span>
+                    </p>
                     <div>
                         <p>
                             <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e5%85%ad%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                                alt="" width="700" height="345" /></p>
+                                alt="" width="700" height="345" />
+                        </p>
                     </div>
                 </div>
                 <div>
-                    <h3 class="l-limitTitle">
-                        第七种 - 最简单的实现：</h3>
+                    <h3 class="l-limitTitle">第七种 - 最简单的实现：</h3>
                     <p class="l-txtBlock">
                         并没有采用闭包，而是通过定义原型实现，实现方法类似第四种，但是原型指向正确，<span class="l-codeRemark">instenceof</span>判定有效。
                     </p>
@@ -393,16 +409,17 @@
                         </div>
                     </div>
                     <p>
-                        <span class="l-bold">运行结果和demo对象结构：</span></p>
+                        <span class="l-bold">运行结果和demo对象结构：</span>
+                    </p>
                     <div>
                         <p>
                             <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%b8%83%e7%a7%8d.gif"
-                                alt="" width="700" height="306" /></p>
+                                alt="" width="700" height="306" />
+                        </p>
                     </div>
                 </div>
                 <div>
-                    <h3 class="l-limitTitle">
-                        第八种 - jQuery拆解版：</h3>
+                    <h3 class="l-limitTitle">第八种 - jQuery拆解版：</h3>
                     <p class="l-txtBlock">
                         为了更好的理解jQuery的构造函数实现，所以给出了这种，<span class="l-codeRemark">jQuery.fn.init</span>就是本例中的<span
                             class="l-codeRemark">ArrayLike</span>对象，jQuery只是把<span class="l-codeRemark">init</span>挂载到<span
@@ -439,16 +456,19 @@
                         </div>
                     </div>
                     <p>
-                        <span class="l-bold">运行结果和demo对象结构：</span></p>
+                        <span class="l-bold">运行结果和demo对象结构：</span>
+                    </p>
                     <div>
                         <p>
                             <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e5%85%ab%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                                alt="" width="600" height="306" /></p>
+                                alt="" width="600" height="306" />
+                        </p>
                     </div>
                 </div>
             </div>
             <p>
-                其实应该叫做类数组对象的7次实现...有点标题党的意思.....不要打脸...</p>
+                其实应该叫做类数组对象的7次实现...有点标题党的意思.....不要打脸...
+            </p>
             <h3 class="l-title">
                 <a name="other" href="javascript:;" style="color: white; text-decoration: none;">其他</a></h3>
             <div class="l-author">
