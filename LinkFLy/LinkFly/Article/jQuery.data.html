@@ -5,9 +5,7 @@
     <link href="../../Themes/Article.css" rel="stylesheet" />
     <script src="../../jQuery/jquery-2.1.1.js" type="text/javascript"></script>
     <style>
-        test {
-            text-decoration: none;
-        }
+        test { text-decoration: none; }
     </style>
 </head>
 <body>
@@ -30,506 +28,329 @@
                 </p>
                 <ul>
                     <li style="padding: 0px"><a class="l-navigation" href="#muddle" title="点击阅读相关内容">jQuery.data模型</a></li>
-                    <li style="padding: 0px"><a class="l-navigation" href="#data-1-7" title="点击阅读相关内容">jQuery.1.7中的jQuery.data实现</a></li>
-                    <li style="padding: 0px"><a class="l-navigation" href="#data-2-1" title="点击阅读相关内容">jQuery.2.1中jQuery.data实现</a></li>
-                    <li style="padding: 0px"><a class="l-navigation" href="#data-2-x" title="点击阅读相关内容">jQuery.2.x中jQuery.data最初的实现</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#data-1-7" title="点击阅读相关内容">jQuery.1.x中的jQuery.data实现</a></li>
+                    <li style="padding: 0px"><a class="l-navigation" href="#data-2-1" title="点击阅读相关内容">jQuery.2.x中jQuery.data实现</a></li>
                     <li style="padding: 0px"><a class="l-navigation" href="#other" title="点击阅读相关内容">其他实现</a></li>
                 </ul>
             </div>
-            <span class="l-codeRemark"></span>
-            <span class="l-codeRemark"></span>
-            <span class="l-codeRemark"></span>
-            <span class="l-codeRemark"></span>
-            <h3 class="l-title">
-                <a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">jQuery.data模型</a></h3>
             <div>
-                <p>
-                    一组数据，如何与DOM相关联一直是web前端的痛处，因为浏览器的兼容性等因素。最初的jQuery事件系统照搬Dean Edwards的<a href="http://dean.edwards.name/weblog/2005/10/add-event/">addEvent.js</a>：将回调挂载在EventTarget上，这样下来，循环引用是不可忽视的问题，它把事件的回调都放在相应的EventTarget上，当回调中再引用EventTarget的时候，会造成循环引用。于是缔造了<span class="l-codeRemark">jQuery.data</span>，在<span class="l-codeRemark">jQuery.event</span>中通过<span class="l-codeRemark">jQuery.data</span>挂载回调函数，这样解决了回调函数的循环引用，随时时间的推移，<span class="l-codeRemark">jQuery.data</span>应用越来越广,例如后来的<span class="l-codeRemark">jQuery.queue</span>。
-                </p>
-                <p>
-                    首先我们要搞清楚<span class="l-codeRemark">jQuery.data</span>解决的需求，有一组和DOM相关/描述Element的数据，如何存放和挂载呢？可能有人是这样的：
-                </p>
+                <h3 class="l-title">
+                    <a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">jQuery.data模型</a></h3>
+                <div>
+                    <h3 class="l-limitTitle">模型</h3>
+                    <p>凡存在，皆真理——任何一样事物的存在必然有其存在的理由，于我们的角度来说，这叫需求。</p>
+                    <p>
+                        一组数据，如何与DOM相关联一直是web前端的痛处，因为浏览器的兼容性等因素。最初的jQuery事件系统照搬Dean Edwards的<a href="http://dean.edwards.name/weblog/2005/10/add-event/">addEvent.js</a>：将回调挂载在EventTarget上，这样下来，循环引用是不可忽视的问题，它把事件的回调都放在相应的EventTarget上，当回调中再引用EventTarget的时候，会造成循环引用。于是缔造了<span class="l-codeRemark">jQuery.data</span>，在<span class="l-codeRemark">jQuery.event</span>中通过<span class="l-codeRemark">jQuery.data</span>挂载回调函数，这样解决了回调函数的循环引用，随时时间的推移，<span class="l-codeRemark">jQuery.data</span>应用越来越广,例如后来的<span class="l-codeRemark">jQuery.queue</span>。
+                    </p>
+                    <p>
+                        首先我们要搞清楚<span class="l-codeRemark">jQuery.data</span>解决的需求，有一组和DOM相关/描述Element的数据，如何存放和挂载呢？可能有人是这样的：
+                    </p>
+                    <div class="l-txtBlock">
+                        <div>
+                            <h3 class="l-limitTitle">使用attributes</h3>
+                            <p class="l-bold">HTML：</p>
+
+                            <p class="l-bold">javascript：</p>
+                            <div>
+                                <div class="l-code"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="l-limitTitle">使用HTML5的dataset</h3>
+                            <p class="l-bold">HTML：</p>
+
+                            <p class="l-bold">javascript：</p>
+                            <div>
+                                <div class="l-code"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="l-limitTitle">为DOM实例进行扩展</h3>
+                            <p class="l-bold">HTML：</p>
+
+                            <p class="l-bold">javascript：</p>
+                            <div>
+                                <div class="l-code"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div>虽然有解决方案，但都不是理想的解决方案，每个方案都有自己的局限性：</div>
+                    <ul style="list-style: none;">
+                        <li>1、只能保存字符串（或转化为字符串类型）的数据，同时曝露了数据，并且在HTML上挂载了无谓的属性，浏览器仍然会尝试解析这些属性。</li>
+                        <li>2、同上。</li>
+                        <li>3、典型的污染，虽然可以保存更强大的数据（Object/Function），但是患有代码洁癖的骚年肯定是不能忍的，更主要，如果挂载的数据中引用着这个Element，则会循环引用。</li>
+                    </ul>
+                </div>
+                <div>
+                    <span class="l-codeRemark">jQuery.data</span>，则是为了解决这样的自定义数据挂载问题。
+                </div>
+                <div>
+                    <h3 class="l-limitTitle">模型</h3>
+                    <p>一窥模型吧，jQuery.data在早期，为了兼容性做了很多的事情。同时，或许是因为jQuery.data最初的需求作者也觉得太过简单，所以实现的代码上让人觉得略显仓促，早期的数据仓库很是繁琐，在<span class="l-codeRemark">jQuery.2.x</span>后，jQuery.data重写，同时终于把<span class="l-codeRemark">jQuery.data</span>抽离出对象。</p>
+                    <p>
+                        jQuery.data模型上，就是建立一个数据仓库，而每一个挂载该数据的对象，都有自己的钥匙，他和上面的代码理念并不同:
+                    </p>
+                    <ul style="list-style: none;">
+                        <li>
+                            <p>上面的方案是：</p>
+                            <p class="l-bold">在需要挂载数据的对象上挂载数据，就好像你身上一直带着1000块钱，要用的时候直接从口袋里掏就可以了。</p>
+                        </li>
+                        <li>
+                            <p>
+                                <span class="l-codeRemark">jQuery.data</span>则是：
+                            </p>
+                            <p class="l-bold">建立一个仓库，所有的数据都放在这个仓库里，然后给每个需要挂载数据的对象一把钥匙，读取数据的时候拿这个钥匙到仓库里去拿，就好像所有人都把钱存在银行里，你需要的时候则拿着银行卡通过密码去取钱。</p>
+                        </li>
+                    </ul>
+                    <p>图一张：</p>
+                    <div class="l-txtBlock">
+                        图片
+                    </div>
+                    <p>我们暂时先不讨论数据仓库的样子，首先我们要关注数据和Element关联的关键点——钥匙，这个钥匙颇具争议，后续的几种数据缓存方式都是在对这个钥匙进行大的变动，因为这个钥匙，不得不放在Element上——即使你把所有的钱都存在银行里了，但是你身上还是要有相应的钥匙，这不得不让那些代码洁癖的童鞋面对这个问题：Element注定要被污染——<span class="l-codeRemark">jQuery.data</span>只是了尝试最小的污染。</p>
+                    <p>jQuery在创建的时候，会生成一个属性——<span class="l-codeRemark">jQuery.expando</span>：</p>
+                    <div class="l-txtBlock">
+                        expando: "jQuery" + ( jQuery.fn.jquery + Math.random() ).replace( /\D/g, "" );
+                    </div>
+                    <p>
+                        <span class="l-codeRemark">jQuery.expando</span>是当前页面中引用的jQuery对象的身份标志（id），每个页面引用的<span class="l-codeRemark">jQuery.expando</span>都是不重复且唯一的，所以这就是钥匙的关键：<span class="l-codeRemark">jQuery.expando</span>生成的值作为钥匙，挂载在Element上，也就是为Element创建一个属性：<span class="l-bold">这个属性的名称，就是jQuery.expando的值，这就是钥匙的关键。</span>
+                        虽然仍然要在Element上挂载自己的数据，但是jQuery尽可能做到了最小化影响用户的东西。
+                    </p>
+                    <p>当然这里需要注意：通过为Element添加钥匙的时候，使用的是jQuery.expando的值作为添加的属性名，页面每个使用过jQuery.data的Element上都有jQuery.expando的值扩展的属性名，也就是说，每个使用过jQuery.data的Element都有这个扩展的属性，通过检索这个<span class="l-bold">属性值</span>来找到仓库里的数据——钥匙是这个属性值，而不是这个<span class="l-codeRemark">jQuery.expando</span>扩展的属性名。</p>
+                    <p>木图木真相：</p>
+                    <div class="l-txtBlock">
+                        <span class="l-codeRemark">jQuery.1.x（截至jQuery.1.11）</span>中，内部数据和外部数据挂载在jQuery.cache不同的地方——内部数据挂载在jQuery.cache[钥匙]下，而用户数据则挂载在jQuery.cache[钥匙].data下，原因是因为内部数据如何是用户数据挂载在一起则会存在相互覆盖的情况，要把数据给隔离开。
+                    </div>
+                    <p></p>
+                </div>
+            </div>
+            <div>
+                <h3 class="l-title">
+                    <a name="data-1-7" href="javascript:;" style="color: white; text-decoration: none;">jQuery.1.x中的jQuery.data实现</a>
+                </h3>
+                <p class="l-bold">这里的<span class="l-codeRemark">jQuery.1.x</span>主要是指<span class="l-codeRemark">jQuery.1.11</span>。</p>
+                <div>
+                    <h3 class="l-limitTitle">jQuery.acceptData()和isEmptyDataObject() - 目标过滤和目标判定</h3>
+                    <div class="l-txtBlock">
+                        <p>因为jQuery.1.x是兼容低版本浏览器的，所以需要处理大量的浏览器兼容性，在jQuery.1.x中设计的jQuery.data是基于给目标添加属性来实现的，所以这其中找属性找钥匙找仓库很是繁琐，再加上IE低版本各种雷区，简直丧心病狂了已经。</p>
+                    </div>
+                    <div>
+                        <p>找钥匙找仓库还好说，低版本IE的雷区一踩一个爆：所以jQuery单独写了一个<span class="l-codeRemark">jQuery.acceptData</span>用于屏蔽雷区，特别针对下面的情况：</p>
+                        <ul style="list-style: none;">
+                            <li>
+                                <span class="l-bold">applet和embed：</span>这两个标签都是多媒体，这两个标签在js里可以操作的权限简直就是缩卵了——根本行不通，所以jQuery直接给干掉了，这两个标签不能放标签。
+                            </li>
+                            <li>
+                                <span class="l-bold">flash：</span>早期的jQuery将所有的Object标签纳入雷区，后来发现IE下的flash还是可以自定义属性的，于是针对IE的flash还是网开一面，放过了IE的flash。
+                            </li>
+                        </ul>
+                        <p><span class="l-codeRemark">jQuery.acceptData</span>配合<span class="l-codeRemark">jQuery.noData</span>做的过滤：</p>
+                        <div class="l-txtBlock">
+                            jQuery.acceptData
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="l-limitTitle">internalData() - 挂载数据</h3>
+                    <div>
+                        <p>因为涉及到用户数据和内部数据，所以将数据挂载方法直接抽离了出来，内部调用，挂载数据方法（下面有分步分析）：</p>
+                        <div class="l-txtBlock">
+                            internalData
+                        </div>
+                        <p>太长看起来恶心？来，我们一点点分析：</p>
+                        <p>1、首先，检测是否可以存放数据，可以的话初始化操作，针对变量id要注意，这里的一直在找上面我们所说的<span class="l-bold">挂载在Element上那个存放钥匙的属性，也就是jQuery.expando的值</span></p>
+                        <div class="l-txtBlock">
+                            初始化变量
+                        </div>
+                        <p>
+                            2、如果没有id，则为目标添加上id，原版代码如下：
+                        </p>
+                        <div class="l-txtBlock">
+                            获取id，注意要和过去的实现做比较，有个狗血的deletedIds.pop()
+                        </div>
+                        <p>
+                            2、根据钥匙，尝试从cache中读仓库的位置，如果仓库中还没有这个目标的存放空间，则开辟一个，这里特别针对了JSON做了处理：当调用<span class="l-codeRemark">JSON.stringify</span>序列化对象的时候，会调用这个对象的<span class="l-codeRemark">toJSON</span>方法，为了保证jQuery.data里面数据的安全，所以直接重写toJSON为一个空方法（<span class="l-codeRemark">jQuery.noop</span>）,这样就不会曝露jQuery.data里面的数据。
+                        </p>
+                        <div class="l-txtBlock">
+                            读取仓库
+                        </div>
+                        <p>3、存放位置都已经找到了，如果是Function/Object，则直接调用jQuery.extend挂数据</p>
+                        <div class="l-txtBlock">
+                            挂Object的数据
+                        </div>
+                        <p>4、从这里开始，代码变得难以理解（思维不错），这里再把仓库具体的位置给挖出来（jQuery.cache[钥匙]或jQuery.cache[钥匙].data），为的是最后要把这个data作为方法的返回值，而代码到了这里，还没有挂的是String类型的name，所以要确定当前仓库的具体位置，然后把挂载好数据的位置给返回出去。</p>
+                        <div class="l-txtBlock">
+                            调整仓库的位置，并挂上String的位置，最终返回
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="l-limitTitle">internalRemoveData() - 移除数据</h3>
+                    <div>
+                        <p>数据移除方法用于移除数据，当仓库中没有相应Element存储的数据的时候，会直接从仓库中删除这个存储空间（下面有分步分析）：</p>
+                        <div class="l-txtBlock">
+                            internalRemoveData()
+                        </div>
+                        <p>
+                            1、和internalData()一样，拿钥匙。
+                        </p>
+                        <div class="l-txtBlock">
+                            拿钥匙
+                        </div>
+                        <p>
+                            2、找到仓库存储数据的位置，然后删除数据，这里充分的考虑了数据命名和Object参数的情况。
+                        </p>
+                        <div class="l-txtBlock">
+                            删除数据
+                        </div>
+                        <p>
+                            3、如果数据全部删除了，那么仓库存储数据的空间也要被删除，所以接下来针对这些情况进行了处理
+                        </p>
+                        <div class="l-txtBlock">
+                            删除仓库中的数据空间存储的位置
+                        </div>
+                        <p>
+                            4、因为jQuery.data和jQuery.event事件系统直接挂钩，所以这里特别针对事件系统挂载的数据进行了删除处理，jQuery.cleanData方法涉及jQuery.event，所以暂不解读了。
+                        </p>
+                        <div class="l-txtBlock">
+                            深度删除
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="l-limitTitle">dataAttr()和jQuery.fn.data() - 针对HTML5的dataset和曝露API</h3>
+                    <div>
+                        <p>dataAttr()是特别针对HTML5的<span class="l-codeRemark">dataset</span>进行处理的方法，用处是将Element上HTML5的<span class="l-codeRemark">data-*</span>属性转换到<span class="l-codeRemark">jQuery.data</span>中，是针对HTML5的兼容：</p>
+
+                        <div class="l-txtBlock">
+                            dataAttr()
+                        </div>
+                    </div>
+                    <div>
+                        <p>jQuery.data实现很简单，就是调用internalData()实现，而jQuery.fn.data则将API扩展到多功能可读可写，同时更加的健壮，也意味着性能更逊色一点，看到代码的时候不得不感叹我们真是被jQuery给惯坏了。</p>
+                        <div class="l-txtBlock">
+                            jQuery.fn.data()完整代码
+                        </div>
+                        <p>
+                            1、如果是读取全部数据(<span class="l-codeRemark">$(Element).data()</span>)，则对HTML5属性进行转换，同时在内部标识上<span class="l-codeRemark">parsedAttrs</span>，表示这个Element已经被转换过HTML5属性了：
+                        </p>
+                        <div class="l-txtBlock">
+                            获取全部key
+                        </div>
+                        <p>2、如果不是读取全部数据，则情况要么是挂载数据，要么是读取数据，但在最后的一段代码上实现非常饶，是internalData()和dataAttr()的配合使用针对HTML5 dataset的兼容：</p>
+                        <div class="l-txtBlock">
+                            放数据或读数据
+                        </div>
+                        <div class="l-txtBlock">
+                            jQuery.fn.data()中最饶的地方或许就是最后一句了，仔细针对这里分析一下：
+                        </div>
+                        <p>一、先看jQuery.data(elem,key)发生了什么</p>
+                        <p>二、看dataAttr针对返回值做的处理</p>
+                    </div>
+                </div>
                 <div class="l-txtBlock">
-                    <div>
-                        <h3 class="l-limitTitle">使用attributes</h3>
-                        <p class="l-bold">HTML：</p>
+                    好的各位爷，<span class="l-codeRemark">jQuery.1.x</span>代码已经读完了，要不您老喝点茶看看窗外放松一下消化一下上面的代码？下面还有好大篇幅的说...我们先来总结一下：
+                </div>
+            </div>
+            <div>
+                <h3 class="l-title">
+                    <a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">jQuery.2.x中jQuery.data实现</a></h3>
+                <p class="l-bold">这里的<span class="l-codeRemark">jQuery.2.x</span>主要是指<span class="l-codeRemark">jQuery.2.1</span>。</p>
+                <div class="l-txtBlock">
+                    <p>在<span class="l-codeRemark">jQuery.2.x</span>中，jQuery.data终于决定被好好深造一下了，过去1.x的代码说多了都是泪，<span class="l-codeRemark">jQuery.2.x</span>的作者是xxxx：没有了兼容性的后顾之忧，改写后的代码读起来简直不要太舒适啊。</p>
+                    <p>在<span class="l-codeRemark">jQuery.2.x</span>中，为数据缓存建立了<span class="l-codeRemark">Data</span>对象，一个<span class="l-codeRemark">Data</span>对象表示一个数据仓库——用户数据和内部数据各自使用不同的Data对象，这样就不需要在仓库里翻来翻去的查找数据存储的位置了（jQuery.cache[钥匙]和jQuery.cache[钥匙].data），思路上，仍然和<span class="l-codeRemark">jQuery.1.x</span>一致，采用扩展属性的方式实现，关键点在<span class="l-codeRemark">Data.prorotype.key()</span>上。</p>
+                </div>
+                <div>
+                    <h3 class="l-limitTitle">Data对象 - 数据仓库</h3>
+                    <p>
+                        Data对象经过封装以后衍生了这些API：
+                    </p>
+                    <ul style="list-style: none;">
+                        <li><span class="l-bold">key：</span>专门用来获取和放置Element的钥匙。</li>
+                        <li><span class="l-bold">set/get：</span>放置和获取数据</li>
+                        <li><span class="l-bold">access：</span>通用API，根据参数既然可以放置也可以获取数据</li>
+                        <li><span class="l-bold">remove：</span>移除数据</li>
+                        <li><span class="l-bold">hasData：</span>检测是否有数据</li>
+                        <li><span class="l-bold">discard：</span>丢弃掉这个Element的存储空间</li>
+                    </ul>
+                    <div class="l-txtBlock">
+                        Data源码
+                    </div>
+                    <h3 class="l-limitTitle">access() - 通用接口</h3>
+                    <p>access方法并不属于Data，是jQuery根据自己的需求定义的方法，它用于挂载和获取一组/一个Element的数据，在jQuery曝露的jQuery.data API中使用，而正因为是通用接口，所以看到了一长串的参数，什么表示是否链式啊、当对象不正确返回的数据啊之类的，代码上有点重...</p>
+                    <div class="l-txtBlock">
+                        jQuery.access源码
+                    </div>
+                    <h3 class="l-limitTitle">jQuery.fn.data() - 曝露API</h3>
+                    <p>
+                        相比<span class="l-codeRemark">jQuery.1.x</span>代码更加的细腻了许多，这里配合着上面定义的access()使用，为每一个循环的jQuery项设置和读取数据，阅读起来比较轻松。
+                    </p>
+                    <div class="l-txtBlock">
+                        jQuery.fn.data()
+                    </div>
+                    <div class="l-txtBlock">
+                        哎呀篇幅好长的说，各位看官到了这里可以继续小憩一下，后面我们再来谈谈关于这个jQuery.data更多有意思的事情...总结一下，<span class="l-codeRemark">jQuery.2.x</span>的缓存设计理念清晰，最主要的就是封装成了Data对象以后将用户数据和jQuery内部使用的数据隔离开，这是最大的改进，当然也徒增了一些比较重的地方，比如access()方法个人就觉得做了很多不必要的事情，比如access中方法定义的参数很长都已经标志了很多事情，但是内部又尝试着修正这些参数，做了一些重复的工作，总体来说：思路清晰简单明了，和原作者各种饶来饶去的风格有着鲜明的对比，代码是死的，思路毕竟还是需要每个人自己领悟的。
+                    </div>
+                </div>
 
-                        <p class="l-bold">javascript：</p>
-                        <div>
-                            <div class="l-code"></div>
+            </div>
+            <div>
+                <h3 class="l-title">
+                    <a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">其他实现</a></h3>
+                <p class="l-bold">这些实现都是在<a href="http://www.cnblogs.com/rubylouvre/">司徒正美</a>的<a href="http://www.cnblogs.com/rubylouvre/p/3658441.html">《javascript框架设计》</a> - "数据缓存系统"一章里读到的，有必要宣传和感谢一下这本书，了解了很多代码的由来促进了理解。</p>
+                <div>
+                    <div>
+                        <h3 class="l-limitTitle">valueOf重写</h3>
+                        <div class="l-txtBlock">
+                            <p>在<span class="l-codeRemark">jQuery.2.x早期</span>的jQuery.data中，作者xxx也在为Element挂载这个<span class="l-codeRemark">expando</span>属性作为钥匙而头疼，于是给出了另外一种钥匙的挂载方法——<span class="l-codeRemark">重写valueOf()</span>。</p>
+                            <p>在为Element挂载钥匙的时候，不再给这个Element声明属性，而是通过<span class="l-bold">重写Element的valueOf方法</span>实现。</p>
+                            <p>虽然我翻了jQuery.2.0.0 - jQuery.2.1.1都没有找到这种做法，但觉得还是有必要提一下</p>
                         </div>
                     </div>
                     <div>
-                        <h3 class="l-limitTitle">使用HTML5的dataset</h3>
-                        <p class="l-bold">HTML：</p>
-
-                        <p class="l-bold">javascript：</p>
-                        <div>
-                            <div class="l-code"></div>
+                        <h3 class="l-limitTitle">Array</h3>
+                        <div class="l-txtBlock">
+                            <p>配合ES5的<span class="l-codeRemark">Array.prototype.indexOf()</span>实现：</p>
                         </div>
                     </div>
                     <div>
-                        <h3 class="l-limitTitle">为DOM实例进行扩展</h3>
-                        <p class="l-bold">HTML：</p>
-
-                        <p class="l-bold">javascript：</p>
-                        <div>
-                            <div class="l-code"></div>
+                        <h3 class="l-limitTitle">WeakMap</h3>
+                        <div class="l-txtBlock">
+                            <p>配合ES6的<span class="l-codeRemark">WeakMap</span>实现</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div>
-                <div>虽然有解决方案，但都不是理想的解决方案，每个方案都有自己的局限性：</div>
-                <ul style="list-style: none;">
-                    <li>1、只能保存字符串（或转化为字符串类型）的数据，同时曝露了数据，并且在HTML上挂载了无谓的属性，浏览器仍然会尝试解析这些属性。</li>
-                    <li>2、同上。</li>
-                    <li>3、典型的污染，虽然可以保存更强大的数据（Object/Function），但是患有代码洁癖的骚年肯定是不能忍的，更主要，如果挂载的数据中引用着这个Element，则会循环引用。</li>
+            <h3 class="l-title">
+                <a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">引用</a></h3>
+            <div class="l-author">
+                <ul style="list-style: none; padding: 0; font-size: 15px;">
+                    <li>手抄源码（有注释）：<a target="_blank" href="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/jQuery/jQuery.LinkFLy/Deferred.js"
+                        style="color: #259ec7;">https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/jQuery/jQuery.LinkFLy/Deferred.js</a></li>
+                    <li>参考书籍：<a target="_blank" href="http://www.cnblogs.com/rubylouvre/p/3658441.html"
+                        style="color: #259ec7;">司徒正美 - 《javascript框架设计》</a>第8章：数据缓存系统</li>
                 </ul>
             </div>
-            <div>
-                <span class="l-codeRemark">jQuery.data</span>，则是为了解决这样的自定义数据挂载问题。
-            </div>
-            <div>
-                <h3 class="l-limitTitle">模型</h3>
-                <div>一窥模型吧，jQuery.data在早期，为了兼容性做了很多的事情。同时，或许是因为jQuery.data最初的需求作者也觉得太过简单，所以实现的代码上让人觉得略显仓促，早期的数据仓库很是繁琐，在<span class="l-codeRemark">jQuery.2.x</span>后，jQuery.data重写，同时终于把<span class="l-codeRemark">jQuery.data</span>抽离出对象。</div>
+            <div class="l-author">
                 <div>
-                    jQuery.data模型上，就是建立一个数据仓库，而每一个挂载该数据的对象，都有自己的钥匙，他和上面的代码理念并不同:
+                    作者：linkFly
                 </div>
-                <ul style="list-style: none;">
-                    <li>
-                        <p>上面的方案是：</p>
-                        <p class="l-bold">在需要挂载数据的对象上挂载数据，就好像你身上一直带着1000块钱，要用的时候直接从口袋里掏就可以了。</p>
-                    </li>
-                    <li>
-                        <p>
-                            <span class="l-codeRemark">jQuery.data</span>则是：
-                        </p>
-                        <p class="l-bold">建立一个仓库，所有的数据都放在这个仓库里，然后给每个需要挂载数据的对象一把钥匙，读取数据的时候拿这个钥匙到仓库里去拿，就好像所有人都把钱存在银行里，你需要的时候则拿着银行卡通过密码去取钱。</p>
-                    </li>
-                </ul>
-                <div>图一张：</div>
-            </div>
-            <p>
-                上面代码你们懂的，污染了Array，在协同式开发中这简直就是作孽啊——ArrayLike应此诞生。
-            </p>
-            <p>
-                ArrayLike让你对一组数据的扩展不再受限于Array本身，同时也不会影响到Array，说白了就是：一组数据，肯定是有数组来存，但是如果要对这组数据进行扩展，会影响到数组原型，ArrayLike的出现则提供了一个中间数据桥梁，ArrayLike有数组的特性，
-                    但是对ArrayLike的扩展并不会影响到原生的数组。举个栗子：
-            </p>
-            <p class="l-txtBlock">
-                爸爸妈妈对你期望很高，你要好好学习，但是舍友基佬教会了你打dota，整天拉你打dota让你没时间看书学习，结果呢，就是打得一手好dota学习掉下去了——但是如果，你开了分身斧，让你的分身去打dota，你自己仍然好好学习，dota学习两不误，而且你的分身不仅仅可以打dota，也可以去打wow，把妹，做你做不到的事情，是不是觉得这样不就碉堡了么！！！
-            </p>
-            <p>
-                没错，ArrayLike就是要干这么碉堡的事情。
-            </p>
-            <p class="l-bold">
-                常见的ArrayLike有下面这几个，详见：<a href="#other">其他</a>。
-            </p>
-        </div>
-        <h3 class="l-title">
-            <a name="arraylike" href="javascript:;" style="color: white; text-decoration: none;">ArrayLike的实现</a></h3>
-        <div>
-            <div>
-                <h3 class="l-limitTitle">第一种 - 通过闭包实现：</h3>
-                <p class="l-txtBlock">
-                    通过闭包实现，内部采用一个Array作为基础，API是针对数组进行操作，在API的实现上较差。并且不支持直接通过<span class="l-codeRemark">索引（array[0]）</span>来访问元素，通过闭包实现上会丢失<span
-                        class="l-remark">instanceof</span>的判定，优点是够轻。
-                </p>
-                <div class="l-code">
-                    <div class="cnblogs_Highlighter">
-                        <div class="cnblogs_Highlighter">
-                            <pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
-        //通过闭包实现
-        var List = function () {
-            var list = [],
-                self = {
-                    constructor: List,
-                    //如果希望更像原生一点，将length定义为属性，那么length则需要自己维护
-                    length: function () { return list.length; },
-                    add: function (item) {
-                        list.push(item);
-                    },
-                    eq: function (index) {
-                        return list[index];
-                    }
-                };
-            return self;
-        };
-        //测试
-        console.group('第一种 - 通过闭包实现');
-        var demo = new List();
-        demo.add('List - add()');
-        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:red;');
-        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
-        //无法通过索引demo[0]这种方式访问
-        console.log('成员：[ ' + demo.eq(0) + ' , ' + demo.eq(1) + ' ]');
-        console.log('length：' + demo.length());
-        //注意看demo对象
-        console.log(demo);
-        console.groupEnd();
-    }();
-</pre>
-                        </div>
-                    </div>
-                </div>
-                <p>
-                    <span class="l-bold">运行结果和demo对象结构：</span>
-                </p>
                 <div>
-                    <p>
-                        <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%b8%80%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                            alt="" width="612" height="206" />
-                    </p>
+                    原文：<a href="http://www.cnblogs.com/silin6/p/jQuery.data.html" style="color: #259ec7;">http://www.cnblogs.com/silin6/p/jQuery.data.html</a>
                 </div>
-            </div>
-            <div>
-                <h3 class="l-limitTitle">第二种 - 通过继承实现：</h3>
-                <p class="l-txtBlock">
-                    主要亮点（应用）在<span class="l-marked">保留Array的API</span>，在Array上二次封装，可以通过索引来访问。
-                </p>
-                <div class="l-code">
-                    <div class="cnblogs_Highlighter">
-                        <pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
-        //通过继承数组实现，数组原生方法会被继承过来
-        var List = function () { };
-        List.prototype = [];
-        List.prototype.constructor = List;
-        List.prototype.add = function (item) {
-            this.push(item);
-        };
-        //测试
-        console.group('第二种 - 通过继承实现');
-        var demo = new List();
-        //源于继承
-        demo.push('Array - push()');
-        demo.add('List - add()');
-        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;');
-        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
-        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
-        console.log('length：' + demo.length);
-        //注意看demo对象
-        console.log(demo);
-        console.groupEnd();
-    }();
-</pre>
-                    </div>
-                </div>
-                <p>
-                    <span class="l-bold">运行结果和demo对象结构：</span>
-                </p>
                 <div>
-                    <p>
-                        <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%ba%8c%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                            alt="" width="450" height="285" />
-                    </p>
+                    出处：<a href="http://www.cnblogs.com/silin6/" style="color: #259ec7;">www.cnblogs.com/silin6/</a>
                 </div>
-            </div>
-            <div>
-                <h3 class="l-limitTitle">第三种 - 通过自我维护实现：</h3>
-                <p class="l-txtBlock">
-                    在增删改上需要自我维护length，相比下来很是折腾和繁琐，只是提供一种代码思路，并不提倡，可以通过索引访问，
-                </p>
-                <div class="l-code">
-                    <div class="cnblogs_Highlighter">
-                        <pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
-        //通过自动维护length实现
-        var List = function () {
-            this.length = 0;
-        };
-        List.prototype.add = function (item) {
-            //让对象模拟Array的行为
-            this[this.length++] = item;
-        };
-        console.group('第三种 - 通过自我维护实现');
-        var demo = new List();
-        demo.add('List - add()');
-        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue');
-        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
-        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
-        console.log('length：' + demo.length);
-        //注意看demo对象
-        console.log(demo);
-        console.groupEnd();
-    }();
-</pre>
-                    </div>
-                </div>
-                <p>
-                    <span class="l-bold">运行结果和demo对象结构：</span>
-                </p>
                 <div>
-                    <p>
-                        <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%b8%89%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                            alt="" width="502" height="205" />
-                    </p>
-                </div>
-            </div>
-            <div>
-                <h3 class="l-limitTitle">第四种 - 针对第一种优化：</h3>
-                <p class="l-txtBlock">
-                    在add中通过Array原生的API<span class="l-codeRemark">Array.prototype.push</span>来实现，原理是只要调用过Array原生的增删改API操作函数（仅第一次即可），则可以通过索引来访问元素，但是<span
-                        class="l-remark">instanceof</span>的判定仍未修复。
-                </p>
-                <div class="l-code">
-                    <div class="cnblogs_Highlighter">
-                        <pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
-        //第四种Array-Like
-        var List = function () {
-            var self = {
-                constructor: List,
-                length: 0,
-                add: function (item) {
-                    //本质在这里，交给Array的自动维护
-                    [].push.call(this, item);
-                }
-            };
-            return self;
-        };
-        console.group('第四种 - 针对第一种优化');
-        var demo = new List();
-        demo.add('List - add()');
-        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:red;');
-        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
-        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
-        console.log('length：' + demo.length);
-        console.log(demo);
-        console.groupEnd();
-    }();
-</pre>
-                    </div>
-                </div>
-                <p>
-                    <span class="l-bold">运行结果和demo对象结构：</span>
-                </p>
-                <div>
-                    <p>
-                        <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e5%9b%9b%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                            alt="" width="452" height="202" />
-                    </p>
-                </div>
-            </div>
-            <div>
-                <h3 class="l-limitTitle">第五种 - 修复instenceof判定：</h3>
-                <p class="l-txtBlock">
-                    这种修复有点勉强，因为在ie下并没有<span class="l-codeRemark">__proto__</span>，所以这里所谓的修复只不过是针对现代浏览器而已，只是提供一种思路，关于<span
-                        class="l-codeRemark">instenceof</span>请参考请参考：<a href="#other">其他</a>。
-                </p>
-                <div class="l-code">
-                    <div class="cnblogs_Highlighter">
-                        <pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
-        //第五种，我们看见上面那种instanceOf并不能返回正确的结果，于是我们修正它
-        var List = function () {
-            /*
-            instanceof 检测一个对象A是不是另一个对象B的实例的原理是：
-            查看对象B的prototype指向的对象是否在对象A的[[prototype]]链上。
-            如果在，则返回true,如果不在则返回false。
-            不过有一个特殊的情况，当对象B的prototype为null将会报错(类似于空指针异常)。
-            reference:http://kb.cnblogs.com/page/77478/
-            */
-            self = {
-                constructor: List,
-                length: 0,
-                //强制引用__proto__,IE并不支持
-                __proto__: List.prototype,
-                add: function (item) {
-                    push.call(this, item);
-                }
-            },
-            //cache
-            push = Array.prototype.push;
-            return self;
-        };
-        console.group('第五种 - 修复instenceOf判定');
-        var demo = new List();
-        demo.add('List - add()');
-        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;'); //但是他们仍然不相等
-        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
-        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
-        console.log('length：' + demo.length);
-        console.log(demo);
-        console.groupEnd();
-    }();
-</pre>
-                    </div>
-                    <p>
-                        <span class="l-bold">运行结果和demo对象结构：</span>
-                    </p>
-                    <div>
-                        <p>
-                            <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%ba%94%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                                alt="" width="462" height="202" />
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <h3 class="l-limitTitle">第六种 - jQuery的实现：</h3>
-                <p class="l-txtBlock">
-                    jQuery构造函数繁琐的实现不仅仅只是为了去new化，同时也修复了针对jQuery对象的判定，巧妙的将原型重新指向，让<span class="l-codeRemark">instenceof</span>可以在原型链中查找到jQuery构造函数，使得<span
-                        class="l-codeRemark">instenceOf</span>判定有效，让jQuery直逼真正的javascript对象。
-                </p>
-                <div class="l-code">
-                    <div class="cnblogs_Highlighter">
-                        <pre class="brush:javascript;collapse:true;;gutter:true;">    !function () {
-         //jQuery Array-Like实现
-        var jQuery = function () {
-            return new jQuery.fn.init();
-        }, push = Array.prototype.push;
-        jQuery.fn = jQuery.prototype = {
-            constructor: jQuery,
-            length: 0,
-            add: function (item) {
-                //使用Array.prototype.push添加元素，会自动维护length
-                push.call(this, item);
-            }
-        };
-        jQuery.fn.init = function () {
-            return this;
-        };
-        //漂亮的重置prototype
-        jQuery.fn.init.prototype = jQuery.fn;
-        console.group('第六种 - jQuery的实现');
-        var demo = new jQuery();
-        demo.add('List - add()');
-        console.log('demo instanceof jQuery ： %c' + (demo instanceof jQuery), 'color:blue');
-        console.log('demo.constructor === jQuery ： %c' + (demo.constructor === jQuery), 'color:blue');
-        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
-        console.log('length：' + demo.length);
-        console.log(demo);
-        console.groupEnd();
-    }();
-</pre>
-                    </div>
-                </div>
-                <p>
-                    <span class="l-bold">运行结果和demo对象结构：</span>
-                </p>
-                <div>
-                    <p>
-                        <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e5%85%ad%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                            alt="" width="700" height="345" />
-                    </p>
-                </div>
-            </div>
-            <div>
-                <h3 class="l-limitTitle">第七种 - 最简单的实现：</h3>
-                <p class="l-txtBlock">
-                    并没有采用闭包，而是通过定义原型实现，实现方法类似第四种，但是原型指向正确，<span class="l-codeRemark">instenceof</span>判定有效。
-                </p>
-                <div class="l-code">
-                    <div class="cnblogs_Highlighter">
-                        <pre class="brush:javascript;collapse:true;;gutter:true;">    //最简单的类数组实现
-    !function () {
-        var List = function () { }, push = Array.prototype.push;
-        List.prototype = {
-            constructor: List,
-            length: 0,
-            add: function (item) {
-                push.call(this, item);
-            }
-        };
-        console.group('第七种 - 最简单的实现');
-        var demo = new List();//只是需要new
-        demo.add('List - add()');
-        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;'); //但是他们仍然不相等
-        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
-        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
-        console.log('length：' + demo.length);
-        console.log(demo);
-        console.groupEnd();
-    }();
-</pre>
-                    </div>
-                </div>
-                <p>
-                    <span class="l-bold">运行结果和demo对象结构：</span>
-                </p>
-                <div>
-                    <p>
-                        <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e4%b8%83%e7%a7%8d.gif"
-                            alt="" width="700" height="306" />
-                    </p>
-                </div>
-            </div>
-            <div>
-                <h3 class="l-limitTitle">第八种 - jQuery拆解版：</h3>
-                <p class="l-txtBlock">
-                    为了更好的理解jQuery的构造函数实现，所以给出了这种，<span class="l-codeRemark">jQuery.fn.init</span>就是本例中的<span
-                        class="l-codeRemark">ArrayLike</span>对象，jQuery只是把<span class="l-codeRemark">init</span>挂载到<span
-                            class="l-codeRemark">jQuery.prototype</span>上了而已。
-                </p>
-                <div class="l-code">
-                    <div class="cnblogs_Highlighter">
-                        <pre class="brush:javascript;collapse:true;;gutter:true;">    (function () {
-        var List = function () {
-            return new ArrayLike();
-        }, ArrayLike = function () {//这个array-like就是jQuery拆解版的实现
-        };
-        List.prototype = {
-            constructor: List,
-            length: 0,
-            add: function (item) {
-                Array.prototype.push.call(this, item);
-            }
-        };
-        //就是jQuery的jQuery.fn.init.prototype = jQuery.fn;
-        ArrayLike.prototype = List.prototype;
-        //测试
-        console.group('第八种 - jQuery拆解版');
-        var demo = List(); //这样就不用new了
-        demo.add('List - add()');
-        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;'); //但是他们仍然不相等
-        console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
-        console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
-        console.log('length：' + demo.length);
-        console.log(demo);
-        console.groupEnd();
-    })();
-</pre>
-                    </div>
-                </div>
-                <p>
-                    <span class="l-bold">运行结果和demo对象结构：</span>
-                </p>
-                <div>
-                    <p>
-                        <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_ArrayLike-%e7%ac%ac%e5%85%ab%e7%a7%8d%e5%ae%9e%e7%8e%b0.gif"
-                            alt="" width="600" height="306" />
-                    </p>
+                    声明：嘿！你都拷走上面那么一大段了，我觉得你应该也不介意顺便拷走这一小段，希望你能够在每一次的引用中都保留这一段声明，尊重作者的辛勤劳动成果，本文与博客园共享。
                 </div>
             </div>
         </div>
-        <p>
-            其实应该叫做类数组对象的7次实现...有点标题党的意思.....不要打脸...
-        </p>
-        <h3 class="l-title">
-            <a name="other" href="javascript:;" style="color: white; text-decoration: none;">其他</a></h3>
-        <div class="l-author">
-            <ul style="list-style: none; padding: 0; font-size: 15px; margin: 0;">
-                <li style="padding: 0;">完整源码：<a target="_blank" href="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/ArrayLike.js"
-                    style="color: #259ec7;">https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/ArrayLike.js</a></li>
-                <li style="padding: 0;">参考文章：<a target="_blank" href="http://blog.csdn.net/hztgcl1986/article/details/9203389"
-                    style="color: #259ec7;">JavaScript类数组对象参考</a></li>
-                <li style="padding: 0;">参考文章：<a target="_blank" href="http://kb.cnblogs.com/page/77478/"
-                    style="color: #259ec7;">理解instanceof实现原理</a></li>
-            </ul>
-        </div>
-        <div class="l-author">
-            <div>
-                作者：linkFly
-            </div>
-            <div>
-                原文：<a href="http://www.cnblogs.com/silin6/p/ArrayLike.html" style="color: #259ec7;">http://www.cnblogs.com/silin6/p/ArrayLike.html</a>
-            </div>
-            <div>
-                出处：<a href="http://www.cnblogs.com/silin6/" style="color: #259ec7;">www.cnblogs.com/silin6/</a>
-            </div>
-            <div>
-                声明：嘿！你都拷走上面那么一大段了，我觉得你应该也不介意顺便拷走这一小段，希望你能够在每一次的引用中都保留这一段声明，尊重作者的辛勤劳动成果，本文与博客园共享。
-            </div>
-        </div>
-    </div>
+        <span class="l-codeRemark"></span>
+        <span class="l-codeRemark"></span>
+        <span class="l-codeRemark"></span>
+        <span class="l-codeRemark"></span>
     </div>
     <script type="text/javascript">
         (function () {

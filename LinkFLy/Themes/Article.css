@@ -1,6 +1,8 @@
 ﻿/*日志页面*/
 .l-body { font: 14px/24px 'Helvetica Neue',Helvetica,Arial, 'Microsoft Yahei',sans-serif!important; text-indent: 2em; text-align: justify; padding: 0 5px; word-break: break-all!important; }
+
     .l-body p { text-indent: 2em!important; line-height: 27px!important; margin: 10px 5px!important; }
+
     .l-body li { margin: 0!important; padding: 5px 10px; }
 /*头部备注*/
 .l-remark { color: #388db0; font-size: 13px; line-height: 15px; padding: 10px 8px 0; }
@@ -8,7 +10,7 @@
 .l-index { background-color: #FFF8D7; border: 1px dashed #ccc; color: #444; margin: 10px 0; padding: 10px 5px; font: 14px/24px 'Helvetica Neue',Helvetica,Arial, 'Microsoft Yahei',sans-serif; text-indent: 2em; line-height: 25px; }
 
 /*文章标题*/
-.l-title { text-shadow: 2px 2px 3px #222222; background: #6495ED; color: White; font-size: 14pt; font-weight: bold; border-radius: 3px; padding: 5px 0; margin: 15px 0 5px; animation: 1s ease 0.2s normal both 1 bounceInLeft; transition: all 0.4s linear 0s; }
+.l-title { text-shadow: 2px 2px 3px #222222; background: none repeat scroll 0 0 #049ff1; color: White; font-size: 20px; font-weight: bold; border-radius: 5px; padding: 10px 0; margin: 15px 0 5px; animation: 1s ease 0.2s normal both 1 bounceInLeft; transition: all 0.4s linear 0s; }
     .l-title a { color: white; text-decoration: none; }
     /*空间不支持*/
     .l-title:hover { color: #ff7227; padding-left: 12px; }
@@ -21,6 +23,7 @@
 .l-navigation { color: #2d7e54; }
 /*文字块*/
 .l-txtBlock { background-color: #FFF8D7; margin: 10px 0; border: 1px dotted #CCC; }
+
 .l-txtBlock { padding: 5px; }
 /*非关键字（次要文字）*/
 .l-notMarked { color: #888; padding: 0 5px; }
@@ -28,12 +31,17 @@
 .l-bold { font-weight: bold; }
 /*作者声明*/
 .l-author { margin-top: 25px; border: 1px dotted #CCC; color: #666; padding: 15px 30px; text-indent: initial; background: #fafafa; font: 14px/24px 'Helvetica Neue',Helvetica,Arial,'Microsoft Yahei',sans-serif; line-height: 25px; }
+
 .l-txt { }
 /*代码容器，代码引用模板：Xcode，黑色是：Tomorrow_night_eighties*/
 .l-code { padding: 10px 0; }
 /*other：文章特有的一些class*/
 .l-boldBlock { font-weight: bold; display: inline-block; vertical-align: top; width: 220px; height: 20px; text-align: left; }
+
 pre { font-family: Courier New; font-size: 12px; margin-bottom: 5px; margin-top: 5px; padding: 5px; }
+
 .table { width: 90%; border: 1px solid #CCC; margin: 0 auto; text-align: center; border-collapse: collapse; }
+
     .table th, .table td { border: 1px solid #CCC; }
+
     .table .leftTd { text-align: left; text-indent: 2em; padding: 5px; }
