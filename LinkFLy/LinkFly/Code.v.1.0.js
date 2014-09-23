@@ -107,7 +107,7 @@
 
     //这个一定要有，判定是否是自己
     List.isList = function () {
-        
+
     };
 
     //构造函数已经返回的数组，所以不用在修正原型链了
@@ -166,6 +166,20 @@
 
     //——————————————————————————————————Array数组结束——————————————————————————————————————
 
+
+    var format = function (str, object) {
+        var array = Array.prototype.slice.call(arguments, 1);
+        //可以被\符转义
+        return str.replace(/\\?\${([^{}])\}/gm, function (match, key) {
+            //匹配转义符"\"
+            if (match.charAt(0) == '\\')
+                return match.slice(1);
+            var index = Number(key);
+            if (index >= 0)
+                return array[index];
+            return object[key] ? object[key] : match;
+        });
+    }
 
 
 
