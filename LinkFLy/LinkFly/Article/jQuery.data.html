@@ -49,60 +49,67 @@
                         <div>
                             <h3 class="l-limitTitle">使用attributes</h3>
                             <p class="l-bold">HTML：</p>
-                              <div class="l-code">
-                            <div class="cnblogs_Highlighter">
-<pre class="brush:html;gutter:true;">&lt;div id="demo" userData="linkFly"&gt;&lt;/div&gt;
+                            <div class="l-code">
+                                <div class="cnblogs_Highlighter">
+                                    <pre class="brush:html;gutter:true;">&lt;div id="demo" userData="linkFly"&gt;&lt;/div&gt;
 </pre>
-</div>
-                                  </div>
+                                </div>
+                            </div>
                             <p class="l-bold">javascript：</p>
-                                <div class="l-code">
-                                    <div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">        (function () {
+                            <div class="l-code">
+                                <div class="cnblogs_Highlighter">
+                                    <pre class="brush:javascript;gutter:true;">        (function () {
             var demo = document.getElementById('demo');
             console.log(demo.getAttribute('userData'));
         })();
 </pre>
-</div>
                                 </div>
+                            </div>
                         </div>
                         <div>
                             <h3 class="l-limitTitle">使用HTML5的dataset</h3>
                             <p class="l-bold">HTML：</p>
                             <div class="l-code">
-                            <div class="cnblogs_Highlighter">
-<pre class="brush:html;gutter:true;">&lt;div id="demo" data-user="linkFly"&gt;&lt;/div&gt;
+                                <div class="cnblogs_Highlighter">
+                                    <pre class="brush:html;gutter:true;">&lt;div id="demo" data-user="linkFly"&gt;&lt;/div&gt;
 </pre>
-</div></div>
+                                </div>
+                            </div>
                             <p class="l-bold">javascript：</p>
                             <div>
-                                <div class="l-code"><div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">        (function () {
+                                <div class="l-code">
+                                    <div class="cnblogs_Highlighter">
+                                        <pre class="brush:javascript;gutter:true;">        (function () {
             var demo = document.getElementById('demo');
             console.log(demo.dataset.user);
         })();
 </pre>
-</div>
-<p>&nbsp;</p></div>
+                                    </div>
+                                    <p>&nbsp;</p>
+                                </div>
                             </div>
                         </div>
                         <div>
                             <h3 class="l-limitTitle">为DOM实例进行扩展</h3>
                             <p class="l-bold">HTML：</p>
-                            <div class="l-code"><div class="cnblogs_Highlighter">
-<pre class="brush:html;gutter:true;">&lt;div id="demo"&gt;&lt;/div&gt;
+                            <div class="l-code">
+                                <div class="cnblogs_Highlighter">
+                                    <pre class="brush:html;gutter:true;">&lt;div id="demo"&gt;&lt;/div&gt;
 </pre>
-</div></div>
+                                </div>
+                            </div>
                             <p class="l-bold">javascript：</p>
                             <div>
-                                <div class="l-code"><div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">        (function () {
+                                <div class="l-code">
+                                    <div class="cnblogs_Highlighter">
+                                        <pre class="brush:javascript;gutter:true;">        (function () {
             var demo = document.getElementById('demo');
             demo.userData = 'demo';
             console.log(demo.userData);
         })();
 </pre>
-</div></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -137,7 +144,9 @@
                         </li>
                     </ul>
                     <p>图一张：</p>
-                    <p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_jQuery.data%e4%bb%93%e5%ba%93.png" alt="" width="711" height="312" /></p>
+                    <p>
+                        <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_jQuery.data%e4%bb%93%e5%ba%93.png" alt="" width="711" height="312" />
+                    </p>
                     <p>我们暂时先不讨论数据仓库的样子，首先我们要关注数据和Element关联的关键点——钥匙，这个钥匙颇具争议，后续的几种数据缓存方式都是在对这个钥匙进行大的变动，因为这个钥匙，不得不放在Element上——即使你把所有的钱都存在银行里了，但是你身上还是要有相应的钥匙，这不得不让那些代码洁癖的童鞋面对这个问题：Element注定要被污染——<span class="l-codeRemark">jQuery.data</span>只是了尝试最小的污染。</p>
                     <p>jQuery在创建的时候，会生成一个属性——<span class="l-codeRemark">jQuery.expando</span>：</p>
                     <div class="l-txtBlock">
@@ -149,7 +158,9 @@
                     </p>
                     <p>当然这里需要注意：通过为Element添加钥匙的时候，使用的是jQuery.expando的值作为添加的属性名，页面每个使用过jQuery.data的Element上都有jQuery.expando的值扩展的属性名，也就是说，每个使用过jQuery.data的Element都有这个扩展的属性，通过检索这个<span class="l-bold">属性值</span>来找到仓库里的数据——钥匙是这个属性值，而不是这个<span class="l-codeRemark">jQuery.expando</span>扩展的属性名。</p>
                     <p>木图木真相：</p>
-                    <p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_jQuery.data%e5%8e%9f%e5%9e%8b.png" alt="" width="976" height="689" /></p>
+                    <p>
+                        <img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_jQuery.data%e5%8e%9f%e5%9e%8b.png" alt="" width="976" height="689" />
+                    </p>
                     <div class="l-txtBlock">
                         <span class="l-codeRemark">jQuery.1.x（截至jQuery.1.11）</span>中，内部数据和外部数据挂载在jQuery.cache不同的地方——内部数据挂载在jQuery.cache[钥匙]下，而用户数据则挂载在jQuery.cache[钥匙].data下，原因是因为内部数据如何是用户数据挂载在一起则会存在相互覆盖的情况，要把数据给隔离开。
                     </div>
@@ -178,7 +189,7 @@
                         </ul>
                         <p><span class="l-codeRemark">jQuery.acceptData</span>配合<span class="l-codeRemark">jQuery.noData</span>做的过滤：</p>
                         <div class="cnblogs_Highlighter">
-<pre class="brush:javascript;collapse:true;;gutter:true;">jQuery.extend({
+                            <pre class="brush:javascript;collapse:true;;gutter:true;">jQuery.extend({
        cache: {},
        //过滤数据
        noData: {
@@ -207,14 +218,15 @@
 		!noData || noData !== true &amp;&amp; elem.getAttribute("classid") === noData;
     };
 </pre>
-</div></div>
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <h3 class="l-limitTitle">internalData() - 挂载数据</h3>
                     <div>
                         <p>因为涉及到用户数据和内部数据，所以将数据挂载方法直接抽离了出来，内部调用，挂载数据方法（下面有分步分析）：</p>
                         <div class="cnblogs_Highlighter">
-<pre class="brush:javascript;collapse:true;;gutter:true;">    function internalData(elem, name, data, pvt /* Internal Use Only */) {
+                            <pre class="brush:javascript;collapse:true;;gutter:true;">    function internalData(elem, name, data, pvt /* Internal Use Only */) {
         //pvt：private
 
         //添加一个data到jQuery缓存中
@@ -335,10 +347,11 @@
         return ret;
     }
 </pre>
-</div><p>太长看起来恶心？来，我们一点点分析：</p>
+                        </div>
+                        <p>太长看起来恶心？来，我们一点点分析：</p>
                         <p>1、首先，检测是否可以存放数据，可以的话初始化操作，针对变量id要注意，这里的一直在找上面我们所说的<span class="l-bold">挂载在Element上那个存放钥匙的属性，也就是jQuery.expando的值</span></p>
                         <div class="cnblogs_Highlighter">
-<pre class="brush:javascript;collapse:true;;gutter:true;">        if (!jQuery.acceptData(elem)) {
+                            <pre class="brush:javascript;collapse:true;;gutter:true;">        if (!jQuery.acceptData(elem)) {
             return;
         }
         var ret, thisCache,
@@ -355,31 +368,15 @@
             return;
         }
 </pre>
-</div><p>
+                        </div>
+                        <p>
                             2、如果没有id，则为目标添加上id，原版代码如下：
                         </p>
-                        <div class="cnblogs_Highlighter">
-<pre class="brush:javascript;collapse:true;;gutter:true;">        //没有ID，则赋上ID
-        if (!id) {
-            // Only DOM nodes need a new unique ID for each element since their data
-            // ends up in the global cache
-            if (isNode) {
-                //DOM需要有一个全新的全局id，这个deletedIds是什么？？？只在jQuery.cleanData()里面push()了数据
-                //为DOM建立一个jQuery的全局id
-                //低版本代码：elem[ internalKey ] = id = ++jQuery.uuid;
-                //这个deletedIds暂时忽略
-                id = elem[internalKey] = deletedIds.pop() || jQuery.guid++;
-            } else {
-                //而对象不需要
-                id = internalKey;
-            }
-        }
-</pre>
-</div><p>
+                        <p>
                             2、根据钥匙，尝试从cache中读仓库的位置，如果仓库中还没有这个目标的存放空间，则开辟一个，这里特别针对了JSON做了处理：当调用<span class="l-codeRemark">JSON.stringify</span>序列化对象的时候，会调用这个对象的<span class="l-codeRemark">toJSON</span>方法，为了保证jQuery.data里面数据的安全，所以直接重写toJSON为一个空方法（<span class="l-codeRemark">jQuery.noop</span>）,这样就不会曝露jQuery.data里面的数据。
                         </p>
                         <div class="cnblogs_Highlighter">
-<pre class="brush:javascript;collapse:true;;gutter:true;">        //从cache中没有读取到
+                            <pre class="brush:javascript;collapse:true;;gutter:true;">        //从cache中没有读取到
         if (!cache[id]) {
             // Avoid exposing jQuery metadata on plain JS objects when the object
             // is serialized using JSON.stringify
@@ -391,10 +388,10 @@
             //JSON.stringify()在序列化该对象时会调用这个方法来生成该对象的JSON元素
         }
 </pre>
-</div>
+                        </div>
                         <p>3、存放位置都已经找到了，如果是Function/Object，则直接调用jQuery.extend挂数据</p>
-                       <div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">        if (typeof name === "object" || typeof name === "function") {
+                        <div class="cnblogs_Highlighter">
+                            <pre class="brush:javascript;gutter:true;">        if (typeof name === "object" || typeof name === "function") {
             if (pvt) {//如果是内部数据
                 //挂到cache上
                 cache[id] = jQuery.extend(cache[id], name);
@@ -404,10 +401,10 @@
             }
         }
 </pre>
-</div>
+                        </div>
                         <p>4、从这里开始，代码变得难以理解（思维不错），这里再把仓库具体的位置给挖出来（jQuery.cache[钥匙]或jQuery.cache[钥匙].data），为的是最后要把这个data作为方法的返回值，而代码到了这里，还没有挂的是String类型的name，所以要确定当前仓库的具体位置，然后把挂载好数据的位置给返回出去。</p>
                         <div class="cnblogs_Highlighter">
-<pre class="brush:javascript;collapse:true;;gutter:true;">        if (!pvt) {
+                            <pre class="brush:javascript;collapse:true;;gutter:true;">        if (!pvt) {
             //如果不是内部数据（即用户自定义数据），则挂到jQuery.chche.data上
             if (!thisCache.data) {
                 thisCache.data = {};
@@ -437,7 +434,8 @@
         //注意最终返回了仓库的位置，后面有用到
         return ret;
 </pre>
-</div></div>
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <h3 class="l-limitTitle">internalRemoveData() - 移除数据</h3>
@@ -625,12 +623,12 @@
             </div>
             <p class="l-bold">如果你觉得这篇文章不错，请随手点一下右下角的“推荐”，举手之劳，却鼓舞人心，何乐而不为呢？</p>
         </div>
-         </div>
-        <span class="l-codeRemark"></span>
-        <span class="l-codeRemark"></span>
-        <span class="l-codeRemark"></span>
-        <span class="l-codeRemark"></span>
-   
+    </div>
+    <span class="l-codeRemark"></span>
+    <span class="l-codeRemark"></span>
+    <span class="l-codeRemark"></span>
+    <span class="l-codeRemark"></span>
+
     <script type="text/javascript">
         (function () {
             var demo = document.getElementById('demo');
