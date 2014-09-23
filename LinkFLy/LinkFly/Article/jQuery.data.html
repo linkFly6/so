@@ -16,11 +16,11 @@
                     <span class="l-codeRemark">jQuery.data</span>在1.2后引入数据缓存系统，主要的作用是让一组自定义的数据可以DOM元素相关联——浅显的说：就是让一个对象和一组数据相关联。
                 </p>
                 <p>
-                    一组和Element相关的数据如何关联着这个Element一直是web前端的大姨妈，而最初的jQuery事件系统照搬Dean Edwards的<a href="http://dean.edwards.name/weblog/2005/10/add-event/">addEvent.js</a>：将回调挂载在EventTarget上，这样下来，循环引用是不可忽视的问题。而在web前端中，数据和DOM的关系太过基情和紧张，于是jQuery在1.2中，正式缔造了<span class="l-codeRemark">jQuery.data</span>，就是为了解决这段孽缘：自定义数据和DOM进行关联。
+                    一组和Element相关的数据如何关联着这个Element一直是web前端的大姨妈，而最初的jQuery事件系统照搬Dean Edwards的<a target="_blank" href="http://dean.edwards.name/weblog/2005/10/add-event/">addEvent.js</a>：将回调挂载在EventTarget上，这样下来，循环引用是不可忽视的问题。而在web前端中，数据和DOM的关系太过基情和紧张，于是jQuery在1.2中，正式缔造了<span class="l-codeRemark">jQuery.data</span>，就是为了解决这段孽缘：自定义数据和DOM进行关联。
                 </p>
                 <p>
                     本文原创于<a style="color: #259ec7;" target="_blank" href="http://www.cnblogs.com/silin6/">linkFly</a>，<a
-                        style="color: #259ec7;" href="http://www.cnblogs.com/silin6/p/jQuery.data.html"
+                        style="color: #259ec7;" href="http://www.cnblogs.com/silin6/p/jQuery_data.html"
                         target="_blank">原文地址</a>。
                 </p>
                 <p>
@@ -49,35 +49,67 @@
                         <div>
                             <h3 class="l-limitTitle">使用attributes</h3>
                             <p class="l-bold">HTML：</p>
-
+                              <div class="l-code">
+                            <div class="cnblogs_Highlighter">
+<pre class="brush:html;gutter:true;">&lt;div id="demo" userData="linkFly"&gt;&lt;/div&gt;
+</pre>
+</div>
+                                  </div>
                             <p class="l-bold">javascript：</p>
-                            <div>
-                                <div class="l-code"></div>
-                            </div>
+                                <div class="l-code">
+                                    <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">        (function () {
+            var demo = document.getElementById('demo');
+            console.log(demo.getAttribute('userData'));
+        })();
+</pre>
+</div>
+                                </div>
                         </div>
                         <div>
                             <h3 class="l-limitTitle">使用HTML5的dataset</h3>
                             <p class="l-bold">HTML：</p>
-
+                            <div class="l-code">
+                            <div class="cnblogs_Highlighter">
+<pre class="brush:html;gutter:true;">&lt;div id="demo" data-user="linkFly"&gt;&lt;/div&gt;
+</pre>
+</div></div>
                             <p class="l-bold">javascript：</p>
                             <div>
-                                <div class="l-code"></div>
+                                <div class="l-code"><div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">        (function () {
+            var demo = document.getElementById('demo');
+            console.log(demo.dataset.user);
+        })();
+</pre>
+</div>
+<p>&nbsp;</p></div>
                             </div>
                         </div>
                         <div>
                             <h3 class="l-limitTitle">为DOM实例进行扩展</h3>
                             <p class="l-bold">HTML：</p>
-
+                            <div class="l-code"><div class="cnblogs_Highlighter">
+<pre class="brush:html;gutter:true;">&lt;div id="demo"&gt;&lt;/div&gt;
+</pre>
+</div></div>
                             <p class="l-bold">javascript：</p>
                             <div>
-                                <div class="l-code"></div>
+                                <div class="l-code"><div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">        (function () {
+            var demo = document.getElementById('demo');
+            demo.userData = 'demo';
+            console.log(demo.userData);
+        })();
+</pre>
+</div></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div>
                     <div>虽然有解决方案，但都不是理想的解决方案，每个方案都有自己的局限性：</div>
-                    <ul style="list-style: none;">
+                    <ul class="example">
                         <li>1、只能保存字符串（或转化为字符串类型）的数据，同时曝露了数据，并且在HTML上挂载了无谓的属性，浏览器仍然会尝试解析这些属性。</li>
                         <li>2、同上。</li>
                         <li>3、典型的污染，虽然可以保存更强大的数据（Object/Function），但是患有代码洁癖的骚年肯定是不能忍的，更主要，如果挂载的数据中引用着这个Element，则会循环引用。</li>
@@ -92,7 +124,7 @@
                     <p>
                         jQuery.data模型上，就是建立一个数据仓库，而每一个挂载该数据的对象，都有自己的钥匙，他和上面的代码理念并不同:
                     </p>
-                    <ul style="list-style: none;">
+                    <ul class="example">
                         <li>
                             <p>上面的方案是：</p>
                             <p class="l-bold">在需要挂载数据的对象上挂载数据，就好像你身上一直带着1000块钱，要用的时候直接从口袋里掏就可以了。</p>
@@ -105,9 +137,7 @@
                         </li>
                     </ul>
                     <p>图一张：</p>
-                    <div class="l-txtBlock">
-                        图片
-                    </div>
+                    <p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_jQuery.data%e4%bb%93%e5%ba%93.png" alt="" width="711" height="312" /></p>
                     <p>我们暂时先不讨论数据仓库的样子，首先我们要关注数据和Element关联的关键点——钥匙，这个钥匙颇具争议，后续的几种数据缓存方式都是在对这个钥匙进行大的变动，因为这个钥匙，不得不放在Element上——即使你把所有的钱都存在银行里了，但是你身上还是要有相应的钥匙，这不得不让那些代码洁癖的童鞋面对这个问题：Element注定要被污染——<span class="l-codeRemark">jQuery.data</span>只是了尝试最小的污染。</p>
                     <p>jQuery在创建的时候，会生成一个属性——<span class="l-codeRemark">jQuery.expando</span>：</p>
                     <div class="l-txtBlock">
@@ -119,6 +149,7 @@
                     </p>
                     <p>当然这里需要注意：通过为Element添加钥匙的时候，使用的是jQuery.expando的值作为添加的属性名，页面每个使用过jQuery.data的Element上都有jQuery.expando的值扩展的属性名，也就是说，每个使用过jQuery.data的Element都有这个扩展的属性，通过检索这个<span class="l-bold">属性值</span>来找到仓库里的数据——钥匙是这个属性值，而不是这个<span class="l-codeRemark">jQuery.expando</span>扩展的属性名。</p>
                     <p>木图木真相：</p>
+                    <p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_jQuery.data%e5%8e%9f%e5%9e%8b.png" alt="" width="976" height="689" /></p>
                     <div class="l-txtBlock">
                         <span class="l-codeRemark">jQuery.1.x（截至jQuery.1.11）</span>中，内部数据和外部数据挂载在jQuery.cache不同的地方——内部数据挂载在jQuery.cache[钥匙]下，而用户数据则挂载在jQuery.cache[钥匙].data下，原因是因为内部数据如何是用户数据挂载在一起则会存在相互覆盖的情况，要把数据给隔离开。
                     </div>
@@ -137,7 +168,7 @@
                     </div>
                     <div>
                         <p>找钥匙找仓库还好说，低版本IE的雷区一踩一个爆：所以jQuery单独写了一个<span class="l-codeRemark">jQuery.acceptData</span>用于屏蔽雷区，特别针对下面的情况：</p>
-                        <ul style="list-style: none;">
+                        <ul class="example">
                             <li>
                                 <span class="l-bold">applet和embed：</span>这两个标签都是多媒体，这两个标签在js里可以操作的权限简直就是缩卵了——根本行不通，所以jQuery直接给干掉了，这两个标签不能放标签。
                             </li>
@@ -146,44 +177,267 @@
                             </li>
                         </ul>
                         <p><span class="l-codeRemark">jQuery.acceptData</span>配合<span class="l-codeRemark">jQuery.noData</span>做的过滤：</p>
-                        <div class="l-txtBlock">
-                            jQuery.acceptData
-                        </div>
-                    </div>
+                        <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">jQuery.extend({
+       cache: {},
+       //过滤数据
+       noData: {
+            //这俩权限不够
+            "applet ": true,
+            "embed ": true,
+            // ...but Flash objects (which have this classid) *can* handle expandos
+            //ie的flash可以通过
+            "object ": "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+        }   
+});
+
+//过滤方法
+ jQuery.acceptData = function (elem) {
+        //确定一个对象是否（可以）有Data 
+        var noData = jQuery.noData[(elem.nodeName + " ").toLowerCase()],
+		nodeType = +elem.nodeType || 1;
+
+        // Do not set data on non-element DOM nodes because it will not be cleared (#8335).
+        //不是DOM节点不能设置Data，因为不能清除？
+        return nodeType !== 1 &amp;&amp; nodeType !== 9 ?
+		false :
+        // Nodes accept data unless otherwise specified; rejection can be conditional
+        //如果是jQuery.noData里面限定的节点的话，则返回false
+        //wow，如果节点是object，则限定flash的classid？？flash会有这么个奇葩的行为？？？？
+		!noData || noData !== true &amp;&amp; elem.getAttribute("classid") === noData;
+    };
+</pre>
+</div></div>
                 </div>
                 <div>
                     <h3 class="l-limitTitle">internalData() - 挂载数据</h3>
                     <div>
                         <p>因为涉及到用户数据和内部数据，所以将数据挂载方法直接抽离了出来，内部调用，挂载数据方法（下面有分步分析）：</p>
-                        <div class="l-txtBlock">
-                            internalData
-                        </div>
-                        <p>太长看起来恶心？来，我们一点点分析：</p>
+                        <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">    function internalData(elem, name, data, pvt /* Internal Use Only */) {
+        //pvt：private
+
+        //添加一个data到jQuery缓存中
+
+        //pvt：标识是否是内部数据
+
+        //判定对象是否可以存数据
+        if (!jQuery.acceptData(elem)) {
+            return;
+        }
+        var ret, thisCache,
+        //来自就jQuery随机数（每一个页面上唯一且不变的）
+		internalKey = jQuery.expando,
+
+		// 如果是DOM元素，
+		//为了避免javascript和DOM元素之间循环引用导致的浏览器(IE6/7)垃圾回收机制不起作用，
+		//要把数据存储在全局缓存对象jQuery.cache中；
+		//对于javascript对象，
+		//垃圾回收机制能够自动发生
+		//不会有内存泄露的问题
+		//因此数据可以查收存储在javascript对象上
+		isNode = elem.nodeType,
+
+        // Only DOM nodes need the global jQuery cache; JS object data is
+        // attached directly to the object so GC can occur automatically
+		//只有DOM节点才需要全局缓存，js对象是直接连接到对象的，GC在管理
+        //如果是DOM，则cache连接到jQuery.cache
+		cache = isNode ? jQuery.cache : elem,
+
+        // Only defining an ID for JS objects if its cache already exists allows
+        // the code to shortcut on the same path as a DOM node with no cache
+		//如果是DOM，则获取ID，如果是DOM第一次读取，则读取不到id
+		id = isNode ? elem[internalKey] : elem[internalKey] &amp;&amp; internalKey;
+
+        // Avoid doing any more work than we need to when trying to get data on an
+        // object that has no data at all
+        //检测合法性，避免做更多的工作，pv标识是否是内部数据，如果为true，则表示内部数据
+        if ((!id || !cache[id] || (!pvt &amp;&amp; !cache[id].data)) &amp;&amp; data === undefined &amp;&amp; typeof name === "string") {
+            return;
+        }
+        //没有ID，则赋上ID
+        if (!id) {
+            // Only DOM nodes need a new unique ID for each element since their data
+            // ends up in the global cache
+            if (isNode) {
+                //DOM需要有一个全新的全局id，这个deletedIds是什么？？？只在jQuery.cleanData()里面push()了数据
+                //为DOM建立一个jQuery的全局id
+                id = elem[internalKey] = deletedIds.pop() || jQuery.guid++;
+            } else {
+                //而对象不需要
+                id = internalKey;
+            }
+        }
+        //从cache中没有读取到
+        if (!cache[id]) {
+            // Avoid exposing jQuery metadata on plain JS objects when the object
+            // is serialized using JSON.stringify
+            //创建一个新的cache对象，这个toJson是个空方法
+            cache[id] = isNode ? {} : { toJSON: jQuery.noop };
+            // 对于javascript对象，设置方法toJSON为空函数，
+            //以避免在执行JSON.stringify()时暴露缓存数据。
+            //如果一个对象定义了方法toJSON()
+            //JSON.stringify()在序列化该对象时会调用这个方法来生成该对象的JSON元素
+        }
+
+        // An object can be passed to jQuery.data instead of a key/value pair; this gets
+        // shallow copied over onto the existing cache
+        //对象
+        //这里的判定没有调用jQuery.type()...当然在于作者的心态了...
+        if (typeof name === "object" || typeof name === "function") {
+            if (pvt) {//如果是内部数据
+                //挂到cache上
+                cache[id] = jQuery.extend(cache[id], name);
+            } else {
+                //如果是自定义数据，则挂到data上
+                cache[id].data = jQuery.extend(cache[id].data, name);
+            }
+        }
+
+        thisCache = cache[id];
+
+        // jQuery data() is stored in a separate object inside the object's internal data
+        // cache in order to avoid key collisions between internal data and user-defined
+        // data.
+        if (!pvt) {
+            //如果不是内部数据（即用户自定义数据），则挂到jQuery.chche.data上
+            if (!thisCache.data) {
+                thisCache.data = {};
+            }
+
+            thisCache = thisCache.data;
+        }
+        //把数据挂载上去
+        if (data !== undefined) {
+            thisCache[jQuery.camelCase(name)] = data;
+        }
+
+        // Check for both converted-to-camel and non-converted data property names
+        // If a data property was specified
+        if (typeof name === "string") {
+            //如果参数是一个字符串
+            // First Try to find as-is property data
+            //则抓取这个字符串对应的缓存
+            ret = thisCache[name];
+
+            // Test for null|undefined property data
+            //抓取失败，转换成驼峰再抓
+            if (ret == null) {
+
+                // Try to find the camelCased property
+                ret = thisCache[jQuery.camelCase(name)];
+            }
+        } else {
+            //如果不是字符串，则按照对象的形式抓取
+            ret = thisCache;
+        }
+
+        return ret;
+    }
+</pre>
+</div><p>太长看起来恶心？来，我们一点点分析：</p>
                         <p>1、首先，检测是否可以存放数据，可以的话初始化操作，针对变量id要注意，这里的一直在找上面我们所说的<span class="l-bold">挂载在Element上那个存放钥匙的属性，也就是jQuery.expando的值</span></p>
-                        <div class="l-txtBlock">
-                            初始化变量
-                        </div>
-                        <p>
+                        <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">        if (!jQuery.acceptData(elem)) {
+            return;
+        }
+        var ret, thisCache,
+		internalKey = jQuery.expando,
+		isNode = elem.nodeType,
+		//只有DOM节点才需要全局缓存，js对象是直接连接到对象的，GC在管理
+        //如果是DOM，则cache连接到jQuery.cache
+		cache = isNode ? jQuery.cache : elem,
+		//如果是DOM，则获取ID，如果是DOM第一次读取，则读取不到id
+		id = isNode ? elem[internalKey] : elem[internalKey] &amp;&amp; internalKey;
+
+        //检测合法性，避免做更多的工作，pv标识是否是内部数据，如果为true，则表示内部数据
+        if ((!id || !cache[id] || (!pvt &amp;&amp; !cache[id].data)) &amp;&amp; data === undefined &amp;&amp; typeof name === "string") {
+            return;
+        }
+</pre>
+</div><p>
                             2、如果没有id，则为目标添加上id，原版代码如下：
                         </p>
-                        <div class="l-txtBlock">
-                            获取id，注意要和过去的实现做比较，有个狗血的deletedIds.pop()
-                        </div>
-                        <p>
+                        <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">        //没有ID，则赋上ID
+        if (!id) {
+            // Only DOM nodes need a new unique ID for each element since their data
+            // ends up in the global cache
+            if (isNode) {
+                //DOM需要有一个全新的全局id，这个deletedIds是什么？？？只在jQuery.cleanData()里面push()了数据
+                //为DOM建立一个jQuery的全局id
+                //低版本代码：elem[ internalKey ] = id = ++jQuery.uuid;
+                //这个deletedIds暂时忽略
+                id = elem[internalKey] = deletedIds.pop() || jQuery.guid++;
+            } else {
+                //而对象不需要
+                id = internalKey;
+            }
+        }
+</pre>
+</div><p>
                             2、根据钥匙，尝试从cache中读仓库的位置，如果仓库中还没有这个目标的存放空间，则开辟一个，这里特别针对了JSON做了处理：当调用<span class="l-codeRemark">JSON.stringify</span>序列化对象的时候，会调用这个对象的<span class="l-codeRemark">toJSON</span>方法，为了保证jQuery.data里面数据的安全，所以直接重写toJSON为一个空方法（<span class="l-codeRemark">jQuery.noop</span>）,这样就不会曝露jQuery.data里面的数据。
                         </p>
-                        <div class="l-txtBlock">
-                            读取仓库
-                        </div>
+                        <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">        //从cache中没有读取到
+        if (!cache[id]) {
+            // Avoid exposing jQuery metadata on plain JS objects when the object
+            // is serialized using JSON.stringify
+            //创建一个新的cache对象，这个toJson是个空方法
+            cache[id] = isNode ? {} : { toJSON: jQuery.noop };
+            // 对于javascript对象，设置方法toJSON为空函数，
+            //以避免在执行JSON.stringify()时暴露缓存数据。
+            //如果一个对象定义了方法toJSON()
+            //JSON.stringify()在序列化该对象时会调用这个方法来生成该对象的JSON元素
+        }
+</pre>
+</div>
                         <p>3、存放位置都已经找到了，如果是Function/Object，则直接调用jQuery.extend挂数据</p>
-                        <div class="l-txtBlock">
-                            挂Object的数据
-                        </div>
+                       <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">        if (typeof name === "object" || typeof name === "function") {
+            if (pvt) {//如果是内部数据
+                //挂到cache上
+                cache[id] = jQuery.extend(cache[id], name);
+            } else {
+                //如果是自定义数据，则挂到data上
+                cache[id].data = jQuery.extend(cache[id].data, name);
+            }
+        }
+</pre>
+</div>
                         <p>4、从这里开始，代码变得难以理解（思维不错），这里再把仓库具体的位置给挖出来（jQuery.cache[钥匙]或jQuery.cache[钥匙].data），为的是最后要把这个data作为方法的返回值，而代码到了这里，还没有挂的是String类型的name，所以要确定当前仓库的具体位置，然后把挂载好数据的位置给返回出去。</p>
-                        <div class="l-txtBlock">
-                            调整仓库的位置，并挂上String的位置，最终返回
-                        </div>
-                    </div>
+                        <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">        if (!pvt) {
+            //如果不是内部数据（即用户自定义数据），则挂到jQuery.chche.data上
+            if (!thisCache.data) {
+                thisCache.data = {};
+            }
+
+            thisCache = thisCache.data;
+        }
+        //把数据挂载上去
+        if (data !== undefined) {
+            thisCache[jQuery.camelCase(name)] = data;
+        }
+
+        if (typeof name === "string") {
+            //如果参数是一个字符串
+            //则抓取这个字符串对应的缓存
+            ret = thisCache[name];
+
+            //抓取失败，转换成驼峰再抓
+            if (ret == null) {
+                ret = thisCache[jQuery.camelCase(name)];
+            }
+        } else {
+            //返回仓库的位置
+            ret = thisCache;
+        }
+
+        //注意最终返回了仓库的位置，后面有用到
+        return ret;
+</pre>
+</div></div>
                 </div>
                 <div>
                     <h3 class="l-limitTitle">internalRemoveData() - 移除数据</h3>
@@ -266,7 +520,7 @@
                     <p>
                         Data对象经过封装以后衍生了这些API：
                     </p>
-                    <ul style="list-style: none;">
+                    <ul class="example">
                         <li><span class="l-bold">key：</span>专门用来获取和放置Element的钥匙。</li>
                         <li><span class="l-bold">set/get：</span>放置和获取数据</li>
                         <li><span class="l-bold">access：</span>通用API，根据参数既然可以放置也可以获取数据</li>
@@ -290,7 +544,7 @@
                         jQuery.fn.data()
                     </div>
                     <div class="l-txtBlock">
-                        哎呀篇幅好长的说，各位看官到了这里可以继续小憩一下，后面我们再来谈谈关于这个jQuery.data更多有意思的事情...总结一下，<span class="l-codeRemark">jQuery.2.x</span>的缓存设计理念清晰，最主要的就是封装成了Data对象以后将用户数据和jQuery内部使用的数据隔离开，这是最大的改进，当然也徒增了一些比较重的地方，比如access()方法个人就觉得做了很多不必要的事情，比如access中方法定义的参数很长都已经标志了很多事情，但是内部又尝试着修正这些参数，做了一些重复的工作，总体来说：思路清晰简单明了，和原作者各种饶来饶去的风格有着鲜明的对比，代码是死的，思路毕竟还是需要每个人自己领悟的。
+                        哎呀篇幅好长的说，各位看官到了这里可以继续小憩一下，后面我们再来谈谈关于这个jQuery.data更多有意思的事情...总结一下，<span class="l-codeRemark">jQuery.2.x</span>的缓存设计理念清晰，最主要的就是封装成了Data对象以后将用户数据和jQuery内部使用的数据隔离开，这是最大的改进，当然也徒增了一些比较重的地方，比如access()方法个人就觉得做了很多不必要的事情，比如access中方法定义的参数很长都已经标志了很多事情，但是内部又尝试着修正这些参数，做了一些重复的工作，总体来说：思路清晰简单明了，和原作者各种饶来饶去的风格有着鲜明的对比，代码是死的，思路毕竟还是需要每个人自己领悟的。移动端的<a href="https://github.com/madrobby/zepto/blob/master/src/data.js" target="_blank">Zepto里的Zepto.data</a>是<span class="l-codeRemark">jQuery.data.2.x</span>的浓缩版。
                     </div>
                 </div>
 
@@ -298,26 +552,49 @@
             <div>
                 <h3 class="l-title">
                     <a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">其他实现</a></h3>
-                <p class="l-bold">这些实现都是在<a href="http://www.cnblogs.com/rubylouvre/">司徒正美</a>的<a href="http://www.cnblogs.com/rubylouvre/p/3658441.html">《javascript框架设计》</a> - "数据缓存系统"一章里读到的，有必要宣传和感谢一下这本书，了解了很多代码的由来促进了理解。</p>
+                <p class="l-bold">这些实现都是在<a target="_blank" href="http://www.cnblogs.com/rubylouvre/">司徒正美</a>的<a target="_blank" href="http://www.cnblogs.com/rubylouvre/p/3658441.html">《javascript框架设计》</a> - "数据缓存系统"一章里读到的，有必要宣传和感谢一下这本书，了解了很多代码的由来促进了理解。</p>
+                <p>这些实现其实都是针对<span class="l-bold">钥匙怎么交给Element</span>这个问题上进行的探索。</p>
                 <div>
                     <div>
-                        <h3 class="l-limitTitle">valueOf重写</h3>
+                        <h3 class="l-limitTitle">valueOf()重写</h3>
                         <div class="l-txtBlock">
-                            <p>在<span class="l-codeRemark">jQuery.2.x早期</span>的jQuery.data中，作者xxx也在为Element挂载这个<span class="l-codeRemark">expando</span>属性作为钥匙而头疼，于是给出了另外一种钥匙的挂载方法——<span class="l-codeRemark">重写valueOf()</span>。</p>
+                            <p>在<span class="l-codeRemark">jQuery.2.x</span>设计的jQuery.data中，作者xxx也在为Element挂载这个<span class="l-codeRemark">expando</span>属性作为钥匙而头疼，于是给出了另外一种钥匙的挂载方法——<span class="l-codeRemark">重写valueOf()</span>。</p>
                             <p>在为Element挂载钥匙的时候，不再给这个Element声明属性，而是通过<span class="l-bold">重写Element的valueOf方法</span>实现。</p>
-                            <p>虽然我翻了jQuery.2.0.0 - jQuery.2.1.1都没有找到这种做法，但觉得还是有必要提一下</p>
+                            <p>虽然我翻了jQuery.2.0.0 - jQuery.2.1.1都没有找到这种做法，但觉得还是有必要提一下：</p>
                         </div>
                     </div>
                     <div>
-                        <h3 class="l-limitTitle">Array</h3>
+                        <h3 class="l-limitTitle">Array.prototype.indexOf()</h3>
                         <div class="l-txtBlock">
-                            <p>配合ES5的<span class="l-codeRemark">Array.prototype.indexOf()</span>实现：</p>
+                            <p><span class="l-codeRemark">Array.prototype.indexOf()</span>是<a target="_blank" href="http://yanhaijing.com/es5/">ECMAScript 5</a><span class="l-bold">（低版本浏览器可以使用代码模拟）</span>定义的方法——可以从<span class="l-codeRemark">一组Array中检索某项是否存在？存在返回该项索引：不存在则返回-1。</span>听起来很相似？没错，它就是<span class="l-codeRemark">String.prototype.indexOf()</span>的数组版。</p>
+                            <p>正是因为提供了针对数组项的查找，所以可以采用新的思路：</p>
+                            <ul class="example">
+                                <li>1、将使用data()方法挂载数据的Element通过闭包缓存到一个数组中</li>
+                                <li>2、当下次需要检索和这个Element关联的数据的时候，只需要通过Array.ptototype.indexOf在闭包中查找到这个数组即可，而闭包中这个数组查找到的索引，就是钥匙。</li>
+                            </ul>
+                            <p>代码如下：</p>
+
+                            <p>这样就不需要在Element上挂载自定义的属性（钥匙）了——然而因为每个使用过data()的Element都会在闭包中缓存下来，那么内存的消耗必不可免，这是一个有趣但并不可取的解决方案。</p>
                         </div>
                     </div>
                     <div>
                         <h3 class="l-limitTitle">WeakMap</h3>
                         <div class="l-txtBlock">
-                            <p>配合ES6的<span class="l-codeRemark">WeakMap</span>实现</p>
+                            <p>技术总是层出不穷的，对于目前的我们来说可望不可及的<span class="l-codeRemark">ECMAScript 6</span>定义了新的对象——<span class="l-codeRemark">WeakMap</span>，请参考这三篇：</p>
+                            <ul class="example">
+                                <li>
+                                    <a target="_blank" href="http://www.cnblogs.com/ziyunfei/archive/2012/11/07/2758200.html">[译]ECMAScript 6中的集合类型,第三部分:WeakMap</a>
+                                </li>
+                                <li>
+                                    <a target="_blank" href="http://msdn.microsoft.com/zh-cn/library/ie/dn251546%28v=vs.94%29.aspx">WeakMap 对象 (JavaScript)</a>
+                                </li>
+                                <li>
+                                    <a target="_blank" href="http://msdn.microsoft.com/zh-cn/library/dn251546%28v=vs.94%29.aspx">[译]ECMAScript 6中的集合类型,第三部分:WeakMap</a>
+                                </li>
+                            </ul>
+                            <p>
+                                WeakMap对象的键值持有其所引用对象的弱引用——当那个对象被垃圾回收销毁的时候，WeakMap对象相应的键值也会被删除。它使用<span class="l-codeRemark">get/set</span>方法将成员添加到WeakMap——简直就是为数据缓存系统/jQuery.data量身定做的。使用它，我们Data.key()方法可以改写成下面的代码：
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -325,9 +602,9 @@
             <h3 class="l-title">
                 <a name="muddle" href="javascript:;" style="color: white; text-decoration: none;">引用</a></h3>
             <div class="l-author">
-                <ul style="list-style: none; padding: 0; font-size: 15px;">
-                    <li>手抄源码（有注释）：<a target="_blank" href="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/jQuery/jQuery.LinkFLy/Deferred.js"
-                        style="color: #259ec7;">https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/jQuery/jQuery.LinkFLy/Deferred.js</a></li>
+                <ul style="font-size: 15px;" class="example">
+                    <li>手抄源码（有注释）：<a target="_blank" href="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/jQuery/jQuery.LinkFLy/Data.js"
+                        style="color: #259ec7;">jQuery.data.js</a></li>
                     <li>参考书籍：<a target="_blank" href="http://www.cnblogs.com/rubylouvre/p/3658441.html"
                         style="color: #259ec7;">司徒正美 - 《javascript框架设计》</a>第8章：数据缓存系统</li>
                 </ul>
@@ -337,7 +614,7 @@
                     作者：linkFly
                 </div>
                 <div>
-                    原文：<a href="http://www.cnblogs.com/silin6/p/jQuery.data.html" style="color: #259ec7;">http://www.cnblogs.com/silin6/p/jQuery.data.html</a>
+                    原文：<a href="http://www.cnblogs.com/silin6/p/jQuery_data.html" style="color: #259ec7;">http://www.cnblogs.com/silin6/p/jQuery_data.html</a>
                 </div>
                 <div>
                     出处：<a href="http://www.cnblogs.com/silin6/" style="color: #259ec7;">www.cnblogs.com/silin6/</a>
@@ -346,12 +623,14 @@
                     声明：嘿！你都拷走上面那么一大段了，我觉得你应该也不介意顺便拷走这一小段，希望你能够在每一次的引用中都保留这一段声明，尊重作者的辛勤劳动成果，本文与博客园共享。
                 </div>
             </div>
+            <p class="l-bold">如果你觉得这篇文章不错，请随手点一下右下角的“推荐”，举手之劳，却鼓舞人心，何乐而不为呢？</p>
         </div>
+         </div>
         <span class="l-codeRemark"></span>
         <span class="l-codeRemark"></span>
         <span class="l-codeRemark"></span>
         <span class="l-codeRemark"></span>
-    </div>
+   
     <script type="text/javascript">
         (function () {
             var demo = document.getElementById('demo');
