@@ -35,7 +35,7 @@
     }
 
     // Pass this if window is not defined yet
-} (typeof window !== "undefined" ? window : this, function (window, noGlobal) {
+}(typeof window !== "undefined" ? window : this, function (window, noGlobal) {
 
     // Can't do this because several apps including ASP.NET trace
     // the stack via arguments.caller.callee and Firefox dies if
@@ -63,7 +63,7 @@
 
 
 
-    var 
+    var
     // Use the correct document accordingly with window argument (sandbox)
 	document = window.document,
 
@@ -697,7 +697,7 @@
 	    // Support: Firefox<24
 	    // Workaround erroneous numeric interpretation of +"0x"
 	    return high !== high || escapedWhitespace ?
-			escaped :
+	        escaped :
 			high < 0 ?
 	    // BMP codepoint
 				String.fromCharCode(high + 0x10000) :
@@ -715,22 +715,23 @@
         // Detect silently failing push.apply
         arr[preferredDoc.childNodes.length].nodeType;
     } catch (e) {
-        push = { apply: arr.length ?
+        push = {
+            apply: arr.length ?
 
-            // Leverage slice if possible
-		function (target, els) {
-		    push_native.apply(target, slice.call(els));
-		} :
+                // Leverage slice if possible
+            function (target, els) {
+                push_native.apply(target, slice.call(els));
+            } :
 
-            // Support: IE<9
-            // Otherwise append directly
-		function (target, els) {
-		    var j = target.length,
-				i = 0;
-		    // Can't trust NodeList.length
-		    while ((target[j++] = els[i++])) { }
-		    target.length = j - 1;
-		}
+                // Support: IE<9
+                // Otherwise append directly
+            function (target, els) {
+                var j = target.length,
+                    i = 0;
+                // Can't trust NodeList.length
+                while ((target[j++] = els[i++])) { }
+                target.length = j - 1;
+            }
         };
     }
 
@@ -1393,8 +1394,8 @@
 
                 // IE 9's matchesSelector returns false on disconnected nodes
                 if (ret || support.disconnectedMatch ||
-                // As well, disconnected nodes are said to be in a document
-                // fragment in IE 9
+                    // As well, disconnected nodes are said to be in a document
+                    // fragment in IE 9
 					elem.document && elem.document.nodeType !== 11) {
                     return ret;
                 }
@@ -1425,7 +1426,7 @@
 			undefined;
 
         return val !== undefined ?
-		val :
+            val :
 		support.attributes || !documentIsHTML ?
 			elem.getAttribute(name) :
 			(val = elem.getAttributeNode(name)) && val.specified ?
@@ -1585,9 +1586,9 @@
 
                     // Strip excess characters from unquoted arguments
                 } else if (unquoted && rpseudo.test(unquoted) &&
-                // Get excess from tokenize (recursively)
+                    // Get excess from tokenize (recursively)
 				(excess = tokenize(unquoted, true)) &&
-                // advance to the next closing parenthesis
+                    // advance to the next closing parenthesis
 				(excess = unquoted.indexOf(")", unquoted.length - excess) - unquoted.length)) {
 
                     // excess is a negative index
@@ -1694,7 +1695,7 @@
 
 				            while ((node = ++nodeIndex && node && node[dir] ||
 
-				            // Fallback to seeking `elem` from the start
+				                // Fallback to seeking `elem` from the start
 								(diff = nodeIndex = 0) || start.pop())) {
 
 				                // When found, cache indexes on `parent` and break
@@ -1955,7 +1956,7 @@
 
             "lt": createPositionalPseudo(function (matchIndexes, length, argument) {
                 var i = argument < 0 ? argument + length : argument;
-                for (; --i >= 0; ) {
+                for (; --i >= 0;) {
                     matchIndexes.push(i);
                 }
                 return matchIndexes;
@@ -1963,7 +1964,7 @@
 
             "gt": createPositionalPseudo(function (matchIndexes, length, argument) {
                 var i = argument < 0 ? argument + length : argument;
-                for (; ++i < length; ) {
+                for (; ++i < length;) {
                     matchIndexes.push(i);
                 }
                 return matchIndexes;
@@ -2189,7 +2190,7 @@
 					[] :
 
             // ...otherwise use results directly
-					results :
+                results :
 				matcherIn;
 
             // Find primary matches
@@ -2272,7 +2273,7 @@
 				(checkContext = context).nodeType ?
 					matchContext(elem, context, xml) :
 					matchAnyContext(elem, context, xml));
-		} ];
+		}];
 
         for (; i < len; i++) {
             if ((matcher = Expr.relative[tokens[i].type])) {
@@ -2879,7 +2880,7 @@
                     if (cur.nodeType < 11 && (pos ?
 					pos.index(cur) > -1 :
 
-                    // Don't pass non-elements to Sizzle
+                        // Don't pass non-elements to Sizzle
 					cur.nodeType === 1 &&
 						jQuery.find.matchesSelector(cur, selectors))) {
 
@@ -3210,7 +3211,7 @@
 				["resolve", "done", jQuery.Callbacks("once memory"), "resolved"],
 				["reject", "fail", jQuery.Callbacks("once memory"), "rejected"],
 				["notify", "progress", jQuery.Callbacks("memory")]
-			],
+            ],
 			state = "pending",
 			promise = {
 			    state: function () {
@@ -3440,12 +3441,15 @@
     // Multifunctional method to get and set values of a collection
     // The value/s can optionally be executed if it's a function
     var access = jQuery.access = function (elems, fn, key, value, chainable, emptyGet, raw) {
+        //elems，fn，key，value，是否链式，当返回空数据的时候采用的默认值
+        //一组通用方法，既然设置也能获取Data
         var i = 0,
 		len = elems.length,
 		bulk = key == null;
 
         // Sets many values
         if (jQuery.type(key) === "object") {
+            //如果是放数据，Object类型，则循环执行fn
             chainable = true;
             for (i in key) {
                 jQuery.access(elems, fn, i, key[i], true, emptyGet, raw);
@@ -3453,27 +3457,33 @@
 
             // Sets one value
         } else if (value !== undefined) {
+            //设置一个值的时候
             chainable = true;
 
+            //如果设置的value是Function
             if (!jQuery.isFunction(value)) {
                 raw = true;
             }
-
+            //当参数是这样的：access(elems,fn,null)
             if (bulk) {
                 // Bulk operations run against the entire set
                 if (raw) {
+                    //参数是这样的：access(elems,fn,null,function)
                     fn.call(elems, value);
                     fn = null;
 
                     // ...except when executing function values
                 } else {
-                    bulk = fn;
+                    //参数是这样的：access(elems,fn,null,String/Object)
+                    bulk = fn;//这里把fn给调换了
                     fn = function (elem, key, value) {
+                        //这里才是外面真正传递进来的fn
+                        //这个jQuery()封装的真是....有必要么？只用了个jQuery.fn.each啊...
                         return bulk.call(jQuery(elem), value);
                     };
                 }
             }
-
+            //到了这里如果还可以执行的话那么参数是：access(elems,fn,null,Function||Object/String)
             if (fn) {
                 for (; i < len; i++) {
                     fn(elems[i], key, raw ? value : value.call(elems[i], i, fn(elems[i], key)));
@@ -3482,11 +3492,15 @@
         }
 
         return chainable ?
-		elems :
+            //如果是设置数据，这个elems最终被返回，而在jQuery.fn.data中这个elems是this——也就是jQuery对象，保证了链式
+            elems :
 
         // Gets
+            //如果上面的设置方法都没有走，那么就是获取
 		bulk ?
+            //获取全部
 			fn.call(elems) :
+            //获取一个
 			len ? fn(elems[0], key) : emptyGet;
     };
 
@@ -3510,6 +3524,7 @@
         // Support: Android < 4,
         // Old WebKit does not have Object.preventExtensions/freeze method,
         // return new empty object instead with no [[set]] accessor
+        //
         Object.defineProperty(this.cache = {}, 0, {
             get: function () {
                 return {};
@@ -3579,12 +3594,14 @@
 			cache = this.cache[unlock];
 
             // Handle: [ owner, key, value ] args
+            //挂String数据
             if (typeof data === "string") {
                 cache[data] = value;
 
                 // Handle: [ owner, { properties } ] args
             } else {
                 // Fresh assignments by object are shallow copied
+                //挂Object数据
                 if (jQuery.isEmptyObject(cache)) {
                     jQuery.extend(this.cache[unlock], data);
                     // Otherwise, copy the properties one-by-one to the cache object
@@ -3604,9 +3621,10 @@
             var cache = this.cache[this.key(owner)];
 
             return key === undefined ?
-			cache : cache[key];
+                cache : cache[key];
         },
         access: function (owner, key, value) {
+            //一个通用接口，能写能读
             var stored;
             // In cases where either:
             //
@@ -3625,7 +3643,7 @@
                 stored = this.get(owner, key);
 
                 return stored !== undefined ?
-				stored : this.get(owner, jQuery.camelCase(key));
+                    stored : this.get(owner, jQuery.camelCase(key));
             }
 
             // [*]When the key is not a string, or both a key and value
@@ -3802,8 +3820,10 @@
             }
 
             return access(this, function (value) {
+                //this指向了当前循环的Element的jQuery对象
+                //value则是挂载的数据名（即使外面挂载的Object也会被拆开到这里一个个循环执行）
                 var data,
-				camelKey = jQuery.camelCase(key);
+				camelKey = jQuery.camelCase(key);//转换驼峰
 
                 // The calling jQuery object (element matches) is not empty
                 // (and therefore has an element appears at this[ 0 ]) and the
@@ -3813,6 +3833,7 @@
                 if (elem && value === undefined) {
                     // Attempt to get data from the cache
                     // with the key as-is
+                    //拿数据
                     data = data_user.get(elem, key);
                     if (data !== undefined) {
                         return data;
@@ -3820,6 +3841,7 @@
 
                     // Attempt to get data from the cache
                     // with the key camelized
+                    //用驼峰拿
                     data = data_user.get(elem, camelKey);
                     if (data !== undefined) {
                         return data;
@@ -3827,6 +3849,7 @@
 
                     // Attempt to "discover" the data in
                     // HTML5 custom data-* attrs
+                    //用HTML5拿
                     data = dataAttr(elem, camelKey, undefined);
                     if (data !== undefined) {
                         return data;
@@ -3837,6 +3860,7 @@
                 }
 
                 // Set the data...
+                //个人觉得这个this被封装成jQuery真是有点毁三观...
                 this.each(function () {
                     // First, attempt to store a copy or reference of any
                     // data that might've been store with a camelCased key.
@@ -3845,6 +3869,7 @@
                     // For HTML5 data-* attribute interop, we have to
                     // store property names with dashes in a camelCase form.
                     // This might not apply to all properties...*
+                    //HTML5的设置，直接覆盖式代码，这样真的好么？
                     data_user.set(this, camelKey, value);
 
                     // *... In the case of properties that might _actually_
@@ -4042,7 +4067,7 @@
     support.focusinBubbles = "onfocusin" in window;
 
 
-    var 
+    var
 	rkeyEvent = /^key/,
 	rmouseEvent = /^(?:mouse|pointer|contextmenu)|click/,
 	rfocusMorph = /^(?:focusinfocus|focusoutblur)$/,
@@ -4326,7 +4351,7 @@
             while ((cur = eventPath[i++]) && !event.isPropagationStopped()) {
 
                 event.type = i > 1 ?
-				bubbleType :
+                    bubbleType :
 				special.bindType || type;
 
                 // jQuery handler
@@ -4667,7 +4692,7 @@
 				src.defaultPrevented === undefined &&
             // Support: Android < 4.0
 				src.returnValue === false ?
-			returnTrue :
+                returnTrue :
 			returnFalse;
 
             // Event type
@@ -4895,7 +4920,7 @@
     });
 
 
-    var 
+    var
 	rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,
 	rtagName = /<([\w:]+)/,
 	rhtml = /<|&#?\w+;/,
@@ -5704,7 +5729,7 @@
     };
 
 
-    var 
+    var
     // swappable if display is none or starts with table except "table", "table-cell", or "table-caption"
     // see here for display values: https://developer.mozilla.org/en-US/docs/CSS/display
 	rdisplayswap = /^(none|table(?!-c[ea]).+)/,
@@ -6243,7 +6268,7 @@
 
 
 
-    var 
+    var
 	fxNow, timerId,
 	rfxtypes = /^(?:toggle|show|hide)$/,
 	rfxnum = new RegExp("^(?:([+-])=|)(" + pnum + ")([a-z%]*)$", "i"),
@@ -6297,7 +6322,7 @@
 	        }
 
 	        return tween;
-	    } ]
+	    }]
 	};
 
     // Animations created synchronously will run synchronously
@@ -6741,7 +6766,7 @@
                     }
                 }
 
-                for (index = timers.length; index--; ) {
+                for (index = timers.length; index--;) {
                     if (timers[index].elem === this && (type == null || timers[index].queue === type)) {
                         timers[index].anim.stop(gotoEnd);
                         dequeue = false;
@@ -6780,7 +6805,7 @@
                 }
 
                 // look for any active animations, and finish them
-                for (index = timers.length; index--; ) {
+                for (index = timers.length; index--;) {
                     if (timers[index].elem === this && timers[index].queue === type) {
                         timers[index].anim.stop(true);
                         timers.splice(index, 1);
@@ -6978,7 +7003,7 @@
 
                 // Non-existent attributes return null, we normalize to undefined
                 return ret == null ?
-				undefined :
+                    undefined :
 				ret;
             }
         },
@@ -7094,12 +7119,12 @@
 
             if (value !== undefined) {
                 return hooks && "set" in hooks && (ret = hooks.set(elem, value, name)) !== undefined ?
-				ret :
+                    ret :
 				(elem[name] = value);
 
             } else {
                 return hooks && "get" in hooks && (ret = hooks.get(elem, name)) !== null ?
-				ret :
+                    ret :
 				elem[name];
             }
         },
@@ -7140,9 +7165,9 @@
 	"useMap",
 	"frameBorder",
 	"contentEditable"
-], function () {
-    jQuery.propFix[this.toLowerCase()] = this;
-});
+    ], function () {
+        jQuery.propFix[this.toLowerCase()] = this;
+    });
 
 
 
@@ -7370,7 +7395,7 @@
                 get: function (elem) {
                     var val = jQuery.find.attr(elem, "value");
                     return val != null ?
-					val :
+                        val :
                     // Support: IE10-11+
                     // option.text throws exceptions (#14686, #14858)
 					jQuery.trim(jQuery.text(elem));
@@ -7385,7 +7410,7 @@
 					values = one ? null : [],
 					max = one ? index + 1 : options.length,
 					i = index < 0 ?
-						max :
+                        max :
 						one ? index : 0;
 
                     // Loop through all the selected options
@@ -7394,7 +7419,7 @@
 
                         // IE6-9 doesn't update selected after form reset (#2551)
                         if ((option.selected || i === index) &&
-                        // Don't return options that are disabled or in a disabled optgroup
+                            // Don't return options that are disabled or in a disabled optgroup
 							(support.optDisabled ? !option.disabled : option.getAttribute("disabled") === null) &&
 							(!option.parentNode.disabled || !jQuery.nodeName(option.parentNode, "optgroup"))) {
 
@@ -7530,7 +7555,7 @@
     };
 
 
-    var 
+    var
     // Document location
 	ajaxLocParts,
 	ajaxLocation,
@@ -9167,7 +9192,7 @@
 
 
 
-    var 
+    var
     // Map over jQuery in case of overwrite
 	_jQuery = window.jQuery,
 

@@ -4027,11 +4027,12 @@
 
         // The following elements (space-suffixed to avoid Object.prototype collisions)
         // throw uncatchable exceptions if you attempt to set expando properties
-        //这几个特殊的标签不能使用Data，可能属性有冲突？？？
         noData: {
+            //这俩权限不够
             "applet ": true,
             "embed ": true,
             // ...but Flash objects (which have this classid) *can* handle expandos
+            //ie的flash可以通过
             "object ": "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
         },
         //这里的代码真正部分在上面，这里只是调用上面的基础协同配合产生了这些API
@@ -4070,15 +4071,16 @@
             // so implement the relevant behavior ourselves
 
             // Gets all values
+            //$(Element).data()
             if (key === undefined) {
                 //获取
                 if (this.length) {
                     data = jQuery.data(elem);
-
+                    //如果没有标志parsedAttrs的数据，则表示没有进行过HTML5的属性转换
                     if (elem.nodeType === 1 && !jQuery._data(elem, "parsedAttrs")) {
                         i = attrs.length;
                         while (i--) {
-
+                            //那么转换HTML5的属性
                             // Support: IE11+
                             // The attrs elements can be null (#14894)
                             if (attrs[i]) {
@@ -4089,6 +4091,7 @@
                                 }
                             }
                         }
+                        //放上属性parsedAttrs，表示HTML5转换完毕
                         jQuery._data(elem, "parsedAttrs", true);
                     }
                 }
@@ -4097,6 +4100,7 @@
             }
 
             // Sets multiple values
+            //$(Element).data({ name:'linkFly',value:'hello world' });
             if (typeof key === "object") {
                 //设置
                 return this.each(function () {
@@ -4107,12 +4111,22 @@
             return arguments.length > 1 ?
 
             // Sets one value
+            //$(Element).data('name','linkFly')
 			this.each(function () {
 			    jQuery.data(this, key, value);
 			}) :
 
             // Gets one value
             // Try to fetch any internally stored data first
+                /*
+                    $(Elment).data('name')  
+                    这里的代码很有意思：
+                    jQuery.data(elem,key)是调用internalData()，而internalData是在jQuery.cache中开辟空间
+                    当internalData()第三个参数(data)为空的时候，就仅仅只是返回这个Element对应的仓库里的空间，并且把这个空间给返回出来
+                    第一次调用使用jQuery.data(elem,key)调用，internalData()返回肯定是undefined，
+                    而dataAttr里面如果第三个参数是undefined的时候，则尝试把HTML5的Data转换到jQuery.data中
+                    非常让人惊叹的设计
+                */
 			elem ? dataAttr(elem, key, jQuery.data(elem, key)) : undefined;
         },
 
