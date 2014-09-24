@@ -18,7 +18,7 @@
 .l-title { text-shadow: 2px 2px 3px #222222; background: none repeat scroll 0 0 #049ff1; color: White; font-size: 14pt!important; font-weight: bold!important; border-radius: 5px; padding: 10px 0!important; margin: 15px 0 5px!important; animation: 1s ease 0.2s normal both 1 bounceInLeft; transition: all 0.4s linear 0s; }
     .l-title a { color: white; text-decoration: none; }
     /*空间不支持*/
-    .l-title:hover { color: #ff7227; padding-left: 12px; }
+    .l-title:hover { color: #ff7227; padding-left: 12px!important; }
 .l-limitTitle { border-bottom: 1px solid #CCC; margin: 0 10px!important; padding: 10px 0; }
 /*关键字*/
 .l-marked { color: red; background: #f8f8f8; border: 1px solid #eaeaea; border-radius: 3px; margin-left: 2px; margin-right: 2px; padding: 0 4px; }
