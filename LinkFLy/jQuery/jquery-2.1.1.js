@@ -3525,6 +3525,7 @@
         // Old WebKit does not have Object.preventExtensions/freeze method,
         // return new empty object instead with no [[set]] accessor
         //
+        //定义一个属性名为0的对象，只有get方法，还是空对象？
         Object.defineProperty(this.cache = {}, 0, {
             get: function () {
                 return {};
@@ -3533,9 +3534,9 @@
         //钥匙
         this.expando = jQuery.expando + Math.random();
     }
-
+    //不再使用jQuery.guid
     Data.uid = 1;
-    Data.accepts = jQuery.acceptData;
+    Data.accepts = jQuery.acceptData;//判定比1.x更就简单，只判定了是不是Element和Document
 
     Data.prototype = {
         //获取缓存的钥匙
@@ -3548,8 +3549,7 @@
             }
 
             var descriptor = {},
-            // Check if the owner object already has a cache key
-            //又再Element上挂载jQuery属性？？？
+            //又再Element上挂载jQuery属性
 			unlock = owner[this.expando];
 
             // If not, create one
@@ -3564,7 +3564,6 @@
 
                     //参考：http://msdn.microsoft.com/zh-cn/library/ie/ff800817%28v=vs.94%29.aspx
                     //这个属性不会被枚举
-                    //过去的jQuery是定义defineProperty重写valueOf实现
                     Object.defineProperties(owner, descriptor);
                     //兼容android < 4
                     // Support: Android < 4

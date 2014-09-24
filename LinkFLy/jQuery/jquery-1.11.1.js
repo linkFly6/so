@@ -3739,15 +3739,19 @@
 	rmultiDash = /([A-Z])/g;
 
     function dataAttr(elem, key, data) {
-        //获取Element的attribute（HTML5的data）
+        //针对HTML5特别做一层挂载处理
 
         // If nothing was found internally, try to fetch any
         // data from the HTML5 data-* attribute
+        //jQuery.data挂载的是空数据，
         if (data === undefined && elem.nodeType === 1) {
-            //rmultiDash = /([A-Z])/g
-            //把每个大写单词替换成'data--单词'的格式，例如'AB'，替换成：data--a-b
+            /*
+                rmultiDash = /([A-Z])/g
+                针对HTML5，把驼峰命名的数据转换为连字符：
+                dataSet转换为data-set
+            */
             var name = "data-" + key.replace(rmultiDash, "-$1").toLowerCase();
-            data = elem.getAttribute(name);
+            data = elem.getAttribute(name);//不用dataset是因为一些比较古老的手机没有被支持
             if (typeof data === "string") {
                 //各种丧心病狂的拉取数据
                 try {
@@ -3796,15 +3800,14 @@
 
         //添加一个data到jQuery缓存中
 
-        //这个pvt是个啥玩意儿？？
-        //pvt：是否是内部数据
+        //pvt：标识是否是内部数据
 
         //判定对象是否可以存数据
         if (!jQuery.acceptData(elem)) {
             return;
         }
         var ret, thisCache,
-        //内部key，来自就jQuery随机数（每一个页面上唯一且不变的）
+        //来自就jQuery随机数（每一个页面上唯一且不变的）
 		internalKey = jQuery.expando,
 
         // We have to handle DOM nodes and JS objects differently because IE6-7
@@ -3831,8 +3834,7 @@
 
         // Avoid doing any more work than we need to when trying to get data on an
         // object that has no data at all
-        //检测合法性，避免做更多的工作，pvt应该表示工作模式吧，如果为true，则表示内部数据
-        //这个cache[id]的检测是个什么玩意儿？第一次cache有东西？
+        //检测合法性，避免做更多的工作，pv标识是否是内部数据，如果为true，则表示内部数据
         if ((!id || !cache[id] || (!pvt && !cache[id].data)) && data === undefined && typeof name === "string") {
             return;
         }
@@ -3843,6 +3845,8 @@
             if (isNode) {
                 //DOM需要有一个全新的全局id，这个deletedIds是什么？？？只在jQuery.cleanData()里面push()了数据
                 //为DOM建立一个jQuery的全局id
+                //低版本代码：elem[ internalKey ] = id = ++jQuery.uuid;
+                //这个deletedIds暂时忽略
                 id = elem[internalKey] = deletedIds.pop() || jQuery.guid++;
             } else {
                 //而对象不需要
@@ -3865,6 +3869,13 @@
         // shallow copied over onto the existing cache
         //对象
         //这里的判定没有调用jQuery.type()...当然在于作者的心态了...
+
+        /*
+          先把Object/Function的类型的数据挂上。调用方式 :
+          $(Element).data({'name':'linkFly'});
+          这里的判定没有调用jQuery.type()...当然在于作者的心态了...
+        */
+
         if (typeof name === "object" || typeof name === "function") {
             if (pvt) {//如果是内部数据
                 //挂到cache上
@@ -3874,12 +3885,13 @@
                 cache[id].data = jQuery.extend(cache[id].data, name);
             }
         }
-
+        //如果是Object/Function的参数，则开始准备返回值
         thisCache = cache[id];
 
         // jQuery data() is stored in a separate object inside the object's internal data
         // cache in order to avoid key collisions between internal data and user-defined
         // data.
+        //调整返回值的位置
         if (!pvt) {
             //如果不是内部数据（即用户自定义数据），则挂到jQuery.chche.data上
             if (!thisCache.data) {
@@ -3888,20 +3900,20 @@
 
             thisCache = thisCache.data;
         }
-        //把数据挂载上去
+        /*
+                如果是这样调用的：$(Element).data('name','value');
+                那么刚好利用上面的thisCache（当前指向要挂载的空间）
+                把数据挂上去
+        */
         if (data !== undefined) {
             thisCache[jQuery.camelCase(name)] = data;
         }
-
-        // Check for both converted-to-camel and non-converted data property names
-        // If a data property was specified
+        //数据全部挂好，调整返回值
         if (typeof name === "string") {
             //如果参数是一个字符串
-            // First Try to find as-is property data
-            //则抓取这个字符串对应的缓存
+            //则抓取这个字符串对应的数据
             ret = thisCache[name];
 
-            // Test for null|undefined property data
             //抓取失败，转换成驼峰再抓
             if (ret == null) {
 
@@ -3909,10 +3921,11 @@
                 ret = thisCache[jQuery.camelCase(name)];
             }
         } else {
-            //如果不是字符串，则按照对象的形式抓取
+            //如果参数是Object/Function，则直接返回
             ret = thisCache;
         }
 
+        //最终返回这次挂载的值，注意后面有用到
         return ret;
     }
 
@@ -3982,7 +3995,11 @@
 
                 // If there is no data left in the cache, we want to continue
                 // and let the cache object itself get destroyed
-                //如果是剩下的缓存中没有数据了，则完成了任务，否则继续
+                /*
+                    如果是剩下的缓存中没有数据了，则完成了任务，否则有不和谐的情况，要继续处理
+                    isEmptyDataObject专门用来检测用户缓存空间是否是空Data，
+                    如果缓存空间是这样的{ data:{},test:{'name':'value'} }（用户数据挂载的空间是空的），也能通过
+                 */
                 if (pvt ? !isEmptyDataObject(thisCache) : !jQuery.isEmptyObject(thisCache)) {
                     return;
                 }
@@ -4122,10 +4139,12 @@
                     $(Elment).data('name')  
                     这里的代码很有意思：
                     jQuery.data(elem,key)是调用internalData()，而internalData是在jQuery.cache中开辟空间
-                    当internalData()第三个参数(data)为空的时候，就仅仅只是返回这个Element对应的仓库里的空间，并且把这个空间给返回出来
-                    第一次调用使用jQuery.data(elem,key)调用，internalData()返回肯定是undefined，
-                    而dataAttr里面如果第三个参数是undefined的时候，则尝试把HTML5的Data转换到jQuery.data中
-                    非常让人惊叹的设计
+                    当internalData()最终返回的要挂载的这个数据
+                    如果用户挂载的数据是空的，则把HTML5的数据给挂到jQuery.data
+                    这里的逻辑极其紧致：连接了internalData()和dataAttr()合作
+                    它实现了：
+                       读取数据：$(Element).data('demo');
+                       读取HTML5的dataset数据并挂载到jQuery.cache中：$(Element).data('demo')
                 */
 			elem ? dataAttr(elem, key, jQuery.data(elem, key)) : undefined;
         },
