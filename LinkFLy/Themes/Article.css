@@ -12,8 +12,8 @@
 /*文章序*/
 .l-index { background-color: #FFF8D7; border: 1px dashed #ccc; color: #444; margin: 10px 0; padding: 10px 5px; font: 14px/24px 'Helvetica Neue',Helvetica,Arial, 'Microsoft Yahei',sans-serif; text-indent: 2em; line-height: 25px; }
 /*ul li的分行举例说明*/
-.l-body .example { list-style: none; margin: 0; padding: 0 0 0 15px; }
-    .l-body .example li { margin: 0; padding: 0; line-height: 30px; }
+.l-body .example { list-style: none!important; margin: 0!important; padding: 0 0 0 15px!important; }
+    .l-body .example li { margin: 0!important; padding: 0!important; line-height: 30px!important; }
 /*文章标题*/
 .l-title { text-shadow: 2px 2px 3px #222222; background: none repeat scroll 0 0 #049ff1; color: White; font-size: 14pt!important; font-weight: bold!important; border-radius: 5px; padding: 10px 0!important; margin: 15px 0 5px!important; animation: 1s ease 0.2s normal both 1 bounceInLeft; transition: all 0.4s linear 0s; }
     .l-title a { color: white; text-decoration: none; }
