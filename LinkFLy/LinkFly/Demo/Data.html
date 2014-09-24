@@ -3,24 +3,26 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>jQuery.Data演示</title>
-    <!--<script src="../../jQuery/jquery-1.11.1.js"></script>-->
-    <script src="../../jQuery/jquery-2.1.1.js" type="text/javascript"></script>
+    <script src="../../jQuery/jquery-1.11.1.js"></script>
+    <!--<script src="../../jQuery/jquery-2.1.1.js" type="text/javascript"></script>-->
     <script>
         window.onload = function () {
             var demo = $('#result'), demo2 = $('#result2'), res = $('#result3');
-            demo.data('once', { 'hehe': 'go', 'test': 1 });
-            demo.data('once', 'overflow');
-            demo.html(demo.data('once'));
-            demo2.data('test', 'data');
-            demo2.data('once', 'hehe');
-            demo2.html(demo2.data('once'));
-            demo2.removeData('once');
-            res.html(demo2.data('once'));
+            //demo.data('once', { 'hehe': 'go', 'test': 1 });
+            //demo.data('once', 'overflow');
+            //demo.html(demo.data('once'));
+            //demo2.data('test', 'data');
+            //demo2.data('once', 'hehe');
+            //demo2.html(demo2.data('once'));
+            //demo2.removeData('once');
+            //res.html(demo2.data('once'));
+            demo.data('demo');
+            res.html(demo.data('demo'));
         };
     </script>
 </head>
 <body>
-    <div id="result">
+    <div id="result" data-demo="linkFly">
     </div>
     <div id="result2">
     </div>
