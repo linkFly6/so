@@ -440,7 +440,7 @@
 </pre>
 </div>
                         <p>
-                            4、还有其他数据类型（String之类的）没有挂载上，这里把<span class="l-codeRemark">$(Element).data('name','value')</span>的数据挂载上，最后要把这个data作为方法的返回值，<span class="l-bold">这个返回值非常重要，因为internalData()方法要和dataAttr()（下面会讲）方法合作来挂载数据</span>。因为上面可能会把Object/Function参数的数据已经挂到jQuery.cache中了，所以这里再次调整位置。</p>
+                            4、还有其他数据类型（String之类的）没有挂载上，这里把<span class="l-codeRemark">$(Element).data('name','value')</span>的数据挂载上，最后要把这个data作为方法的返回值，<span class="l-bold">这个返回值非常重要，从而实现也可以读取数据的功能</span>。</p>
                         <div class="cnblogs_Highlighter">
 <pre class="brush:javascript;collapse:true;;gutter:true;">        //如果是Object/Function的参数，则开始准备返回值
         thisCache = cache[id];
@@ -481,7 +481,7 @@
 </div>
                     </div>
                     <div>
-                        代码上非常严谨，每一步都尽可能写在最恰当的地方，但如果阅读起来会觉得有点饶，其实读透了还是很犀利的，再次强调，这里的方法会在jQuery最外层的API中和dataAttr()（下面会讲）方法一起配合来实现挂载/读取数据。
+                        代码上非常严谨，每一步都尽可能写在最恰当的地方，这里的方法会在jQuery最外层的API中和dataAttr()（下面会讲）方法一起配合来实现挂载/读取数据。
                     </div>
                 </div>
                 <div>
@@ -723,7 +723,7 @@
                     </div>
                     <div>
                         <p>
-                            jQuery.data实现很简单......个屁啊，妈蛋啊看起来就是调用internalData()实现，实际上jQuery.fn.data更加的健壮，尤其是让dataAttr()和internalData()的搭配的毫无违和感，当然这也意味着性能更逊色一点，</p>
+                            jQuery.data实现很简单......个屁啊，妈蛋啊看起来就是调用internalData()实现，实际上jQuery.fn.data更加的健壮，同时将各种可以方法都联接的惟妙惟肖，当然这也意味着性能更逊色一点，</p>
                         <div class="cnblogs_Highlighter">
 <pre class="brush:javascript;collapse:true;;gutter:true;">jQuery.fn.extend({
         data: function (key, value) {
