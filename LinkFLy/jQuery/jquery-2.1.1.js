@@ -3525,7 +3525,10 @@
         // Old WebKit does not have Object.preventExtensions/freeze method,
         // return new empty object instead with no [[set]] accessor
         //
-        //定义一个属性名为0的对象，只有get方法，还是空对象？
+        /*
+            这种定义是什么意思呢？
+            是防止cache曝露么？
+        */
         Object.defineProperty(this.cache = {}, 0, {
             get: function () {
                 return {};
