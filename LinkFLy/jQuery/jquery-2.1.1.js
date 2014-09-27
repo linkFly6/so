@@ -3441,7 +3441,7 @@
     // Multifunctional method to get and set values of a collection
     // The value/s can optionally be executed if it's a function
     var access = jQuery.access = function (elems, fn, key, value, chainable, emptyGet, raw) {
-        //elems，fn，key，value，是否链式，当返回空数据的时候采用的默认值
+        //elems，fn，key，value，是否链式，当返回空数据的时候采用的默认值，fn参数是否是方法
         //一组通用方法，既然设置也能获取Data
         var i = 0,
 		len = elems.length,
@@ -3483,7 +3483,7 @@
                     };
                 }
             }
-            //到了这里如果还可以执行的话那么参数是：access(elems,fn,null,Function||Object/String)
+            //到了这里如果还可以执行的话那么参数是：access(elems,fn,key,Function||Object/String)
             if (fn) {
                 for (; i < len; i++) {
                     fn(elems[i], key, raw ? value : value.call(elems[i], i, fn(elems[i], key)));
@@ -3497,10 +3497,8 @@
 
         // Gets
             //如果上面的设置方法都没有走，那么就是获取
-		bulk ?
-            //获取全部
+		bulk ?//bulk是不同的工作模式，参阅jQuery.css，jQuery.attr
 			fn.call(elems) :
-            //获取一个
 			len ? fn(elems[0], key) : emptyGet;
     };
 
