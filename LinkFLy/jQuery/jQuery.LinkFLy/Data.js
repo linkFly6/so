@@ -1,9 +1,11 @@
 ﻿(function (window, undefined) {
-    //这几个特殊Object标签放不了data？是害怕冲突？
+    
     var noData = {
+        //这俩标签(可能)放置自定义属性的权限不够，所以直接过滤掉
         "applet ": true,
         "embed ": true,
         // ...but Flash objects (which have this classid) *can* handle expandos
+        //IE的flash可以放置自定义属性，所以允许可以通过
         "object ": "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
     },
     //页面唯一key
@@ -39,7 +41,7 @@
         //简单的说，这个方法在这里是打酱油的~~~
     },
     internalData = function (elem, name, data, isPrivate) {
-        //添加一个Data
+        //读/写Data
         if (!acceptData(elem)) return;
         var result, thisCache,
             //页面唯一key
@@ -62,7 +64,6 @@
         }
         //上面验证通过之后，确定了肯定是存放数据而不是捣乱的，开始干活...
         if (id) {
-            //如果是第一次放数据，肯定是读不到id的...
             //如果是Element，把key挂到Element上，这里的id是全局唯一id
             if (isNode) id = elem[key] = globalId++;
             else id = key;//如果是对象的话那就不霸占对象了
@@ -83,10 +84,9 @@
             else//用户数据，挂到cache.data
                 cache[id].data = extend(cache[id].data, name);
         }
-        //如果是Object，那么数据已经挂好了
+        //最终需要返回
         thisCache = cache[id];
         /*
-        调整数据存放点，那么引用过来，是为后面的String类型的参数做准备的
         用户数据挂在cache[id].data
         内部数据挂在cache[id]上
         */
@@ -95,12 +95,11 @@
                 thisCache.data = {};
             thisCache = thisCache.data;
         }
-        //把数据挂上去，注意这里就已经挂好了下面if判定的数据了..
+        //data不为空的数据
         if (data !== undefined)
             thisCache[camelCase(name)] = data;
         /*
             到了这里，数据全部已经挂好，而这里的代码，是为了result返回
-            思路很新颖，但是感觉作者有意在秀自己的思路...
         */
         if (typeof name === 'string') {
             result = thisCache[name];
