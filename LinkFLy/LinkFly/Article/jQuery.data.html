@@ -895,25 +895,199 @@
                         <li><span class="l-bold">hasData：</span>检测是否有数据</li>
                         <li><span class="l-bold">discard：</span>丢弃掉这个Element的存储空间</li>
                     </ul>
-                    <div class="l-txtBlock">
-                        Data源码
-                    </div>
+                    <p><img src="http://images.cnblogs.com/cnblogs_com/silin6/596820/o_jQuery2.x%20Data.jpg" alt="" width="858" height="171" /></p>
+                    <p>其他的实现都比较简单，我们需要关注钥匙这里，也就是<span class="l-codeRemark">Data.prototype.key()</span>。</p>
+                    <h3 class="l-limitTitle">
+                        key() - 通用接口</h3>
+                    <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">Data.prototype = {
+        //获取缓存的钥匙
+        key: function (owner) {
+            //检测是否可以存放钥匙
+            if (!Data.accepts(owner)) {
+                return 0; //return false
+            }
+
+            var descriptor = {},
+                //获取钥匙，还是在Element上挂载jQuery属性
+	         unlock = owner[this.expando];
+            //如果钥匙没有则创建
+            if (!unlock) {
+                unlock = Data.uid++;
+                try {
+                    //把expando转移到Data中，没一个Data实例都有不同的expando
+                    descriptor[this.expando] = { value: unlock };
+                    //参考：http://msdn.microsoft.com/zh-cn/library/ie/ff800817%28v=vs.94%29.aspx
+                    //这个属性不会被枚举
+                    Object.defineProperties(owner, descriptor);
+                } catch (e) {
+                    //如果没有Object.defineProperties，则采用jQuery.extend
+                    descriptor[this.expando] = unlock;
+                    jQuery.extend(owner, descriptor);
+                }
+            }
+            if (!this.cache[unlock]) {
+                this.cache[unlock] = {};
+            }
+            //返回这个钥匙
+            return unlock;
+        }
+    };
+</pre>
+</div>
+                    <p>因为用户数据和jQuery内部数据通过Data分离，所以<span class="l-codeRemark">set/get</span>在拿到钥匙之后都比较简单。</p>
                     <h3 class="l-limitTitle">
                         access() - 通用接口</h3>
+                    <p>在创建Data对象的时候，顺便为jQuery创建了静态方法——jQuery.access：通用的底层方法，既能设置也能读取，它应用在jQuery很多API中，例如：Text()、HTML()等。</p>
                     <p>
-                        access方法并不属于Data，是jQuery根据自己的需求定义的方法，它用于挂载和获取一组/一个Element的数据，在jQuery曝露的jQuery.data
-                        API中使用，而正因为是通用接口，所以看到了一长串的参数，什么表示是否链式啊、当对象不正确返回的数据啊之类的，代码上有点重...</p>
-                    <div class="l-txtBlock">
-                        jQuery.access源码
-                    </div>
+                        access方法并不属于Data，是jQuery根据自己的需求定义的方法，它用于挂载和获取一组/一个Element的数据，在jQuery曝露的jQuery.data API中使用，而正因为是通用接口，所以看到了一长串的参数，什么表示是否链式啊、当对象不正确返回的数据啊之类的，代码上有点重...</p>
+                    <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">var access = jQuery.access = function (elems, fn, key, value, chainable, emptyGet, raw) {
+        //元素，委托的方法，属性名，属性值，是否链式，当返回空数据的时候采用的默认值,fn参数是否是Function
+        //一组通用（内部）方法，既然设置也能获取Data
+        var i = 0,
+		len = elems.length,
+		bulk = key == null;
+        //Object
+        if (jQuery.type(key) === "object") {
+            //如果是放数据，Object类型，则循环执行fn
+            chainable = true;//这里修正了是否链式....
+            for (i in key) {
+                jQuery.access(elems, fn, i, key[i], true, emptyGet, raw);
+            }
+
+            // Sets one value
+        } else if (value !== undefined) {
+            chainable = true;
+            //如果设置的value是Function
+            if (!jQuery.isFunction(value)) {
+                raw = true;
+            }
+            //当参数是这样的：access(elems,fn,null)
+            if (bulk) {
+                if (raw) {
+                    //参数是这样的：access(elems,fn,null,function)
+                    fn.call(elems, value);
+                    fn = null;
+                } else {
+                    //参数是这样的：access(elems,fn,null,String/Object)
+                    bulk = fn;//这里把fn给调换了
+                    fn = function (elem, key, value) {
+                        //这个jQuery()封装的真是....
+                        return bulk.call(jQuery(elem), value);
+                    };
+                }
+            }
+            //到了这里如果还可以执行的话那么参数是：access(elems,fn,key,Function||Object/String)
+            if (fn) {
+                for (; i &lt; len; i++) {
+                    //循环每一项执行
+                    fn(elems[i], key, raw ? value : value.call(elems[i], i, fn(elems[i], key)));
+                }
+            }
+        }
+
+        return chainable ?
+            //如果是设置数据，这个elems最终被返回，而在jQuery.fn.data中这个elems是this&mdash;&mdash;也就是jQuery对象，保证了链式
+            elems :
+
+        // Gets
+            //如果上面的设置方法都没有走，那么就是获取
+		bulk ?//bulk是不同的工作模式，参阅jQuery.css，jQuery.attr
+			fn.call(elems) :
+			len ? fn(elems[0], key) : emptyGet;
+    };
+</pre>
+</div>
                     <h3 class="l-limitTitle">
                         jQuery.fn.data() - 曝露API</h3>
                     <p>
                         相比<span class="l-codeRemark">jQuery.1.x</span>代码更加的细腻了许多，这里配合着上面定义的access()使用，为每一个循环的jQuery项设置和读取数据，阅读起来比较轻松。
                     </p>
-                    <div class="l-txtBlock">
-                        jQuery.fn.data()
-                    </div>
+                    <div class="cnblogs_Highlighter">
+<pre class="brush:javascript;collapse:true;;gutter:true;">jQuery.fn.extend({
+        data: function (key, value) {
+            var i, name, data,
+			elem = this[0],
+			attrs = elem &amp;&amp; elem.attributes;
+
+            // 获取全部的数据，和1.x思路一致
+            if (key === undefined) {
+                if (this.length) {
+                    data = data_user.get(elem);
+
+                    if (elem.nodeType === 1 &amp;&amp; !data_priv.get(elem, "hasDataAttrs")) {
+                        i = attrs.length;
+                        while (i--) {
+
+                            // Support: IE11+
+                            // The attrs elements can be null (#14894)
+                            if (attrs[i]) {
+                                name = attrs[i].name;
+                                if (name.indexOf("data-") === 0) {
+                                    name = jQuery.camelCase(name.slice(5));
+                                    dataAttr(elem, name, data[name]);
+                                }
+                            }
+                        }
+                        data_priv.set(elem, "hasDataAttrs", true);
+                    }
+                }
+
+                return data;
+            }
+
+            // 设置Object类型的的数据
+            if (typeof key === "object") {
+                return this.each(function () {
+                    data_user.set(this, key);
+                });
+            }
+            //调用jQuery.access
+            return access(this, function (value) {
+                //this指向了当前循环的Element的jQuery对象
+                //value则是挂载的数据名（即使外面挂载的Object也会被拆开到这里一个个循环执行）
+                var data,
+		     camelKey = jQuery.camelCase(key);//转换驼峰
+                if (elem &amp;&amp; value === undefined) {
+                    //拿数据
+                    data = data_user.get(elem, key);
+                    if (data !== undefined) {
+                        return data;
+                    }
+                    //用驼峰拿
+                    data = data_user.get(elem, camelKey);
+                    if (data !== undefined) {
+                        return data;
+                    }
+                    //用HTML5拿
+                    data = dataAttr(elem, camelKey, undefined);
+                    if (data !== undefined) {
+                        return data;
+                    }
+                    return;
+                }
+                //循环每一项设置
+                this.each(function () {
+                    //提前设置驼峰的...
+                    data_user.set(this, camelKey, value);
+                    if (key.indexOf("-") !== -1 &amp;&amp; data !== undefined) {
+                    //如果有name-name命名再设一边
+                        data_user.set(this, key, value);
+                    }
+                });
+            }, null, value, arguments.length &gt; 1, null, true);
+        },
+
+        removeData: function (key) {
+            return this.each(function () {
+                //调用相应Data实例方法移除即可
+                data_user.remove(this, key);
+            });
+        }
+    });
+</pre>
+</div>
                     <div class="l-txtBlock">
                         哎呀篇幅好长的说，各位看官到了这里可以继续小憩一下，后面我们再来谈谈关于这个jQuery.data更多有意思的事情...总结一下，<span class="l-codeRemark">jQuery.2.x</span>的缓存设计理念清晰，最主要的就是封装成了Data对象以后将用户数据和jQuery内部使用的数据隔离开，这是最大的改进，当然也徒增了一些比较重的地方，比如access()方法个人就觉得做了很多不必要的事情，比如access中方法定义的参数很长都已经标志了很多事情，但是内部又尝试着修正这些参数，做了一些重复的工作，总体来说：思路清晰简单明了，和原作者各种饶来饶去的风格有着鲜明的对比，代码是死的，思路毕竟还是需要每个人自己领悟的。移动端的<a
                             href="https://github.com/madrobby/zepto/blob/master/src/data.js" target="_blank">Zepto里的Zepto.data</a>是<span
