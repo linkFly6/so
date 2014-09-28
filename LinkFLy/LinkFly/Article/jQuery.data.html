@@ -943,8 +943,6 @@
                     <h3 class="l-limitTitle">
                         access() - 通用接口</h3>
                     <p>在创建Data对象的时候，顺便为jQuery创建了静态方法——jQuery.access：通用的底层方法，既能设置也能读取，它应用在jQuery很多API中，例如：Text()、HTML()等。</p>
-                    <p>
-                        access方法并不属于Data，是jQuery根据自己的需求定义的方法，它用于挂载和获取一组/一个Element的数据，在jQuery曝露的jQuery.data API中使用，而正因为是通用接口，所以看到了一长串的参数，什么表示是否链式啊、当对象不正确返回的数据啊之类的，代码上有点重...</p>
                     <div class="cnblogs_Highlighter">
 <pre class="brush:javascript;collapse:true;;gutter:true;">var access = jQuery.access = function (elems, fn, key, value, chainable, emptyGet, raw) {
         //元素，委托的方法，属性名，属性值，是否链式，当返回空数据的时候采用的默认值,fn参数是否是Function
