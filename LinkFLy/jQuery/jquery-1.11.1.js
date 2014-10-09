@@ -36,7 +36,7 @@
     }
 
     // Pass this if window is not defined yet
-}(typeof window !== "undefined" ? window : this, function (window, noGlobal) {
+} (typeof window !== "undefined" ? window : this, function (window, noGlobal) {
 
     // Can't do this because several apps including ASP.NET trace
     // the stack via arguments.caller.callee and Firefox dies if
@@ -64,7 +64,7 @@
 
 
 
-    var
+    var 
 	version = "1.11.1",
 
     // Define a local copy of jQuery
@@ -796,13 +796,13 @@
         push = {
             apply: arr.length ?
 
-                // Leverage slice if possible
+            // Leverage slice if possible
             function (target, els) {
                 push_native.apply(target, slice.call(els));
             } :
 
-                // Support: IE<9
-                // Otherwise append directly
+            // Support: IE<9
+            // Otherwise append directly
             function (target, els) {
                 var j = target.length,
                     i = 0;
@@ -1472,8 +1472,8 @@
 
                 // IE 9's matchesSelector returns false on disconnected nodes
                 if (ret || support.disconnectedMatch ||
-                    // As well, disconnected nodes are said to be in a document
-                    // fragment in IE 9
+                // As well, disconnected nodes are said to be in a document
+                // fragment in IE 9
 					elem.document && elem.document.nodeType !== 11) {
                     return ret;
                 }
@@ -1664,9 +1664,9 @@
 
                     // Strip excess characters from unquoted arguments
                 } else if (unquoted && rpseudo.test(unquoted) &&
-                    // Get excess from tokenize (recursively)
+                // Get excess from tokenize (recursively)
 				(excess = tokenize(unquoted, true)) &&
-                    // advance to the next closing parenthesis
+                // advance to the next closing parenthesis
 				(excess = unquoted.indexOf(")", unquoted.length - excess) - unquoted.length)) {
 
                     // excess is a negative index
@@ -1773,7 +1773,7 @@
 
 				            while ((node = ++nodeIndex && node && node[dir] ||
 
-				                // Fallback to seeking `elem` from the start
+				            // Fallback to seeking `elem` from the start
 								(diff = nodeIndex = 0) || start.pop())) {
 
 				                // When found, cache indexes on `parent` and break
@@ -2034,7 +2034,7 @@
 
             "lt": createPositionalPseudo(function (matchIndexes, length, argument) {
                 var i = argument < 0 ? argument + length : argument;
-                for (; --i >= 0;) {
+                for (; --i >= 0; ) {
                     matchIndexes.push(i);
                 }
                 return matchIndexes;
@@ -2042,7 +2042,7 @@
 
             "gt": createPositionalPseudo(function (matchIndexes, length, argument) {
                 var i = argument < 0 ? argument + length : argument;
-                for (; ++i < length;) {
+                for (; ++i < length; ) {
                     matchIndexes.push(i);
                 }
                 return matchIndexes;
@@ -2351,7 +2351,7 @@
 				(checkContext = context).nodeType ?
 					matchContext(elem, context, xml) :
 					matchAnyContext(elem, context, xml));
-		}];
+		} ];
 
         for (; i < len; i++) {
             if ((matcher = Expr.relative[tokens[i].type])) {
@@ -2989,7 +2989,7 @@
                     if (cur.nodeType < 11 && (pos ?
 					pos.index(cur) > -1 :
 
-                        // Don't pass non-elements to Sizzle
+                    // Don't pass non-elements to Sizzle
 					cur.nodeType === 1 &&
 						jQuery.find.matchesSelector(cur, selectors))) {
 
@@ -3746,12 +3746,12 @@
         //jQuery.data挂载的是空数据，
         if (data === undefined && elem.nodeType === 1) {
             /*
-                rmultiDash = /([A-Z])/g
-                针对HTML5，把驼峰命名的数据转换为连字符：
-                dataSet转换为data-set
+            rmultiDash = /([A-Z])/g
+            针对HTML5，把驼峰命名的数据转换为连字符：
+            dataSet转换为data-set
             */
             var name = "data-" + key.replace(rmultiDash, "-$1").toLowerCase();
-            data = elem.getAttribute(name);//不用dataset是因为一些比较古老的手机没有被支持
+            data = elem.getAttribute(name); //不用dataset是因为一些比较古老的手机没有被支持
             if (typeof data === "string") {
                 //各种丧心病狂的拉取数据
                 try {
@@ -3812,24 +3812,24 @@
 
         // We have to handle DOM nodes and JS objects differently because IE6-7
         // can't GC object references properly across the DOM-JS boundary
-		// 如果是DOM元素，
-		//为了避免javascript和DOM元素之间循环引用导致的浏览器(IE6/7)垃圾回收机制不起作用，
-		//要把数据存储在全局缓存对象jQuery.cache中；
-		//对于javascript对象，
-		//垃圾回收机制能够自动发生
-		//不会有内存泄露的问题
-		//因此数据可以查收存储在javascript对象上
+        // 如果是DOM元素，
+        //为了避免javascript和DOM元素之间循环引用导致的浏览器(IE6/7)垃圾回收机制不起作用，
+        //要把数据存储在全局缓存对象jQuery.cache中；
+        //对于javascript对象，
+        //垃圾回收机制能够自动发生
+        //不会有内存泄露的问题
+        //因此数据可以查收存储在javascript对象上
 		isNode = elem.nodeType,
 
         // Only DOM nodes need the global jQuery cache; JS object data is
         // attached directly to the object so GC can occur automatically
-		//只有DOM节点才需要全局缓存，js对象是直接连接到对象的，GC在管理
+        //只有DOM节点才需要全局缓存，js对象是直接连接到对象的，GC在管理
         //如果是DOM，则cache连接到jQuery.cache
 		cache = isNode ? jQuery.cache : elem,
 
         // Only defining an ID for JS objects if its cache already exists allows
         // the code to shortcut on the same path as a DOM node with no cache
-		//如果是DOM，则获取ID，如果是DOM第一次读取，则读取不到id
+        //如果是DOM，则获取ID，如果是DOM第一次读取，则读取不到id
 		id = isNode ? elem[internalKey] : elem[internalKey] && internalKey;
 
         // Avoid doing any more work than we need to when trying to get data on an
@@ -3871,9 +3871,9 @@
         //这里的判定没有调用jQuery.type()...当然在于作者的心态了...
 
         /*
-          先把Object/Function的类型的数据挂上。调用方式 :
-          $(Element).data({'name':'linkFly'});
-          这里的判定没有调用jQuery.type()...当然在于作者的心态了...
+        先把Object/Function的类型的数据挂上。调用方式 :
+        $(Element).data({'name':'linkFly'});
+        这里的判定没有调用jQuery.type()...当然在于作者的心态了...
         */
 
         if (typeof name === "object" || typeof name === "function") {
@@ -3901,9 +3901,9 @@
             thisCache = thisCache.data;
         }
         /*
-                如果是这样调用的：$(Element).data('name','value');
-                那么刚好利用上面的thisCache（当前指向要挂载的空间）
-                把数据挂上去
+        如果是这样调用的：$(Element).data('name','value');
+        那么刚好利用上面的thisCache（当前指向要挂载的空间）
+        把数据挂上去
         */
         if (data !== undefined) {
             thisCache[jQuery.camelCase(name)] = data;
@@ -3996,10 +3996,10 @@
                 // If there is no data left in the cache, we want to continue
                 // and let the cache object itself get destroyed
                 /*
-                    如果是剩下的缓存中没有数据了，则完成了任务，否则有不和谐的情况，要继续处理
-                    isEmptyDataObject专门用来检测用户缓存空间是否是空Data，
-                    如果缓存空间是这样的{ data:{},test:{'name':'value'} }（用户数据挂载的空间是空的），也能通过
-                 */
+                如果是剩下的缓存中没有数据了，则完成了任务，否则有不和谐的情况，要继续处理
+                isEmptyDataObject专门用来检测用户缓存空间是否是空Data，
+                如果缓存空间是这样的{ data:{},test:{'name':'value'} }（用户数据挂载的空间是空的），也能通过
+                */
                 if (pvt ? !isEmptyDataObject(thisCache) : !jQuery.isEmptyObject(thisCache)) {
                     return;
                 }
@@ -4009,7 +4009,7 @@
         // See jQuery.data for more information
         //如果不是jQuery内部使用
         if (!pvt) {
-            delete cache[id].data;// 连data也删除
+            delete cache[id].data; // 连data也删除
 
             // Don't destroy the parent cache unless the internal data object
             // had been the only thing left in it
@@ -4135,17 +4135,17 @@
 
             // Gets one value
             // Try to fetch any internally stored data first
-                /*
-                    $(Elment).data('name')  
-                    这里的代码很有意思：
-                    jQuery.data(elem,key)是调用internalData()，而internalData是在jQuery.cache中开辟空间
-                    当internalData()最终返回的要挂载的这个数据
-                    如果用户挂载的数据是空的，则把HTML5的数据给挂到jQuery.data
-                    这里的逻辑极其紧致：连接了internalData()和dataAttr()合作
-                    它实现了：
-                       读取数据：$(Element).data('demo');
-                       读取HTML5的dataset数据并挂载到jQuery.cache中：$(Element).data('demo')
-                */
+            /*
+            $(Elment).data('name')  
+            这里的代码很有意思：
+            jQuery.data(elem,key)是调用internalData()，而internalData是在jQuery.cache中开辟空间
+            当internalData()最终返回的要挂载的这个数据
+            如果用户挂载的数据是空的，则把HTML5的数据给挂到jQuery.data
+            这里的逻辑极其紧致：连接了internalData()和dataAttr()合作
+            它实现了：
+            读取数据：$(Element).data('demo');
+            读取HTML5的dataset数据并挂载到jQuery.cache中：$(Element).data('demo')
+            */
 			elem ? dataAttr(elem, key, jQuery.data(elem, key)) : undefined;
         },
 
@@ -4472,6 +4472,7 @@
     /*
     * Helper functions for managing events -- not part of the public interface.
     * Props to Dean Edwards' addEvent library for many of the ideas.
+    * 
     */
     jQuery.event = {
 
@@ -4911,6 +4912,7 @@
         },
 
         fix: function (event) {
+            //修复event对象，将什么不支持的属性名啊全部都替换成支持的属性名
             if (event[jQuery.expando]) {
                 return event;
             }
@@ -4919,40 +4921,55 @@
             var i, prop, copy,
 			type = event.type,
 			originalEvent = event,
+            //刚开始这个fixHooks是空的
 			fixHook = this.fixHooks[type];
-
+            //如果没有找到
             if (!fixHook) {
                 this.fixHooks[type] = fixHook =
+                /*
+                rmouseEvent = /^(?:mouse|pointer|contextmenu)|click/
+                匹配：mouse、onMouseUp、click
+                */
 				rmouseEvent.test(type) ? this.mouseHooks :
+                /*
+                rkeyEvent = /^key/
+                匹配：onKeyDown、onKeyUp 
+                */
 				rkeyEvent.test(type) ? this.keyHooks :
 				{};
             }
+            //和基本的事件属性链接
             copy = fixHook.props ? this.props.concat(fixHook.props) : this.props;
-
+            //创建一个jQuery.Event对象
             event = new jQuery.Event(originalEvent);
 
             i = copy.length;
             while (i--) {
+                //开始修复、把不支持的属性名全部替换成支持的
                 prop = copy[i];
                 event[prop] = originalEvent[prop];
             }
 
             // Support: IE<9
             // Fix target property (#1925)
+            //调整eventTarget
             if (!event.target) {
                 event.target = originalEvent.srcElement || document;
             }
 
             // Support: Chrome 23+, Safari?
             // Target should not be a text node (#504, #13143)
+            //文本节点的话则调整eventTarget
             if (event.target.nodeType === 3) {
                 event.target = event.target.parentNode;
             }
 
             // Support: IE<9
             // For mouse/key events, metaKey==false if it's undefined (#3368, #11328)
+            //这个玩意儿是什么？？？？
             event.metaKey = !!event.metaKey;
 
+            //最后如果有调整选项的话，则调用对应的方法调整一些需要计算的属性，例如键盘的event.which、鼠标的event.pageX
             return fixHook.filter ? fixHook.filter(event, originalEvent) : event;
         },
 
@@ -5110,6 +5127,7 @@
 
     jQuery.Event = function (src, props) {
         // Allow instantiation without the 'new' keyword
+        //让外面无new化，非常犀利的写法
         if (!(this instanceof jQuery.Event)) {
             return new jQuery.Event(src, props);
         }
@@ -6613,7 +6631,7 @@
     };
 
 
-    var
+    var 
 		ralpha = /alpha\([^)]*\)/i,
 	ropacity = /opacity\s*=\s*([^)]*)/,
 
@@ -7203,7 +7221,7 @@
 
 
 
-    var
+    var 
 	fxNow, timerId,
 	rfxtypes = /^(?:toggle|show|hide)$/,
 	rfxnum = new RegExp("^(?:([+-])=|)(" + pnum + ")([a-z%]*)$", "i"),
@@ -7257,7 +7275,7 @@
 	        }
 
 	        return tween;
-	    }]
+	    } ]
 	};
 
     // Animations created synchronously will run synchronously
@@ -7708,7 +7726,7 @@
                     }
                 }
 
-                for (index = timers.length; index--;) {
+                for (index = timers.length; index--; ) {
                     if (timers[index].elem === this && (type == null || timers[index].queue === type)) {
                         timers[index].anim.stop(gotoEnd);
                         dequeue = false;
@@ -7747,7 +7765,7 @@
                 }
 
                 // look for any active animations, and finish them
-                for (index = timers.length; index--;) {
+                for (index = timers.length; index--; ) {
                     if (timers[index].elem === this && timers[index].queue === type) {
                         timers[index].anim.stop(true);
                         timers.splice(index, 1);
@@ -8006,7 +8024,7 @@
 
                         // oldIE doesn't update selected after form reset (#2551)
                         if ((option.selected || i === index) &&
-                            // Don't return options that are disabled or in a disabled optgroup
+                        // Don't return options that are disabled or in a disabled optgroup
 							(support.optDisabled ? !option.disabled : option.getAttribute("disabled") === null) &&
 							(!option.parentNode.disabled || !jQuery.nodeName(option.parentNode, "optgroup"))) {
 
@@ -8745,7 +8763,7 @@
     };
 
 
-    var
+    var 
     // Document location
 	ajaxLocParts,
 	ajaxLocation,
@@ -10477,7 +10495,7 @@
 
 
 
-    var
+    var 
     // Map over jQuery in case of overwrite
 	_jQuery = window.jQuery,
 
