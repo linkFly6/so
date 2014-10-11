@@ -6,11 +6,11 @@
 
 >pc端的Sizzle（jQuery选择器引擎）是支持xPath（xml的查找），所以暂时没有考虑过pc端，正因为专注移动端，所以要的是够轻。
 
-###[查看和下载X.js][X.js]
+#######[查看和下载X.js][X.js]
 
 >  
 
-###[linkFly的博客][blog]
+#######[linkFly的博客][blog]
 
 
 [X.js]:https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.1.0.js
@@ -30,7 +30,7 @@ X(xml[,filter])：基于xml字符串生成
 
 下面的代码演示了这些重载：
 
-
+```javascript
         X('<?xml version="1.0" encoding="GBK" ?><linkfly></linkfly>');
         X('<?xml version="1.0" encoding="GBK" ?><linkfly></linkfly>',function(doc){
                 return [doc.documentElement];
@@ -38,7 +38,7 @@ X(xml[,filter])：基于xml字符串生成
         X(document);
         X(document,document.getElementsByTagName('linkFly')[0]);
         X(document,document.getElementsByTagName('linkFly'))
-        
+```     
 
 
 >  
@@ -151,40 +151,3 @@ __虽然xObject.find()提供了使用[节点名称]的查找，但是我仍然�
 >  
 
 ###[linkFly的博客][blog]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Edit By [MaHua](http://mahua.jser.me)
