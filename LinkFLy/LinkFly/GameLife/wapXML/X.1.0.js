@@ -4,7 +4,7 @@
 * http://opensource.org/licenses/mit-license.php
 * Date: 2014-8-24 20:17:18
 */
-; (function (window, undefined) {
+(function (window, undefined) {
     var push = Array.prototype.push,
         splice = Array.prototype.splice,
         indexOf = Array.prototype.indexOf,
@@ -30,7 +30,8 @@
         },
         isXPath = function (xPath) {
             return XType(xPath) === 'string' && xPath != null && (xPath.indexOf('/') !== -1 || xPath.indexOf('[') !== -1 || xPath.indexOf('@') !== -1);
-        };
+        },
+        domParser = new DOMParser();
 
     'Boolean Number String Function Array Date RegExp Object'.split(' ').forEach(function (name) {
         class2type['[object ' + name + ']'] = name.toLowerCase();
@@ -51,24 +52,22 @@
         /// </param>
         /// <returns type="X" />
         var doc = document, add = function (item) {
-            push.call(self, item);
-            self.list.push(X(doc, item));
+            push.call(self, X(doc, item));
         };
         if (xml && xml.constructor === X) return xml;
         if (XType(xml) === 'string') {
             try {
-                doc = (new DOMParser()).parseFromString(xml, 'text/xml');
+                doc = domParser.parseFromString(xml, 'text/xml');
             } catch (e) {
+                //                console.log(e);
             }
-        } else if (xml.nodeType === 9 && xml.documentElement) {
+        } else if (X.isXML(xml))
             doc = xml;
-        }
         var self = {
-            version: 'linkFLy.X.1.0',
+            version: 'linkFLy.X.1.1',
             constructor: X,
             document: doc,
             length: 0,
-            list: [],
             documentElement: doc.documentElement,
             find: function (xPath, context) {
                 /// <summary>
@@ -83,7 +82,7 @@
                 ///     查找上下文
                 /// </param>
                 /// <returns type="X" />
-                return X(context = context || doc, xPath);
+                return X(context || doc, xPath);
             },
             text: function (value) {
                 /// <summary>
@@ -129,12 +128,12 @@
         };
         if (filter) {
             if (filter.nodeType === 1) {//element
-                self.list.push(filter);
+                push.call(self, filter);
                 filter = null;
             } else if (isFunction(filter)) {//fucntion
                 filter = filter.call(doc);
             } else if (isXPath(filter)) { //xpath
-                //webkit || IE>=10    PC - ie<10:selectNodes
+                //webkit || IE>8    PC - ie<10:selectNodes
                 var xResult = new XPathEvaluator(), node, nodeList;
                 nodeList = xResult.evaluate(filter, self.documentElement, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
                 while (node = nodeList.iterateNext()) {
@@ -161,7 +160,7 @@
                 ///     索引
                 /// </param>
                 /// <returns type="X" />
-                return this.list[args[0]];
+                return X(this[args[0]]);
             } ],
             ['slice', function (args) {
                 /// <summary>
@@ -197,12 +196,15 @@
             } ]
         ].forEach(function (array) {
             self[array[0]] = function () {
-                if (!self.length) return X(doc);
+                if (!self.length) return null;
                 return array[1].call(self, arguments);
             };
         });
         //如果需要判定是否是X对象类型，请使用 constructor===X 而不要使用 instanceof()
         return self;
     };
+    X.isXML = function (doc) {
+        return doc && doc.createElement && doc.createElement('P').nodeName === doc.createElement('p').nodeName;
+    };
     window.X = X;
-} (window));
+})(window);
