@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>X.js测试页面</title>
+    <script src="X.1.0.js" type="text/javascript"></script>
+</head>
+<body>
+    <!--
+        <?xml version="1.0" encoding="GBK" ?>
+        <linkfly>
+          <test linkFly="linkFly">linkFly1</test>
+          <test linkFly="linkFly2">linkFly2</test>
+          <github link="https:=//github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.1.0.js">github</github>
+        </linkfly>
+    -->
+    <div id="demo">
+
+    
+    </div>
+    <script type="text/javascript">
+        (function (window) {
+            var xml = '<?xml version="1.0" encoding="gb2312" ?><linkfly><test linkFly="linkFly">linkFly1</test><test linkFly="linkFly2">linkFly2</test><github link="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.1.0.js">github</github></linkfly>',
+                logDOM = document.getElementById('demo'),
+                index = 1,
+                log = function (txt) {
+                    logDOM.innerHTML += ['<div><strong>', index++, '</strong>', txt, '</div>'].join('');
+                };
+            log(X(xml).find('test').text());
+        })(window);
+    </script>
+</body>
+</html>
