@@ -52,7 +52,12 @@
         /// </param>
         /// <returns type="X" />
         var doc = document, add = function (item) {
-            push.call(self, X(doc, item));
+            if (isArrayLike(item))
+                each.call(item, function (elem) {
+                    add(elem);
+                });
+            else if (item.nodeType)
+                push.call(self, item);
         };
         if (xml && xml.constructor === X) return xml;
         if (XType(xml) === 'string') {
@@ -128,12 +133,12 @@
         };
         if (filter) {
             if (filter.nodeType === 1) {//element
-                push.call(self, filter);
+                add(filter);
                 filter = null;
             } else if (isFunction(filter)) {//fucntion
                 filter = filter.call(doc);
             } else if (isXPath(filter)) { //xpath
-                //webkit || IE>8    PC - ie<10:selectNodes
+                //webkit || IE>8    if you want to support IE<=8 : selectNodes
                 var xResult = new XPathEvaluator(), node, nodeList;
                 nodeList = xResult.evaluate(filter, self.documentElement, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
                 while (node = nodeList.iterateNext()) {
@@ -161,7 +166,7 @@
                 /// </param>
                 /// <returns type="X" />
                 return X(this[args[0]]);
-            } ],
+            }],
             ['slice', function (args) {
                 /// <summary>
                 ///     1: 截取X对象中指定开始索引到结束索引的X对象，返回的是一个全新的X对象
@@ -175,7 +180,7 @@
                 /// </param>
                 /// <returns type="X" />
                 return X(doc, slice.call(this.list, args[0] || 0, args[1] || this.list.length - 1));
-            } ],
+            }],
             ['splice', function (args) {
                 /// <summary>
                 ///     1: 参考数组splice方法 - 向/从X对象中添加/删除项目，然后返回被删除的项目
@@ -192,8 +197,8 @@
                 /// </param>
                 /// <returns type="X" />
                 var items = [args[0] || 0, args[1] || 0].concat(slice.call(args, 2));
-                return X(doc, splice.apply(this.list, items));
-            } ]
+                return X(doc, splice.apply(this, items));
+            }]
         ].forEach(function (array) {
             self[array[0]] = function () {
                 if (!self.length) return null;
