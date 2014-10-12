@@ -60,6 +60,7 @@
                 push.call(self, item);
         };
         if (xml && xml.constructor === X) return xml;
+        //[object String]
         if (XType(xml) === 'string') {
             try {
                 doc = domParser.parseFromString(xml, 'text/xml');
