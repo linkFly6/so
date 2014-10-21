@@ -177,7 +177,7 @@
             var index = Number(key);
             if (index >= 0)
                 return array[index];
-            return object[key] ? object[key] : match;
+            return object[key]!==undefined ? object[key] : match;
         });
     }
 
