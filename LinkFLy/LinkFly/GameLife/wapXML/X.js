@@ -11,6 +11,7 @@
         slice = Array.prototype.slice,
         String = Object.prototype.toString,
         document = window.document,
+        xmlDocument = document,
         each = Array.prototype.forEach,
         class2type = {},
         XType = function (obj) {
@@ -51,7 +52,7 @@
         ///     过滤，默认(false)并不过滤，true则过滤html的&gt;&lt;标签，也可以传递一个函数作为过滤函数，函数最终必须返回一个良好的Document或xml字符串标签
         /// </param>
         /// <returns type="X" />
-        var doc = document, add = function (item) {
+        var doc = xmlDocument, add = function (item) {
             if (isArrayLike(item))
                 each.call(item, function (elem) {
                     add(elem);
@@ -63,17 +64,18 @@
         //[object String]
         if (XType(xml) === 'string') {
             try {
-                doc = domParser.parseFromString(xml, 'text/xml');
+                doc = xmlDocument = domParser.parseFromString(xml, 'text/xml');
             } catch (e) {
                 //                console.log(e);
             }
-        } else if (X.isXML(xml))
-            doc = xml;
+        } else if (X.isXML(xml)) {
+            doc = xmlDocument = xml;
+        }
         var self = {
             version: 'linkFLy.X.1.1',
             constructor: X,
             document: doc,
-            length: 0,
+            length: 0,//注意这个length是映射到element上的，而XML DOM并不会纳入
             documentElement: doc.documentElement,
             find: function (xPath, context) {
                 /// <summary>
@@ -130,6 +132,20 @@
                 }
                 var first = self[0];
                 return first && first.getAttribute && first.getAttribute(attr) || '';
+            },
+            each: function (fn) {
+                /// <summary>
+                ///     1: 循环X对象中的每项（并不含XML DOM）
+                ///     &#10;    1.1 - each(fn)：获取
+                /// </summary>
+                /// <param name="fn" type="Function">
+                ///     每次循环要执行的函数
+                /// </param>
+                /// <returns type="X" />
+                if (!isFunction(fn)) return;
+                for (var i = 0, len = self.length; i < len; i++)
+                    if (fn.call(self[i], self[i], i, doc) === false) break;
+                return self;
             }
         };
         if (filter) {
@@ -139,12 +155,7 @@
             } else if (isFunction(filter)) {//fucntion
                 filter = filter.call(doc);
             } else if (isXPath(filter)) { //xpath
-                //webkit || IE>8    if you want to support IE<=8 : selectNodes
-                var xResult = new XPathEvaluator(), node, nodeList;
-                nodeList = xResult.evaluate(filter, self.documentElement, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-                while (node = nodeList.iterateNext()) {
-                    add(node);
-                }
+                add(X.find(filter, self.documentElement));
                 filter = null;
             } else {
                 //dom tag
@@ -211,6 +222,14 @@
     };
     X.isXML = function (doc) {
         return doc && doc.createElement && doc.createElement('P').nodeName === doc.createElement('p').nodeName;
+    };
+    X.find = function (xPath, document) {
+        //webkit || IE>8    if you want to support IE<=8 : selectNodes
+        var xResult = new XPathEvaluator(), node, nodeList = [];
+        nodeList = xResult.evaluate(filter, window.document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+        while (node = nodeList.iterateNext())
+            nodeList.push(node);
+        return nodeList;
     };
     window.X = X;
 })(window);

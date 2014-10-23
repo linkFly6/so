@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>X.js测试页面</title>
-    <script src="X.1.0.js" type="text/javascript"></script>
+    <script src="X.js" type="text/javascript"></script>
 </head>
 <body>
     <!--
@@ -16,8 +16,6 @@
          
     -->
     <div id="demo">
-
-    
     </div>
     <script type="text/javascript">
         (function (window) {
@@ -27,7 +25,8 @@
                 log = function (txt) {
                     logDOM.innerHTML += ['<div><strong>', index++, '</strong>', txt, '</div>'].join('');
                 };
-            log(X(xml).find('test').text());
+            var doc = X(xml);
+            log(doc.find('test').text());
         })(window);
     </script>
 </body>
