@@ -4,7 +4,7 @@
 
 >因为经常和xml打交道，移动端用的Zepto，Zepto没有支持xml，于是决定自己编写一个简单的操作xml的类库。
 
->pc端的Sizzle（jQuery选择器引擎）是支持xPath（xml的查找），所以暂时没有考虑过pc端，正因为专注移动端，所以要的是够轻。
+>暂时没有考虑过pc端，正因为专注移动端，所以要的是够轻。
 
 ######[查看和下载X.js][X.js]
 
@@ -133,6 +133,14 @@ __虽然xObject.find()提供了使用[节点名称]的查找，但是我仍然�
 
 
 ##更新日志
+>####Oct 23, 2014
+* 修正一些bug
+* 添加了静态方法：X.find(xPath,context) - 静态查找
+* 发现问题：XML DOM的操作和HTML DOM的环境并不相同，所以不让让Element上下文环境断开是个问题，如果想要解决这种问题，则需要把API给断开：
+	* 查找方法X(document[,xPath])、XObject.find(xPath)等依赖上下文环境，所以API挂在X对象原型上
+	* 操作元素方法xObject.text([value])、xObject.attr(name,[value])等方法不依赖上下文，所以可以调整为静态方法，但是API表现并不太好
+	* 或者是，提供有一套不会断开上下文的API
+
 
 >####Oct 12, 2014
 * 添加了静态方法：X.isXML()判定XML DOM。

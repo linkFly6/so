@@ -223,10 +223,10 @@
     X.isXML = function (doc) {
         return doc && doc.createElement && doc.createElement('P').nodeName === doc.createElement('p').nodeName;
     };
-    X.find = function (xPath, document) {
+    X.find = function (xPath, context) {
         //webkit || IE>8    if you want to support IE<=8 : selectNodes
         var xResult = new XPathEvaluator(), node, nodeList = [];
-        nodeList = xResult.evaluate(filter, window.document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+        nodeList = xResult.evaluate(filter, context, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
         while (node = nodeList.iterateNext())
             nodeList.push(node);
         return nodeList;
