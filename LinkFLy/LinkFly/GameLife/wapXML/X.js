@@ -11,7 +11,6 @@
         slice = Array.prototype.slice,
         String = Object.prototype.toString,
         document = window.document,
-        xmlDocument = document,
         each = Array.prototype.forEach,
         class2type = {},
         XType = function (obj) {
@@ -32,7 +31,8 @@
         isXPath = function (xPath) {
             return XType(xPath) === 'string' && xPath != null && (xPath.indexOf('/') !== -1 || xPath.indexOf('[') !== -1 || xPath.indexOf('@') !== -1);
         },
-        domParser = new DOMParser();
+        domParser = new DOMParser(),
+        nullFn = function () { };
 
     'Boolean Number String Function Array Date RegExp Object'.split(' ').forEach(function (name) {
         class2type['[object ' + name + ']'] = name.toLowerCase();
@@ -52,7 +52,7 @@
         ///     过滤，默认(false)并不过滤，true则过滤html的&gt;&lt;标签，也可以传递一个函数作为过滤函数，函数最终必须返回一个良好的Document或xml字符串标签
         /// </param>
         /// <returns type="X" />
-        var doc = xmlDocument, add = function (item) {
+        var doc = document, add = function (item) {
             if (isArrayLike(item))
                 each.call(item, function (elem) {
                     add(elem);
@@ -64,18 +64,18 @@
         //[object String]
         if (XType(xml) === 'string') {
             try {
-                doc = xmlDocument = domParser.parseFromString(xml, 'text/xml');
+                doc = domParser.parseFromString(xml, 'text/xml');
             } catch (e) {
                 //                console.log(e);
             }
         } else if (X.isXML(xml)) {
-            doc = xmlDocument = xml;
+            doc = xml;
         }
         var self = {
             version: 'linkFLy.X.1.1',
             constructor: X,
             document: doc,
-            length: 0,//注意这个length是映射到element上的，而XML DOM并不会纳入
+            length: 1,
             documentElement: doc.documentElement,
             find: function (xPath, context) {
                 /// <summary>
@@ -139,12 +139,12 @@
                 ///     &#10;    1.1 - each(fn)：获取
                 /// </summary>
                 /// <param name="fn" type="Function">
-                ///     每次循环要执行的函数
+                ///     每次循环要执行的函数，该函数this指向当前循环的XML元素（Element），第一个参数是该元素的X对象封装，第二个是索引，第三个整个XML文档的上下文
                 /// </param>
                 /// <returns type="X" />
                 if (!isFunction(fn)) return;
                 for (var i = 0, len = self.length; i < len; i++)
-                    if (fn.call(self[i], self[i], i, doc) === false) break;
+                    if (fn.call(self[i], self.eq(i), i, doc) === false) return false;
                 return self;
             }
         };
@@ -166,7 +166,8 @@
                     add(item);
                 });
             }
-        }
+        } else
+            self.length = document === doc ? 1 : 0;
         [
             ['eq', function (args) {
                 /// <summary>
@@ -177,7 +178,7 @@
                 ///     索引
                 /// </param>
                 /// <returns type="X" />
-                return X(this[args[0]]);
+                return X(self.document, this[args[0]]);
             }],
             ['slice', function (args) {
                 /// <summary>
@@ -221,10 +222,28 @@
         return self;
     };
     X.isXML = function (doc) {
-        return doc && doc.createElement && doc.createElement('P').nodeName === doc.createElement('p').nodeName;
+        /// <summary>
+        ///    X.isXML(doc) -  检测一个Document对象是否是XML Document
+        /// </summary>
+        /// <param name="doc" type="Document">
+        ///     要检测的XML Document
+        /// </param>
+        /// <returns type="Array" />
+        return doc && doc.createElement && doc.createElement('P').nodeName !== doc.createElement('p').nodeName;
     };
-    X.find = function (xPath, context) {
+    X.find = function ( ) {
+        /// <summary>
+        ///     X.find(xPath,context) - 根据上下文（context,因为XML DOM环境不同于HTML DOM，务必给定）查找XML元素
+        /// </summary>
+        /// <param name="xPath" type="String">
+        ///     xPath
+        /// </param>
+        /// <param name="context" type="Document">
+        ///     XML DOM，务必给定
+        /// </param>
+        /// <returns type="Array" />
         //webkit || IE>8    if you want to support IE<=8 : selectNodes
+        if (!isXPath(xPath) || x.isXML(context)) return [];
         var xResult = new XPathEvaluator(), node, nodeList = [];
         nodeList = xResult.evaluate(filter, context, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
         while (node = nodeList.iterateNext())
