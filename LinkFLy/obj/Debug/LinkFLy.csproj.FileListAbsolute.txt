@@ -8,3 +8,8 @@ D:\Git\linkfly.so\LinkFLy\bin\LinkFLy.pdb
 D:\Git\linkfly.so\LinkFLy\obj\Debug\LinkFLy.csprojResolveAssemblyReference.cache
 D:\Git\linkfly.so\LinkFLy\obj\Debug\LinkFLy.dll
 D:\Git\linkfly.so\LinkFLy\obj\Debug\LinkFLy.pdb
+F:\Github\linkfly.so\LinkFLy\bin\LinkFLy.dll
+F:\Github\linkfly.so\LinkFLy\bin\LinkFLy.pdb
+F:\Github\linkfly.so\LinkFLy\obj\Debug\LinkFLy.csprojResolveAssemblyReference.cache
+F:\Github\linkfly.so\LinkFLy\obj\Debug\LinkFLy.dll
+F:\Github\linkfly.so\LinkFLy\obj\Debug\LinkFLy.pdb

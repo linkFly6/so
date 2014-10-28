@@ -2,18 +2,17 @@
 
 #X.js使用文档
 
->因为经常和xml打交道，移动端用的Zepto，Zepto没有支持xml，于是决定自己编写一个简单的操作xml的类库。
+>因为经常和xml打交道，移动端用的Zepto，Zepto没有支持xml，于是决定自己编写一个简单的操作xml的类库。暂时没有考虑过pc端，正因为专注移动端，所以要的是够轻。
+X.js于1.2版本中被重写，替换成了全新的工作模型。
 
->暂时没有考虑过pc端，正因为专注移动端，所以要的是够轻。
-
-######[查看和下载X.js][X.js]
-
->  
-
-######[linkFly的博客][blog]
+__[查看和下载X.js][X.js]__
 
 
-[X.js]:https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.1.0.js
+
+__[linkFly的博客][blog]__
+
+
+[X.js]:https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.js
 [blog]:http://www.cnblogs.com/silin6/
 
 
@@ -23,21 +22,19 @@
 ###X(xml, filter)
 >我们的工作对象，就是X。它有4个重载，filter参数表示过滤条件，它是一个过滤函数，this指向当前的给定的xml document（默认为当前document），返回一组NodeList，将根据这组nodeList生成X对象：
 X(xml[,filter])：基于xml字符串生成
-######X(document[,filter])：基于xml document对象
-######X(document[,xPath])：基于document，并允许给定的xPath生成
-######X(document[,Element])：基于document，并允许给定的Element生成
-######X(document[,NodeList])：基于document，并允许给定的NodesList生成
+__X(xml)：基于xml字符串生成__
+__X(document[,xPath])：基于document对象生成，并可以根据指定的xPath生成__
+__X(Element[,xPath])：基于document，并可以根据指定的xPath生成__
+__X(NodeList)：基于NodeList生成__
+
 
 下面的代码演示了这些重载：
 
 ```javascript
         X('<?xml version="1.0" encoding="GBK" ?><linkfly></linkfly>');
-        X('<?xml version="1.0" encoding="GBK" ?><linkfly></linkfly>',function(doc){
-                return [doc.documentElement];
-        });
-        X(document);
-        X(document,document.getElementsByTagName('linkFly')[0]);
-        X(document,document.getElementsByTagName('linkFly'))
+        X(document,'hello/world');
+        X(document.getElementsByTagName('linkFly')[0],'hello');
+        X(document.getElementsByTagName('linkFly'));
 ```     
 
 
@@ -52,18 +49,16 @@ X(xml[,filter])：基于xml字符串生成
 
 >  
 
-###xObject.find(xPath)
->在X对象下根据xPath（或节点名称）查找节点，context用于重新修正上下文，它的重载如下：
+###xObject.find(xPath[,context])
+>在X对象下根据xPath（或节点名称）查找节点，context用于重新修正查找文，它的重载如下：
 ######find(xPath[,context])：基于xpath查找
-######find(tag[,context])：基于节点名称查找，并不支持复杂的节点查找
-
-__虽然xObject.find()提供了使用[节点名称]的查找，但是我仍然不建议这么做，为此是性能的牺牲，并且它并不强大__
+######<s>find(tag[,context])：基于节点名称查找，并不支持复杂的节点查找(不再支持)</s>
 
 下面的代码演示了它：
 
 ```javascript
         X(document).find('/DOCUMENT/linkFly');
-        X(document).find('linkFly');
+        X(document).find('linkFly',document.getElementsByTagName('demo'));
 ```
 
 ###xObject.text([value])
@@ -74,7 +69,7 @@ __虽然xObject.find()提供了使用[节点名称]的查找，但是我仍然�
 下面的代码演示了它的设置和获取
 
 ```javascript
-        X(document).find('linkFly').text('hello').text();//return hello
+        X(document).find('linkFly').text('hello').text();//output hello
 ```
 
 
@@ -86,7 +81,7 @@ __虽然xObject.find()提供了使用[节点名称]的查找，但是我仍然�
 颇为遗憾，它并不支持批量属性值的获取和设置，下面的代码演示了它的设置和获取：
 
 ```javascript
-        X(document).find('linkFly').attr('name','linkFly').attr('name');//return linkFly
+        X(document).find('linkFly').attr('name','linkFly').attr('name');//output linkFly
 ```
 
 ###xObject.eq(index)
@@ -110,7 +105,7 @@ __虽然xObject.find()提供了使用[节点名称]的查找，但是我仍然�
 
 ###xObject.splice(index,howmany,element1,.....,elementX)
 >增删改`X对象`,请参阅`Array.prototype.splice`，它的操作会影响当前X对象，并返回被操作（删除）后的X对象。
-
+它返回被删除的X对象的实例
 ```javascript
         X(document).find('linkFly').splice(1); 
         X(document).find('linkFly').splice(1,2); 
@@ -124,14 +119,17 @@ __虽然xObject.find()提供了使用[节点名称]的查找，但是我仍然�
 
 >######xObject[index]：获取X对象实例中，指定索引的节点（Element）对象
 
->######xObject.document：获取X对象实例的上下文(XML DOM)
-
->######xObject.documentElement：获取X对象中上下文(XML DOM)的根节点(documentElement)
-
 >######xObject.length：获取X对象实例的长度
 
-###工作核心
->因为浏览器中HTML DOM直接挂载在BOM（window）下，而XML生成的Document如何处理很棘手，因为XML查询的底层API`XPathEvaluator.evaluate`第二个参数就是查询的上下文，也就是XML DOM，但是浏览器默认的document是HTML DOM。
+###思考
+
+>2014-10-29 00:34:24
+深入了解`XPathEvaluator.evaluate()`之后发现第二个参数__不仅仅可以使用document，也可以使用element__，于是不再依赖查询上下文。
+>同时测试了`XPathEvaluator.evaluate()`、`document.evaluate()`的正确使用方法，过去对这些API有一些错误的见解，现已纠正。
+X.js现在终于和自己预期的功能一致了。
+>  
+
+><s>因为浏览器中HTML DOM直接挂载在BOM（window）下，而XML生成的Document如何处理很棘手，因为XML查询的底层API`XPathEvaluator.evaluate`第二个参数就是查询的上下文，也就是XML DOM，但是浏览器默认的document是HTML DOM。
 
 >这也就出现了一个问题：__查询的上下文会断裂__。
 
@@ -145,25 +143,30 @@ __虽然xObject.find()提供了使用[节点名称]的查找，但是我仍然�
         linkFly = X(elem);
 ```
 
->所以，在使用了某些曝露了XML Element的API之后，例如X.prototype.slice()、X.prototype.splice()、X.prototype.each()，后续请使用X.find(xPath, context)来查找，或者使用X对象的构造函数X(document[,NodeList])来重建X对象查找。
+>所以，在使用了某些曝露了XML Element的API之后，例如X.prototype.slice()、X.prototype.splice()、X.prototype.each()，后续请使用X.find(xPath, context)来查找，或者使用X对象的构造函数X(document[,NodeList])来重建X对象查找。</s>
 
 ##更新日志
+>####Oct 29,2014
+* 移除属性 `X.prototype.document`、`X.prototype.documentElement`，找到解决方案可以无需依赖查询上下文
+* 重写X对象，调整了X对象结构，大幅度优化内部逻辑，代码更加优质，内存更加合理，解耦依赖关系
+* 强化`X.find(xPath,context)`查询方法
+
 
 >####Oct 24, 2014
-* 考虑到移动端性能瓶颈和复杂环境，决定还是移除xmlDocument变量针对上一次Document保留的缓存
+* <s>考虑到移动端性能瓶颈和复杂环境，决定还是移除xmlDocument变量针对上一次Document保留的缓存
 * 强化静态方法：X.find(xPath,context)
 * 对于上下文断开的问题，以异常结果的方式兼容：
     * 因为XML的查找无法根据指定的（节点）范围内查找，所以提倡在X对象链上进行操作，不推荐直接获取XML Element操作
-	* `X.prototype.each()`方法委托的匿名函数，第一个参数从XML Element调整为X对象，而this仍然指向当前循环的XML Element
+	* `X.prototype.each()`方法委托的匿名函数，第一个参数从XML Element调整为X对象，而this仍然指向当前循环的XML Element</s>
 
 
 >####Oct 23, 2014
 * 修正一些bug
 * 添加了静态方法：`X.find(xPath,context)` - 静态查找
-* 发现问题：XML DOM的操作和HTML DOM的环境并不相同，所以不让让Element上下文环境断开是个问题，如果想要解决这种问题，则需要把API给断开：
+* <s>发现问题：XML DOM的操作和HTML DOM的环境并不相同，所以不让让Element上下文环境断开是个问题，如果想要解决这种问题，则需要把API给断开：
 	* 查找方法X(document[,xPath])、XObject.find(xPath)等依赖上下文环境，所以API挂在X对象原型上
 	* 操作元素方法xObject.text([value])、xObject.attr(name,[value])等方法不依赖上下文，所以可以调整为静态方法，但是API表现并不太好
-	* 或者是，提供有一套不会断开上下文的API
+	* 或者是，提供有一套不会断开上下文的API</s>
 
 
 >####Oct 12, 2014
@@ -183,16 +186,14 @@ __虽然xObject.find()提供了使用[节点名称]的查找，但是我仍然�
 ##关于
 
 
-######[查看和下载X.js][X.js]
+__[查看和下载X.js][X.js]__
 
->  
-
-######[linkFly的博客][blog]
+__[linkFly的博客][blog]__
 
 ##未来想法
 * __支持JSONP__
 * __慎重考虑是否支持ajax__
-* 内部结构需要重写，修正instenceOf，并且优化内存消耗
+* <s>内部结构需要重写，修正instenceOf，并且优化内存消耗</s>[已完成]
 * 支持AMD
 * 内部类型判定更加的简洁一点
 * 出一版兼容IE<=8的版本
