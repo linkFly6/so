@@ -6,59 +6,46 @@
 </head>
 <body>
     <!--
-<?xml version="1.0" encoding="GBK" ?>
-<linkfly>
-  <test linkFly="linkFly">
-    <txt>linkFly1</txt>
-  </test>
-  <test linkFly="linkFly2">
-    <txt>linkFly2</txt>
-  </test>
-  <github link="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.1.0.js">github</github>
-</linkfly>
+        <?xml version="1.0" encoding="GBK" ?>
+        <linkfly>
+          <test linkFly="linkFly">
+            <txt>linkFly1</txt>
+            <attr name="linkFly attr1" />
+          </test>
+          <test linkFly="linkFly2">
+            <txt>linkFly2</txt>
+            <attr name="linkFly attr2" />
+          </test>
+          <github link="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.js">github</github>
+        </linkfly>
     -->
     <div id="demo">
     </div>
     <script type="text/javascript">
         (function (window) {
-            var xml = '<?xml version="1.0" encoding="GBK" ?><linkfly><test linkFly="linkFly"><txt>linkFly1</txt></test><test linkFly="linkFly2"><txt>linkFly2</txt></test><github link="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.1.0.js">github</github></linkfly>',
+            var xml = '<?xml version="1.0" encoding="GBK" ?><linkfly><test linkFly="linkFly"><txt>linkFly1</txt><attr name="linkFly attr1" /></test><test linkFly="linkFly2"><txt>linkFly2</txt><attr name="linkFly attr2" /></test><github link="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.1.0.js">github</github></linkfly>',
                 logDOM = document.getElementById('demo'),
                 index = 1,
                 log = function (txt) {
-                    logDOM.innerHTML += ['<div><strong>', index++, '</strong>', txt, '</div>'].join('');
+                    logDOM.innerHTML += ['<div><strong>', index++, '</strong> - ', txt, '</div>'].join('');
                 };
-            var doc = X(xml),
-                testDoc = doc.document,
-                testNodes = testDoc.getElementsByTagName('test'),
-                nodeList,
-                xPathEvaluator = new XPathEvaluator(),
+            var x = X(xml),
                 node;
-            log(doc.find('test').text());
-            //在节点下查询必须从document下查node
-            nodeList = testDoc.evaluate('txt', testNodes[0], null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-            while (node = nodeList.iterateNext())
-                log(node);
-            //在test节点下查询
-            nodeList = xPathEvaluator.evaluate('txt', testNodes[0], null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-            while (node = nodeList.iterateNext())
-                log(node);
-
-            //在节点下查询必须从document下查node，第二个参数为null则抛异常
-            nodeList = testDoc.evaluate('txt', null, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-            while (node = nodeList.iterateNext())
-                log(node);
-
-
-            //在document下查询
-            nodeList = xPathEvaluator.evaluate('txt', testDoc, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-            while (node = nodeList.iterateNext())
-                log(node);
-
-            //但是第二个参数是null的话，则直接报错
-            nodeList = xPathEvaluator.evaluate('txt', null, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-            while (node = nodeList.iterateNext())
-                log(node);
-
+            log('<span style="color:red;">x.length： </span>' + x.length);
+            log('<span style="color:red;">x.find("/linkfly/test/txt").text()： </span>' + x.find('/linkfly/test/txt').text());
+            log('<span style="color:red;">x.find("linkfly/test").length： </span>' + x.find('linkfly/test').length);
+            log('<span style="color:red;">x.find("linkfly/test/attr").eq(1).attr()： </span>' + x.find("linkfly/test/attr").eq(1).attr('name'));
+            log('<span style="color:red;">X(x[0]).length： </span>' + X(x[0]).length);
+            log('<span style="color:red;">x.find("linkfly/github").attr("link")： </span>' + x.find('linkfly/github').attr('link'));
+            log('<span style="color:red;">x.find("linkfly").find("test").slice(0)： </span>' + x.find('linkfly').find('test').slice(0).length);
+            log('<span style="color:red;">x.find("linkfly").find("test").splice(0)： </span>' + x.find('linkfly').find('test').splice(0).length);
+            log('<span style="color:red;">x.find("linkfly").find("test").splice(0,1)： </span>' + x.find('linkfly').find('test').splice(0, 1).length);
+            x.find('linkfly/test').each(function (elem, i) {
+                log('<span style="color:red;">X.prototype.each  set/get text() - ' + i + ' ： </span>' + X(elem).find('txt').text(i).text());
+            });
+            x.find('linkfly/test').each(function (elem, i) {
+                log('<span style="color:red;">X.prototype.each  set/get attr() - ' + i + ' ： </span>' + X(elem).find('txt').attr('hoho', i).attr('hoho'));
+            });
 
         })(window);
     </script>
