@@ -175,7 +175,7 @@
         console.group('第七种 - 最简单的实现');
         var demo = new List();//只是需要new
         demo.add('List - add()');
-        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;'); //但是他们仍然不相等
+        console.log('demo instanceof List ： %c' + (demo instanceof List), 'color:blue;'); 
         console.log('demo.constructor === List ：%c' + (demo.constructor === List), 'color:blue');
         console.log('[ ' + demo[0] + ' , ' + demo[1] + ' ]');
         console.log('length：' + demo.length);

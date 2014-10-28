@@ -5,10 +5,12 @@
 * Date: 2014-8-24 20:17:18
 */
 (function (window, undefined) {
+    'use strcit';
     var push = Array.prototype.push,
         splice = Array.prototype.splice,
         indexOf = Array.prototype.indexOf,
         slice = Array.prototype.slice,
+        forEach = Array.prototype.forEach,
         String = Object.prototype.toString,
         document = window.document,
         each = Array.prototype.forEach,
@@ -26,13 +28,55 @@
                 return true;
             if (obj.nodeType === 1 && length)
                 return true;
-            return type === 'array' || type !== 'function' && (length === 0 || typeof length === 'number' && length > 0 && (length - 1) in obj);
-        },
-        isXPath = function (xPath) {
-            return XType(xPath) === 'string' && xPath != null && (xPath.indexOf('/') !== -1 || xPath.indexOf('[') !== -1 || xPath.indexOf('@') !== -1);
+            // invalid 'in' operand obj，in 操作符对字符串无效
+            return type === 'array' || type !== 'function' && type !== 'string' && (length === 0 || typeof length === 'number' && length > 0 && (length - 1) in obj);
         },
         domParser = new DOMParser(),
-        nullFn = function () { };
+        xResult = new XPathEvaluator(),
+        find = function (xPath, context, document) {
+            /// <summary>
+            ///     X.find(xPath,context,document) - 根据上下文（document,因为XML DOM环境不同于HTML DOM，务必给定）查找XML元素
+            /// </summary>
+            /// <param name="xPath" type="String">
+            ///     xPath
+            /// </param>
+            /// <param name="context" type="Element">
+            ///     对应要计算的节点集
+            /// </param>
+            /// <param name="document" type="Document">
+            ///     XML查找上下文，务必给定
+            /// </param>
+            /// <returns type="Array" />
+            //webkit || IE>8    if you want to support IE<=8 : selectNodes
+            //这里的XPathEvaluator对象是否可以提升？
+            var nodeList = [], isStr = XType(xPath) === 'string';
+            if (!(isStr && context)) return nodeList;
+            if (isArrayLike(context) && isStr) {
+                forEach.call(context, function (elem) {
+                    nodeList.concat(find(xPath, elem, document));
+                });
+                return nodeList;
+            }
+            var node, nodeType = context && context.nodeType;
+            if (!isStr || !(nodeType === 1 || nodeType === 9)) return nodeList;
+            if (!document) document = context, context = null;
+            try {
+                result = document.evaluate(xPath, context, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                while (node = result.iterateNext())
+                    nodeList.push(node);
+            } catch (e) {
+
+            }
+            return nodeList;
+        },
+        addElem = function (target, item) {
+            if (isArrayLike(item))
+                each.call(item, function (elem) {
+                    addElem(target, elem);
+                });
+            else if (item.nodeType)
+                push.call(target, item);
+        };
 
     'Boolean Number String Function Array Date RegExp Object'.split(' ').forEach(function (name) {
         class2type['[object ' + name + ']'] = name.toLowerCase();
@@ -52,15 +96,10 @@
         ///     过滤，默认(false)并不过滤，true则过滤html的&gt;&lt;标签，也可以传递一个函数作为过滤函数，函数最终必须返回一个良好的Document或xml字符串标签
         /// </param>
         /// <returns type="X" />
-        var doc = document, add = function (item) {
-            if (isArrayLike(item))
-                each.call(item, function (elem) {
-                    add(elem);
-                });
-            else if (item.nodeType)
-                push.call(self, item);
-        };
-        if (xml && xml.constructor === X) return xml;
+        if (!(this instanceof X))
+            return new X(xml, filter);
+        var doc = document;
+        if (!xml) return (this.document = document, undefined);
         //[object String]
         if (XType(xml) === 'string') {
             try {
@@ -68,107 +107,102 @@
             } catch (e) {
                 //                console.log(e);
             }
-        } else if (X.isXML(xml)) {
+        } else if (X.isXML(xml))
             doc = xml;
-        }
-        var self = {
-            version: 'linkFLy.X.1.1',
-            constructor: X,
-            document: doc,
-            length: 0,
-            documentElement: doc.documentElement,
-            find: function (xPath, context) {
-                /// <summary>
-                ///     1: 基于xpath或标签查找
-                ///     &#10;    1.1 - find(xPath[,context])：基于xpath查找
-                ///     &#10;    1.1 - find(tag[,context])：基于tag查找
-                /// </summary>
-                /// <param name="xPath" type="String">
-                ///     xpath或tag标签（提供tag查找但不推荐，尽量使用xpath，tag查找会查找文档下所有的tag，所以会丢失查找精度）
-                /// </param>
-                /// <param name="context" type="Document">
-                ///     查找上下文
-                /// </param>
-                /// <returns type="X" />
-                return X(context || doc, xPath);
-            },
-            text: function (value) {
-                /// <summary>
-                ///     1: 获取或设置Element中的文本
-                ///     &#10;    1.1 - text()：获取
-                ///     &#10;    1.2 - text(value)：设置
-                /// </summary>
-                /// <param name="value" type="String">
-                ///     获取或设置的值
-                /// </param>
-                /// <returns type="X" />
-                if (!arguments.length && value == undefined) {
-                    var first = self[0];
-                    return (first && first.firstChild && first.firstChild.nodeValue) || '';
-                }
-                if (self.length)
-                    each.call(self, function (item) {
-                        item.firstChild.nodeValue = value;
-                    });
-                return self;
-            },
-            attr: function (attr, value) {
-                /// <summary>
-                ///     1: 获取或设置Element的属性
-                ///     &#10;    1.1 - attr(attr)：获取
-                ///     &#10;    1.2 - attr(attr,value)：设置
-                /// </summary>
-                /// <param name="value" type="String">
-                ///     获取或设置的属性
-                /// </param>
-                /// <returns type="X" />
-                if (arguments.length === 2) {
-                    value = value == undefined ? '' : value;
-                    if (self.length)
-                        each.call(self, function (item) {
-                            item.setAttribute(attr, value);
-                        });
-                    return self;
-                }
-                var first = self[0];
-                return first && first.getAttribute && first.getAttribute(attr) || '';
-            },
-            each: function (fn) {
-                /// <summary>
-                ///     1: 循环X对象中的每项（并不含XML DOM）
-                ///     &#10;    1.1 - each(fn)：获取
-                /// </summary>
-                /// <param name="fn" type="Function">
-                ///     每次循环要执行的函数，该函数this指向当前循环的XML元素（Element），第一个参数是该元素的X对象封装，第二个是索引，第三个整个XML文档的上下文
-                /// </param>
-                /// <returns type="X" />
-                if (!isFunction(fn)) return;
-                for (var i = 0, len = self.length; i < len; i++)
-                    if (fn.call(self[i], self.eq(i), i, doc) === false) return false;
-                return self;
-            }
-        };
+        else if (xml.constructor === X)
+            doc = xml.document;
+        this.document = doc;
         if (filter) {
-            if (filter.nodeType === 1) {//element
-                add(filter);
-                filter = null;
+            if (filter.nodeType === 1 || isArrayLike(filter)) {//element
+                addElem(this, filter, doc);
             } else if (isFunction(filter)) {//fucntion
-                filter = filter.call(doc);
-            } else if (isXPath(filter)) { //xpath
-                add(X.find(filter, self.documentElement));
-                filter = null;
-            } else {
-                //dom tag
-                filter = self.document.getElementsByTagName(filter + '');
-            }
-            if (isArrayLike(filter)) {
-                each.call(filter, function (item) {
-                    add(item);
-                });
+                addElem(this, filter.call(doc));
+            } else if (XType(filter) === 'string') { //xpath
+                if (xml.constructor === X && xml.length && xml[0] !== xml.document)
+                    addElem(this, find(filter, xml, doc));
+                else
+                    addElem(this, find(filter, doc));
             }
         } else
-            self.length = document === doc ? 1 : 0;
-        [
+            push.call(this, doc);
+    };
+
+    X.prototype = {
+        veresion: 'linkFly.X.1.2',
+        constructor: X,
+        length: 0,
+        find: function (xPath, context) {
+            /// <summary>
+            ///     1: 基于xpath或标签查找
+            ///     &#10;    1.1 - find(xPath[,context])：基于xpath查找
+            /// </summary>
+            /// <param name="xPath" type="String">
+            ///     xpath
+            /// </param>
+            /// <param name="context" type="Document">
+            ///     查找上下文
+            /// </param>
+            /// <returns type="X" />
+            return X(context || this, xPath);
+        },
+        text: function (value) {
+            /// <summary>
+            ///     1: 获取或设置Element中的文本
+            ///     &#10;    1.1 - text()：获取
+            ///     &#10;    1.2 - text(value)：设置
+            /// </summary>
+            /// <param name="value" type="String">
+            ///     获取或设置的值
+            /// </param>
+            /// <returns type="X" />
+            if (!arguments.length && value == undefined) {
+                var first = this[0];
+                return (first && first.firstChild && first.firstChild.nodeValue) || '';
+            }
+            if (this.length)
+                each.call(this, function (item) {
+                    item.firstChild.nodeValue = value;
+                });
+            return this;
+        },
+        attr: function (attr, value) {
+            /// <summary>
+            ///     1: 获取或设置Element的属性
+            ///     &#10;    1.1 - attr(attr)：获取
+            ///     &#10;    1.2 - attr(attr,value)：设置
+            /// </summary>
+            /// <param name="value" type="String">
+            ///     获取或设置的属性
+            /// </param>
+            /// <returns type="X" />
+            if (arguments.length === 2) {
+                value = value == undefined ? '' : value;
+                if (this.length)
+                    each.call(this, function (item) {
+                        item.setAttribute(attr, value);
+                    });
+                return this;
+            }
+            var first = this[0];
+            return first && first.getAttribute && first.getAttribute(attr) || '';
+        },
+        each: function (fn) {
+            /// <summary>
+            ///     1: 循环X对象中的每项（并不含XML DOM）
+            ///     &#10;    1.1 - each(fn)：获取
+            /// </summary>
+            /// <param name="fn" type="Function">
+            ///     每次循环要执行的函数，该函数this指向当前循环的XML元素（Element），第一个参数是该元素的X对象封装，第二个是索引，第三个整个XML文档的上下文
+            /// </param>
+            /// <returns type="X" />
+            if (!isFunction(fn)) return;
+            for (var i = 0, len = this.length; i < len; i++)
+                if (fn.call(this[i], this.eq(i), i, doc) === false) return false;
+            return self;
+        }
+    };
+
+    [
             ['eq', function (args) {
                 /// <summary>
                 ///     1: 获取指定索引中的X对象
@@ -212,15 +246,13 @@
                 var items = [args[0] || 0, args[1] || 0].concat(slice.call(args, 2));
                 return X(doc, splice.apply(this, items));
             }]
-        ].forEach(function (array) {
-            self[array[0]] = function () {
-                if (!self.length) return null;
-                return array[1].call(self, arguments);
-            };
-        });
-        //如果需要判定是否是X对象类型，请使用 constructor===X 而不要使用 instanceof()
-        return self;
-    };
+    ].forEach(function (array) {
+        X.prototype[array[0]] = function () {
+            if (!this.length) return null;
+            return array[1].call(this, arguments);
+        };
+    });
+
     X.isXML = function (doc) {
         /// <summary>
         ///    X.isXML(doc) -  检测一个Document对象是否是XML Document
@@ -231,25 +263,6 @@
         /// <returns type="Array" />
         return doc && doc.createElement && doc.createElement('P').nodeName !== doc.createElement('p').nodeName;
     };
-    X.find = function (xPath, context) {
-        /// <summary>
-        ///     X.find(xPath,context) - 根据上下文（context,因为XML DOM环境不同于HTML DOM，务必给定）查找XML元素
-        /// </summary>
-        /// <param name="xPath" type="String">
-        ///     xPath
-        /// </param>
-        /// <param name="context" type="Document">
-        ///     XML DOM，务必给定
-        /// </param>
-        /// <returns type="Array" />
-        //webkit || IE>8    if you want to support IE<=8 : selectNodes
-        //if (/*!isXPath(xPath) ||*/ !X.isXML(context)) return [];
-        //这里的isPath判定会把"text"这种直接查询的class给拦截掉...
-        var xResult = new XPathEvaluator(), node, nodeList = [], result;
-        result = xResult.evaluate(xPath, context, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-        while (node = result.iterateNext())
-            nodeList.push(node);
-        return nodeList;
-    };
+    X.find = find;
     window.X = X;
 })(window);

@@ -6,27 +6,60 @@
 </head>
 <body>
     <!--
-        <?xml version="1.0" encoding="GBK" ?>
-        <linkfly>
-          <test linkFly="linkFly">linkFly1</test>
-          <test linkFly="linkFly2">linkFly2</test>
-          <github link="https:=//github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.1.0.js">github</github>
-        </linkfly>
-
-         
+<?xml version="1.0" encoding="GBK" ?>
+<linkfly>
+  <test linkFly="linkFly">
+    <txt>linkFly1</txt>
+  </test>
+  <test linkFly="linkFly2">
+    <txt>linkFly2</txt>
+  </test>
+  <github link="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.1.0.js">github</github>
+</linkfly>
     -->
     <div id="demo">
     </div>
     <script type="text/javascript">
         (function (window) {
-            var xml = '<?xml version="1.0" encoding="gb2312" ?><linkfly><test linkFly="linkFly">linkFly1</test><test linkFly="linkFly2">linkFly2</test><github link="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.1.0.js">github</github></linkfly>',
+            var xml = '<?xml version="1.0" encoding="GBK" ?><linkfly><test linkFly="linkFly"><txt>linkFly1</txt></test><test linkFly="linkFly2"><txt>linkFly2</txt></test><github link="https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.1.0.js">github</github></linkfly>',
                 logDOM = document.getElementById('demo'),
                 index = 1,
                 log = function (txt) {
                     logDOM.innerHTML += ['<div><strong>', index++, '</strong>', txt, '</div>'].join('');
                 };
-            var doc = X(xml);
+            var doc = X(xml),
+                testDoc = doc.document,
+                testNodes = testDoc.getElementsByTagName('test'),
+                nodeList,
+                xPathEvaluator = new XPathEvaluator(),
+                node;
             log(doc.find('test').text());
+            //在节点下查询必须从document下查node
+            nodeList = testDoc.evaluate('txt', testNodes[0], null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+            while (node = nodeList.iterateNext())
+                log(node);
+            //在test节点下查询
+            nodeList = xPathEvaluator.evaluate('txt', testNodes[0], null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+            while (node = nodeList.iterateNext())
+                log(node);
+
+            //在节点下查询必须从document下查node，第二个参数为null则抛异常
+            nodeList = testDoc.evaluate('txt', null, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+            while (node = nodeList.iterateNext())
+                log(node);
+
+
+            //在document下查询
+            nodeList = xPathEvaluator.evaluate('txt', testDoc, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+            while (node = nodeList.iterateNext())
+                log(node);
+
+            //但是第二个参数是null的话，则直接报错
+            nodeList = xPathEvaluator.evaluate('txt', null, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+            while (node = nodeList.iterateNext())
+                log(node);
+
+
         })(window);
     </script>
 </body>
