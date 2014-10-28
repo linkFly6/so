@@ -75,7 +75,7 @@
             version: 'linkFLy.X.1.1',
             constructor: X,
             document: doc,
-            length: 1,
+            length: 0,
             documentElement: doc.documentElement,
             find: function (xPath, context) {
                 /// <summary>
@@ -231,7 +231,7 @@
         /// <returns type="Array" />
         return doc && doc.createElement && doc.createElement('P').nodeName !== doc.createElement('p').nodeName;
     };
-    X.find = function ( ) {
+    X.find = function (xPath, context) {
         /// <summary>
         ///     X.find(xPath,context) - 根据上下文（context,因为XML DOM环境不同于HTML DOM，务必给定）查找XML元素
         /// </summary>
@@ -243,10 +243,11 @@
         /// </param>
         /// <returns type="Array" />
         //webkit || IE>8    if you want to support IE<=8 : selectNodes
-        if (!isXPath(xPath) || x.isXML(context)) return [];
-        var xResult = new XPathEvaluator(), node, nodeList = [];
-        nodeList = xResult.evaluate(filter, context, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-        while (node = nodeList.iterateNext())
+        //if (/*!isXPath(xPath) ||*/ !X.isXML(context)) return [];
+        //这里的isPath判定会把"text"这种直接查询的class给拦截掉...
+        var xResult = new XPathEvaluator(), node, nodeList = [], result;
+        result = xResult.evaluate(xPath, context, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+        while (node = result.iterateNext())
             nodeList.push(node);
         return nodeList;
     };
