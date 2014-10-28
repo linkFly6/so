@@ -20,10 +20,14 @@ __[linkFly的博客][blog]__
 >  
 
 ###X(xml[,xPath])
->我们的工作对象，就是X。它有4个重载，它可以工作在Document、Element、NodeList上，
+>我们的工作对象，就是X。它有4个重载，它可以工作在Document、Element、NodeList上，它的重载如下：
+
 >__X(xml)：基于xml字符串生成__
+
 >__X(document[,xPath])：基于document对象生成，并可以根据指定的xPath生成__
+
 >__X(Element[,xPath])：基于document，并可以根据指定的xPath生成__
+
 >__X(NodeList)：基于NodeList生成__
 
 
@@ -50,8 +54,11 @@ __[linkFly的博客][blog]__
 
 ###xObject.find(xPath[,context])
 >在X对象下根据xPath（或节点名称）查找节点，context用于重新修正查找文，它总是返回X对象的实例，参数如下：
+
 >__find(xPath[,context])：基于xpath查找__
+
 >__<s>find(tag[,context])：基于节点名称查找，并不支持复杂的节点查找</s>(不再支持)__
+
 
 下面的代码演示了它：
 
@@ -62,7 +69,9 @@ __[linkFly的博客][blog]__
 
 ###xObject.text([value])
 >遵循jQuery的理念，`set all/get one`，它可以`获取/设置`当前节点的值
+
 >__text()：获取(第一个)节点的值__
+
 >__text(value)：设置(所有)节点的值__
 
 下面的代码演示了它的设置和获取
@@ -74,7 +83,9 @@ __[linkFly的博客][blog]__
 
 ###xObject.attr(name,[value])
 >和xObject.text如此的相似，它同样可以`获取/设置`当前节点的属性值
+
 >__attr(name)：获取(第一个)节点对应的属性值__
+
 >__attr(name,value)：设置(所有)节点对应的属性值__
 
 颇为遗憾，它并不支持批量属性值的获取和设置，下面的代码演示了它的设置和获取：
@@ -116,9 +127,9 @@ __[linkFly的博客][blog]__
 ###one more thing
 >X对象还有一些更多的`属性`可能会为你解决某些疑惑
 
->######xObject[index]：获取X对象实例中，指定索引的节点（Element）对象
+>__xObject[index]：获取X对象实例中，指定索引的节点（Element）对象__
 
->######xObject.length：获取X对象实例的长度
+>__xObject.length：获取X对象实例的长度__
 
 ###思考
 
