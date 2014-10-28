@@ -3,3 +3,8 @@ E:\LinkFLy\LinkFLy\bin\LinkFLy.pdb
 E:\LinkFLy\LinkFLy\obj\Debug\ResolveAssemblyReference.cache
 E:\LinkFLy\LinkFLy\obj\Debug\LinkFLy.dll
 E:\LinkFLy\LinkFLy\obj\Debug\LinkFLy.pdb
+D:\Git\linkfly.so\LinkFLy\bin\LinkFLy.dll
+D:\Git\linkfly.so\LinkFLy\bin\LinkFLy.pdb
+D:\Git\linkfly.so\LinkFLy\obj\Debug\LinkFLy.csprojResolveAssemblyReference.cache
+D:\Git\linkfly.so\LinkFLy\obj\Debug\LinkFLy.dll
+D:\Git\linkfly.so\LinkFLy\obj\Debug\LinkFLy.pdb
