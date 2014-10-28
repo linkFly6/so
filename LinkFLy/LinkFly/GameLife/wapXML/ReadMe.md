@@ -44,7 +44,7 @@ __[linkFly的博客][blog]__
 >  
 
 ###X.isXML(doc)
->检测这个document是否是xml DOM，这是一个静态方法
+>检测这个document是否是xml DOM，这是一个静态方法：
 
 ```javascript
         X.isXML(document); //false
@@ -68,13 +68,13 @@ __[linkFly的博客][blog]__
 ```
 
 ###xObject.text([value])
->遵循jQuery的理念，`set all/get one`，它可以`获取/设置`当前节点的值
+>遵循jQuery的理念，`set all/get one`，它可以`获取/设置`当前节点的值：
 
 >__text()：获取(第一个)节点的值__
 
 >__text(value)：设置(所有)节点的值__
 
-下面的代码演示了它的设置和获取
+下面的代码演示了它的设置和获取：
 
 ```javascript
         X(document).find('linkFly').text('hello').text();//output hello
@@ -82,7 +82,7 @@ __[linkFly的博客][blog]__
 
 
 ###xObject.attr(name,[value])
->和xObject.text如此的相似，它同样可以`获取/设置`当前节点的属性值
+>和xObject.text如此的相似，它同样可以`获取/设置`当前节点的属性值：
 
 >__attr(name)：获取(第一个)节点对应的属性值__
 
@@ -115,7 +115,7 @@ __[linkFly的博客][blog]__
 
 ###xObject.splice(index,howmany,element1,.....,elementX)
 >增删改`X对象`,请参阅`Array.prototype.splice`，它的操作会影响当前X对象，并返回被操作（删除）后的X对象。
-它返回被删除的X对象的实例
+它返回被删除的X对象的实例。
 ```javascript
         X(document).find('linkFly').splice(1); 
         X(document).find('linkFly').splice(1,2); 
@@ -147,11 +147,11 @@ X.js现在终于和自己预期的功能一致了。
 
 ><s>所以重新定义了X对象的工作概念——主要是围绕XML DOM展开，上下文要保证不会断开，所以在`X.prototype.each()`中为每个循环项创建新的X对象继续把XML DOM给传递下去，当然这也是不得已的做法。</s>
 
-><s>X对象现在仍然支持下面的构造函数，但它并不会正确的查询到结果：
+><s>X对象现在仍然支持下面的构造函数，但它并不会正确的查询到结果：</s>
 ```javascript
     var elem = document.getElementsByTagName('a'),
         linkFly = X(elem);
-```</s>
+```
 
 ><s>所以，在使用了某些曝露了XML Element的API之后，例如X.prototype.slice()、X.prototype.splice()、X.prototype.each()，后续请使用X.find(xPath, context)来查找，或者使用X对象的构造函数X(document[,NodeList])来重建X对象查找。</s>
 
@@ -201,6 +201,7 @@ __[查看和下载X.js][X.js]__
 __[linkFly的博客][blog]__
 
 ##未来想法
+* 将attr、text调整到静态方法
 * __支持JSONP__
 * __慎重考虑是否支持ajax__
 * <s>内部结构需要重写，修正instenceOf，并且优化内存消耗</s>[已完成]
