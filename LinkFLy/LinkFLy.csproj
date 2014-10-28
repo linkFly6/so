@@ -85,6 +85,7 @@
     <Content Include="LinkFly\GameLife\wapXML\test.htm" />
     <Content Include="LinkFly\GameLife\wapXML\testXML.xml" />
     <Content Include="LinkFly\GameLife\wapXML\X.js" />
+    <Content Include="LinkFly\GameLife\wapXML\X.js对象的思考.html" />
     <Content Include="LinkFly\GameLife\wapXML\X.min.js" />
     <Content Include="LinkFly\MobileAnimated.htm" />
     <Content Include="LinkFly\String.js" />
@@ -108,7 +109,7 @@
     <Folder Include="jQuery\jQuery.LinkFLy\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LinkFly\GameLife\wapXML\ReadMe.md" />
+    <Content Include="LinkFly\GameLife\wapXML\README.md" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
