@@ -10,7 +10,6 @@
         splice = Array.prototype.splice,
         slice = Array.prototype.slice,
         toString = Object.prototype.toString,
-        document = window.document,
         each = Array.prototype.forEach,
         class2type = {},
         XType = function (obj) {
