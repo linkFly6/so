@@ -21,10 +21,10 @@ __[linkFly的博客][blog]__
 
 ###X(xml[,xPath])
 >我们的工作对象，就是X。它有4个重载，它可以工作在Document、Element、NodeList上，
-__X(xml)：基于xml字符串生成__
-__X(document[,xPath])：基于document对象生成，并可以根据指定的xPath生成__
-__X(Element[,xPath])：基于document，并可以根据指定的xPath生成__
-__X(NodeList)：基于NodeList生成__
+>__X(xml)：基于xml字符串生成__
+>__X(document[,xPath])：基于document对象生成，并可以根据指定的xPath生成__
+>__X(Element[,xPath])：基于document，并可以根据指定的xPath生成__
+>__X(NodeList)：基于NodeList生成__
 
 
 下面的代码演示了这些重载：
@@ -49,9 +49,9 @@ __X(NodeList)：基于NodeList生成__
 >  
 
 ###xObject.find(xPath[,context])
->在X对象下根据xPath（或节点名称）查找节点，context用于重新修正查找文，它的重载如下：
-######find(xPath[,context])：基于xpath查找
-######<s>find(tag[,context])：基于节点名称查找，并不支持复杂的节点查找</s>(不再支持)
+>在X对象下根据xPath（或节点名称）查找节点，context用于重新修正查找文，它总是返回X对象的实例，参数如下：
+>__find(xPath[,context])：基于xpath查找__
+>__<s>find(tag[,context])：基于节点名称查找，并不支持复杂的节点查找</s>(不再支持)__
 
 下面的代码演示了它：
 
@@ -62,8 +62,8 @@ __X(NodeList)：基于NodeList生成__
 
 ###xObject.text([value])
 >遵循jQuery的理念，`set all/get one`，它可以`获取/设置`当前节点的值
-######text()：获取(第一个)节点的值
-######text(value)：设置(所有)节点的值
+>__text()：获取(第一个)节点的值__
+>__text(value)：设置(所有)节点的值__
 
 下面的代码演示了它的设置和获取
 
@@ -74,8 +74,8 @@ __X(NodeList)：基于NodeList生成__
 
 ###xObject.attr(name,[value])
 >和xObject.text如此的相似，它同样可以`获取/设置`当前节点的属性值
-######attr(name)：获取(第一个)节点对应的属性值
-######attr(name,value)：设置(所有)节点对应的属性值
+>__attr(name)：获取(第一个)节点对应的属性值__
+>__attr(name,value)：设置(所有)节点对应的属性值__
 
 颇为遗憾，它并不支持批量属性值的获取和设置，下面的代码演示了它的设置和获取：
 
