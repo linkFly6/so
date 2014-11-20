@@ -239,9 +239,9 @@
                 parm = data;
                 data = null;
             }
-            var url = [window.location.href], name;
+            var url = window.location.href, name;
             url = (name = url.indexOf('?')) === -1 ?
-                                    url.substring(name) : ['?'];
+                                     [url, '?'] : url.substring(0, name);
             if (typeof parm === 'string')
                 //url存在?号，则调整
                 param.charAt(0) === '?' ? 0 : url.pop(), url.push(parm);
