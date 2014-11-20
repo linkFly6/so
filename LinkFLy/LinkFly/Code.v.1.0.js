@@ -213,9 +213,72 @@
     //——————————————————————————————————DOMReady结束————————————————————————————————————
 
 
-    //——————————————————————————————————封装一个——————————————————————————————————————
+    //——————————————————————————————————获取URL参数——————————————————————————————————————
 
+    var PageState = {
+        canPush: function () {
+            return !!window.history.pushState;
+        }(),
+        push: function (data, parm) {
+            /// <summary>
+            ///     1: PageState.push(str,object) - 为浏览器追加一组操作历史(history)，注意，为覆盖源浏览器参数
+            ///     &#10;    1.1 - push(parm) - 通过对象格式化得到参数
+            ///     &#10;    1.2 - push(parmStr) - 通过对象字符串得到参数
+            ///     &#10;    1.3 - push(data,parm) - 通过对象格式化得到参数（未来优化）
+            ///     &#10;    1.4 - push(data,parmStr) - 通过对象字符串得到参数（未来优化）
+            ///     &#10;    未来优化方案，能够自动化读取浏览器状态、不再强制覆盖浏览器参数列表，而是类似jQuery.extend()的当前项覆盖
+            /// </summary>
+            /// <param name="data" type="String">
+            ///     摆设...暂时忽略
+            /// </param>
+            /// <param name="parm" type="Object">
+            ///     要push到浏览器参数的对象或URL
+            /// </param>
+            /// <returns type="String" />
+            if (parm === undefined) {
+                parm = data;
+                data = null;
+            }
+            var url = [window.location.href], name;
+            url = (name = url.indexOf('?')) === -1 ?
+                                    url.substring(name) : ['?'];
+            if (typeof parm === 'string')
+                //url存在?号，则调整
+                param.charAt(0) === '?' ? 0 : url.pop(), url.push(parm);
+            else
+                for (name in parm) {
+                    url.push(name, '=', parm[name] === undefined ? '' : parm[name], '&');
+                };
+            url.pop();
+            PageState.canPush && (window.history.pushState(data || {}, document.title, url.join('')))
+        },
+        parm: function (url) {
+            var Parm = function (name) {
+                /// <summary>
+                ///     1: PageState.parm(name) - parm是一个对象，标识是当前url的参数信息，提供动态参数和静态参数的访问
+                ///     &#10;    1.1 - PageState.parm(name) - 动态获取当前url参数，它是实时的，当页面url利用pushState改变url的时候，它同样会更新相应的数据信息
+                ///     &#10;    1.1 - PageState.parm[name] - 静态获取当前url参数，它获取的数据是静态的，在页面初始化的时候就会得到并且未来不会改变
+                /// </summary>
+                /// <param name="name" type="String">
+                ///     要获取的属性
+                /// </param>
+                /// <returns type="String" />
 
+                //通过函数访问则动态获取
+                return (name != null && name !== '' && url.indexOf('?') !== -1
+                    && (name = url.substr(1).match(new RegExp('(^|&)' + name + "=([^&]*)(&|$)"))) != null)
+                ? name[2] : '';
+            }, tmp;
+            //通过对象访问则静态获取
+            url.indexOf('?') !== -1 &&
+                url.substr(1).split('&').forEach(function (str) {
+                    tmp = str.split('=');
+                    Parm[tmp[0]] = decodeURIComponent(tmp[1]);
+                });
+            tmp = null;
+            return Parm;
+        }(window.location.search)
+    };
 
 
 
