@@ -65,6 +65,12 @@
     <Content Include="jQuery\jquery-1.11.1.js" />
     <Content Include="jQuery\jquery-1.7.2.js" />
     <Content Include="jQuery\jquery-2.1.1.js" />
+    <Content Include="jQuery\jQuery.Demo\jQuery.Deferred.html" />
+    <Content Include="jQuery\jQuery.LinkFLy\Callbacks.js" />
+    <Content Include="jQuery\jQuery.LinkFLy\Data.js" />
+    <Content Include="jQuery\jQuery.LinkFLy\Deferred.demo.js" />
+    <Content Include="jQuery\jQuery.LinkFLy\Deferred.js" />
+    <Content Include="jQuery\jQuery.LinkFLy\DOMReady.js" />
     <Content Include="jQuery\Zepto\test.html" />
     <Content Include="jQuery\Zepto\Zepto.1.1.4.js" />
     <Content Include="LinkFly\ArrayLike.js" />
@@ -73,20 +79,22 @@
     <Content Include="LinkFly\Article\jQuery.data.html" />
     <Content Include="LinkFly\Article\jQuery.Deferred.html" />
     <Content Include="LinkFly\Code.v.1.0.js" />
+    <Content Include="LinkFly\Code\Defer\Defer.js" />
     <Content Include="LinkFly\Demo\ArrayLike.htm" />
     <Content Include="LinkFly\Demo\ArrayLike.html" />
     <Content Include="LinkFly\Demo\Data.html" />
     <Content Include="LinkFly\Demo\testAnimate.htm" />
     <Content Include="LinkFly\Extend.js" />
-    <Content Include="LinkFly\GameLife\Round\dataFile10315_4.xml" />
-    <Content Include="LinkFly\GameLife\Round\Index.htm" />
-    <Content Include="LinkFly\GameLife\Round\Round.js" />
-    <Content Include="LinkFly\GameLife\Round\tpl10315.4.xsl" />
-    <Content Include="LinkFly\GameLife\wapXML\test.htm" />
-    <Content Include="LinkFly\GameLife\wapXML\testXML.xml" />
-    <Content Include="LinkFly\GameLife\wapXML\X.js" />
-    <Content Include="LinkFly\GameLife\wapXML\X.js对象的思考.html" />
-    <Content Include="LinkFly\GameLife\wapXML\X.min.js" />
+    <Content Include="LinkFly\Code\DeferJsonp\DeferJsonp.js" />
+    <Content Include="LinkFly\Code\Round\dataFile10315_4.xml" />
+    <Content Include="LinkFly\Code\Round\Index.htm" />
+    <Content Include="LinkFly\Code\Round\Round.js" />
+    <Content Include="LinkFly\Code\Round\tpl10315.4.xsl" />
+    <Content Include="LinkFly\Code\X\test.htm" />
+    <Content Include="LinkFly\Code\X\testXML.xml" />
+    <Content Include="LinkFly\Code\X\X.js" />
+    <Content Include="LinkFly\Code\X\X.js对象的思考.html" />
+    <Content Include="LinkFly\Code\X\X.min.js" />
     <Content Include="LinkFly\MobileAnimated.htm" />
     <Content Include="LinkFly\String.js" />
     <Content Include="LinkFly\testAnimate.htm" />
@@ -105,11 +113,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="jQuery\jQuery.Code\" />
-    <Folder Include="jQuery\jQuery.Demo\" />
-    <Folder Include="jQuery\jQuery.LinkFLy\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LinkFly\GameLife\wapXML\README.md" />
+    <Content Include="LinkFly\Code\X\README.md" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
