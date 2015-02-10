@@ -74,27 +74,27 @@
     <Content Include="jQuery\Zepto\test.html" />
     <Content Include="jQuery\Zepto\Zepto.1.1.4.js" />
     <Content Include="LinkFly\ArrayLike.js" />
-    <Content Include="LinkFly\Article\ArrayLike.html" />
-    <Content Include="LinkFly\Article\jQuery.Callbacks.html" />
-    <Content Include="LinkFly\Article\jQuery.data.html" />
-    <Content Include="LinkFly\Article\jQuery.Deferred.html" />
+    <Content Include="Article\Before\ArrayLike.html" />
+    <Content Include="Article\Before\jQuery.Callbacks.html" />
+    <Content Include="Article\Before\jQuery.data.html" />
+    <Content Include="Article\Before\jQuery.Deferred.html" />
     <Content Include="LinkFly\Code.v.1.0.js" />
-    <Content Include="LinkFly\Code\Defer\Defer.js" />
-    <Content Include="LinkFly\Demo\ArrayLike.htm" />
-    <Content Include="LinkFly\Demo\ArrayLike.html" />
-    <Content Include="LinkFly\Demo\Data.html" />
-    <Content Include="LinkFly\Demo\testAnimate.htm" />
+    <Content Include="Code\Defer\Defer.js" />
+    <Content Include="Demo\ArrayLike.htm" />
+    <Content Include="Demo\ArrayLike.html" />
+    <Content Include="Demo\Data.html" />
+    <Content Include="Demo\testAnimate.htm" />
     <Content Include="LinkFly\Extend.js" />
-    <Content Include="LinkFly\Code\DeferJsonp\DeferJsonp.js" />
-    <Content Include="LinkFly\Code\Round\dataFile10315_4.xml" />
-    <Content Include="LinkFly\Code\Round\Index.htm" />
-    <Content Include="LinkFly\Code\Round\Round.js" />
-    <Content Include="LinkFly\Code\Round\tpl10315.4.xsl" />
-    <Content Include="LinkFly\Code\X\test.htm" />
-    <Content Include="LinkFly\Code\X\testXML.xml" />
-    <Content Include="LinkFly\Code\X\X.js" />
-    <Content Include="LinkFly\Code\X\X.js对象的思考.html" />
-    <Content Include="LinkFly\Code\X\X.min.js" />
+    <Content Include="Code\DeferJsonp\DeferJsonp.js" />
+    <Content Include="Code\Round\dataFile10315_4.xml" />
+    <Content Include="Code\Round\Index.htm" />
+    <Content Include="Code\Round\Round.js" />
+    <Content Include="Code\Round\tpl10315.4.xsl" />
+    <Content Include="Code\X\test.htm" />
+    <Content Include="Code\X\testXML.xml" />
+    <Content Include="Code\X\X.js" />
+    <Content Include="Code\X\X.js对象的思考.html" />
+    <Content Include="Code\X\X.min.js" />
     <Content Include="LinkFly\MobileAnimated.htm" />
     <Content Include="LinkFly\String.js" />
     <Content Include="LinkFly\testAnimate.htm" />
@@ -112,10 +112,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Code\Defer\Reference\" />
     <Folder Include="jQuery\jQuery.Code\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LinkFly\Code\X\README.md" />
+    <Content Include="Code\X\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Article\2015-02-10\Promise-1.mkd" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
