@@ -61,6 +61,11 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Article\2015-02-10\demo.js" />
+    <Content Include="Article\Before\从angularJS看MVVM\angularJS.html" />
+    <Content Include="Article\Before\从angularJS看MVVM\demo.js" />
+    <Content Include="Article\Before\从angularJS看MVVM\ngDemo.js" />
+    <Content Include="Article\Before\编写更加稳定的javascript代码\test.js" />
     <Content Include="Index.htm" />
     <Content Include="jQuery\jquery-1.11.1.js" />
     <Content Include="jQuery\jquery-1.7.2.js" />
@@ -119,7 +124,11 @@
     <Content Include="Code\X\README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Article\2015-02-10\Promise-1.mkd" />
+    <None Include="Article\2015-02-10\Promise-1.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Article\Before\从angularJS看MVVM\从angularJS看前端MVVM.md" />
+    <None Include="Article\Before\编写更加稳定的javascript代码\编写更加稳定可读的javascript代码.md" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

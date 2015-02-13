@@ -92,6 +92,60 @@
             console.log(data);//这时候我们会接收到第二次ajax返回的数据
         });
 
+    $.ajax({
+        url: 'xx',
+        sucess: function () {
+            //成功
+        }
+    })
+
+    $.ajax('url').done(function () {
+        //成功
+    }).fail(function () {
+        //失败
+    }).done(function () {
+        //
+    });
+
+    var ajax = function () { };
+
+    var url = 'http://www.cnblogs.com/silin6/';
+    ajax(url, function (data) {
+        ajax(url + data, function (data2) {
+            ajax(url + data2, function (data3) {
+                ajax(url + data3, function () {
+                    //回调金字塔
+                });
+            });
+        });
+    });
+
+
+    promise.then(function (data) {
+        return ajax(url + data);
+    }).then(function (data2) {
+        return ajax(url + data2);
+    }).then(function (data3) {
+        return ajax(url + data3);
+    }).then(function (data) {
+        //扁平化代码
+    });
+
+
+    var p = new Promise(function (resolve) {
+        resolve();//直接标志执行态
+    }), temp;
+    temp = p.then(function () {
+        //返回新的promise对象，和p的状态无关
+        return new Promise(function (resolve, reject) {
+            reject();//标志拒绝态
+        });
+    });
+    temp.then(function () {
+        console.log('fulfilled');
+    }, function () {
+        console.log('rejected');//输出
+    });
 
 
     var name,
