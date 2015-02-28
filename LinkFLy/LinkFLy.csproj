@@ -61,11 +61,12 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Article\2015-02-10\demo.js" />
+    <Content Include="Article\Promise\demo-promise-1.js" />
     <Content Include="Article\Before\从angularJS看MVVM\angularJS.html" />
     <Content Include="Article\Before\从angularJS看MVVM\demo.js" />
     <Content Include="Article\Before\从angularJS看MVVM\ngDemo.js" />
     <Content Include="Article\Before\编写更加稳定的javascript代码\test.js" />
+    <Content Include="Article\Promise\demo-promise-2.html" />
     <Content Include="Index.htm" />
     <Content Include="jQuery\jquery-1.11.1.js" />
     <Content Include="jQuery\jquery-1.7.2.js" />
@@ -83,6 +84,7 @@
     <Content Include="Article\Before\jQuery.Callbacks.html" />
     <Content Include="Article\Before\jQuery.data.html" />
     <Content Include="Article\Before\jQuery.Deferred.html" />
+    <Content Include="LinkFly\Article\box-flex.html" />
     <Content Include="LinkFly\Code.v.1.0.js" />
     <Content Include="Code\Defer\Defer.js" />
     <Content Include="Demo\ArrayLike.htm" />
@@ -124,7 +126,8 @@
     <Content Include="Code\X\README.md" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Article\2015-02-10\Promise-1.md" />
+    <None Include="Article\Promise\Promise-1.md" />
+    <Content Include="Article\Promise\Promise-2.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Article\Before\从angularJS看MVVM\从angularJS看前端MVVM.md" />
