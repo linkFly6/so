@@ -1,264 +1,505 @@
-﻿# JavaScript异步编程（1）-ECMAScript 6的Promise对象
----
+﻿# JavaScript异步编程（2）- 先驱者：jsDeferred 
 
 <div class="l-index">
 <p>
-JavaScript的Callback机制深入人心。而JavaScript世界同样充斥的各种异步操作（异步IO、setTimeout等）。异步和Callback的搭载很容易就衍生"回调金字塔"。
+JavaScript当前有众多实现异步编程的方式，最为耀眼的就是ES 6规范中的Promise，它来自于CommonJS小组的努力：Promise/A+规范。
 </p>
-<p>Deferred起源于Python，后来被CommonJS挖掘并发扬光大，得到了大名鼎鼎的Promise，并且已经纳入ECMAScript 6（JavaScript下一版本）。</p>
-Promise/Deferred是当今最著名的异步模型，不仅强壮了JavaScript Event Loop（事件轮询）机制下异步代码的模型，同时增强了异步代码的可靠性。—— 匠者为之，以惠匠者。
+<p>研究javascript的异步编程，jsDeferred也是有必要探索的：因为Promise/A+规范的制定基本上是鉴定在jsDeferred上，它是javascript异步编程中里程碑式的作品。jsDeferred自身的实现也是非常有意思的。</p>
+<p>本文将探讨项目jsDeferred的模型，带我们感受一个不一样的异步编程体验和实现。</p>
 </div>
 > 本文内容如下：  
 >  
-> - Promise应对的问题
-> - Promise的解决
-> - ECMAScript 6 Promise
+> - jsDeferred和Promise/A+
+> - jsDeferred的工作模型
+> - jsDeferred API
 > - 参考和引用
 
 
-##Promise应对的问题
-JavaScript充斥着Callback，例如下面的代码：
+##jsDeferred和Promise/A+
+在上一篇文章《[JavaScript异步编程（1）- ECMAScript 6的Promise对象][1]》中，我们讨论了ECMAScript 6的Promise对象，这一篇我们来看javascript异步编程的先驱者——jsDeferred。
+
+[jsDeferred][2]是日本javascript高手[geek cho45][3]受MochiKit.Async.Deferred模块启发在2007年开发（2007年就玩这个了...(/ □ \)）的一个异步执行类库。我们将jsDeferred的原型和[Promise/A+规范][4]（[译文戳这里][5]）进行对比（来自[@^_^肥仔John][6]的《[JS魔法堂：jsDeferred源码剖析][7]》）：
+
+###Promise/A+
+> - Promise是基于状态的
+> - 状态标识：pending（初始状态）、fulfilled（成功状态）和rejected（失败状态）。
+> - 状态为单方向移动“pending->fulfilled"，"pending->rejected"。
+> - 由于存在状态标识，所以支持晚事件处理的晚绑定。
+
+
+###jsDeferred
+> - jsDeferred是基于事件的，并没有状态标识
+> - 实例的成功/失败事件是基于事件触发而被调用
+> - 因为没有状态标识，所以可以多次触发成功/失败事件
+> - 不支持晚绑定
+
+
+##jsDeferred的工作模型
+下面一张图粗略演示了jsDeferred的工作模型。
+![jsDeferred Model][8]
+
+下面涉及到jsDeferred的源码，对于第一次接触的童鞋请直接拉到API一节（下一节），读完了API再来看这里。
+
+jsDeferred第一次调用next有着不同的处理，jsDeferred在第一次调用next()的时候，会立即__异步__执行这个回调函数——而这个挂起异步，则视当前的环境（如浏览器最佳环境）选择最优的异步挂起方案，例如现代浏览器下会通过创建Image对象的方式来进行异步挂起，摘录源码如下：
 ```javascript
-(function (num) {//从外面接收一个参数
-    var writeName = function (callback) {
-        if (num === 1)
-            callback();
-    }
-    writeName(function () {//callback
-        console.log("i'm linkFly");
-    });
-})(1);
-```
-把一个函数通过参数传递，那么这个函数叫做Callback（回调函数）。
-
-JavaScript也充斥着异步操作——例如ajax。下面的代码就是一段异步操作：
-```javascript
-    var name;
-    setTimeout(function () {
-        name = 'linkFly';
-    }, 1000);//1s后执行
-    console.log(name);//输出undefined
-```
-这段代码的运行逻辑是这样的：
-![Callback Demo][1]
-
-我们的总是遇见这样的情况：一段代码异步执行，后续的代码却需要等待异步代码的，如果在异步代码之前执行，就会如上面的console.log(name)一样，输出undefined，这并不是我们想要的效果。
-
-类似的情况总是发生在我们经常要使用的ajax上：
-```javascript
-    $.ajax({
-        url: 'http://www.cnblogs.com/silin6/map',
-        success: function (key) {
-            //我们必须要等待这个ajax加载完成才能发起第二个ajax
-            $.ajax({
-                url: 'http://www.cnblogs.com/silin6/source/' + key,
-                success: function (data) {
-                    console.log("i'm linkFly");//后输出
-                }
-            });
-        }
-    });
-    console.log('ok');//ok会在ajax之前执行
-```
-异步操作有点类似这一段代码被挂起，先执行后续的代码，直到异步得到响应（例如setTimeout要求的1s之后执行，ajax的服务器响应），这一段异步的代码才会执行。关于这一段异步代码的执行流程，请参阅JavaScript大名鼎鼎的：[Event Loop（事件轮询）][2]。
-
-
-
-## Promise的解决
-
-Promise优雅的修正了异步代码，我们使用Promise重写我们setTimeout的示例：
-```javascript
-    var name,
-    p = new Promise(function (resolve) {
-        setTimeout(function () {//异步回调
-            resolve();
-        }, 1000);//1s后执行
-    });
-    p.then(function () {
-        name = 'linkFly';
-        console.log(name);//linkFly
-    }).then(function () {
-        name = 'cnBlog';
-        console.log(name);
-    });
-    //这段代码1s后会输出linkFly,cbBlog
-```
-我们先不要太过在意Promise对象的API，后续会讲解，我们只需要知道这段代码完成了和之前同样的工作。我们的console.log(name)正确的输出了linkFly，并且我们还神奇的输出了cnBlog。
-
-或许你觉得这段代码实在繁琐，还不如setTimeout来的痛快，那么我们再来改写上面的ajax：
-```javascript 
-    var ajax = function (url) {
-        //我们改写ajax，让它以Promise的方式工作
-        return new Promise(function (resolve) {
-            $.ajax({
-                url: url,
-                success: function (data) {
-                    resolve(data);
-                }
-            });
-        });
+Deferred.next_faster_way_Image = ((typeof window === 'object') && (typeof (Image) != "undefined") && !window.opera && document.addEventListener) && function (fun) {
+    // Modern Browsers
+    var d = new Deferred();
+    var img = new Image();
+    var handler = function () {
+        d.canceller();
+        d.call();
     };
-    ajax('http://www.cnblogs.com/silin6/map')
-        .then(function (key) {
-            //我们得到key，发起第二条请求
-            return ajax('http://www.cnblogs.com/silin6/source/' + key);
-        })
-        .then(function (data) {
-            console.log(data);//这时候我们会接收到第二次ajax返回的数据
-        });
+    //进行异步挂起
+    img.addEventListener("load", handler, false);
+    img.addEventListener("error", handler, false);
+    d.canceller = function () {
+        img.removeEventListener("load", handler, false);
+        img.removeEventListener("error", handler, false);
+    };
+    img.src = "data:image/png," + Math.random();
+    if (fun) d.callback.ok = fun;
+    return d;
+};
+```
+Deferred对象的静态方法 - Deferred.next()源码：
+```javascript
+Deferred.next =
+	Deferred.next_faster_way_readystatechange ||//IE下使用onreadystatechange()
+	Deferred.next_faster_way_Image ||//现代浏览器下使用Image对象onload/onerror事件
+	Deferred.next_tick ||//Node下使用process.nextTick()
+	Deferred.next_default;//默认使用setTimeout
 ```
 
-或许它晦涩难懂，那么我们尝试用setTimeout来模拟这次的ajax，这个例子演示了Promise数据的传递，一如ajax：
+我们务必要理清Deferred.next()和Deferred.prototype.next()，这是两种不同的东西：
+- Deferred.next()的职责是压入异步的代码，并立即异步执行的。
+- Deferred.prototype.next()是从上一个Deferred对象链中构建的Deferred。当没有上一个Deferred链的时候，它并不会执行next()中压入的函数，它的执行继承于上一个Deferred触发的事件或自身事件的触发&#91; call / fail &#93;。
+摘录源码如下：
 ```javascript
-    var name,
-        ajax = function (data) {
-            return new Promise(function (resolve) {
-                setTimeout(function () {//我们使用setTimeout模拟ajax
-                    resolve(data);
-                }, 1000);//1s后执行
-            });
-        };
-
-    ajax('linkFly').then(function (name) {
-        return ajax("i'm " + name);//模拟第二次ajax
-    }).then(function (value) {
-        //2s后，输出i'm linkFly
-        console.log(value);
-    });
+        Deferred.prototype = {
+            callback: {},
+            next: function (fun) {//压入一个函数并返回新的Deferred对象
+                return this._post("ok", fun)
+            },
+            call: function (val) {//触发当前Deferred成功的事件
+                return this._fire("ok", val)
+            },
+            _post: function (okng, fun) {//next()底层
+                this._next = new Deferred();
+                this._next.callback[okng] = fun;
+                return this._next;
+            },
+            _fire: function (okng, value) {//call()底层
+                var next = "ok";
+                try {
+                    //调用deferred对象相应的事件处理函数
+                    value = this.callback[okng].call(this, value);
+                } catch (e) {
+                    //抛出异常则进入fail()
+                    next = "ng";
+                    value = e;
+                    if (Deferred.onerror) Deferred.onerror(e);
+                }
+                if (Deferred.isDeferred(value)) {
+                    //在这里，和_post()呼应，调用Deferred链的下一个Deferred对象
+                    value._next = this._next;
+                } else {
+                    if (this._next) this._next._fire(next, value);
+                }
+                return this;
+            }
+        }
 ```
-  
-上面的代码，从*代码语义*上达到了下面的流程：
-  
-![Promise][3]
 
-我们仅观察代码就知道现在的它变得非常优雅，两次异步的代码被完美的抹平。但我们应该时刻谨记，Promise改变的是你异步的代码和编程思想，而并没有改变异步代码的执行——它是一种由卓越的编程思想所衍生的对象。
-下面一张图演示了普通异步回调和Promise异步的区别，Promise实现的异步从代码运行上来说并无太大区别，但从编程思想上来说差异巨大。
-![Promise][4]
+再一次强调，务必搞清楚Deferred.next()和Deferred.prototype.next()。
 
-##ECMAScript 6 Promise##
-Promise对象代表了未来某个将要发生的事件（通常是一个异步操作），抹平了异步代码的金字塔，它从模型上解决了异步代码产生的"回调金字塔"。
-Promise是ECMAScript 6规范内定义的，所以请使用现代浏览器测试，它的兼容性可以在[这里查看][5]。
+##jsDeferred API
+当我第一次知道jsDeferred API有一坨的时候，其实我是，是拒绝的。我跟你讲，我拒绝，因为其实我觉得这根本要不了一坨，但正妹跟我讲，jsDeferred内部会加特技，是假的一坨，是表面看起来一坨。加了特技之后，jsDeferred duang～duang～duang～，很酷，很炫，很酷炫。
 
-__Promise.constructor__
-Promise是一个对象，它的构造函数接收一个回调函数，这个回调函数参数有两个函数：分别在成功状态下执行和失败状态下执行，Promise有三个状态，分别为：等待态（Pending）、执行态（Fulfilled）和拒绝态（Rejected）。
+jsDeferred的API众多，因为jsDeferred把所有的异步问题都划分到了最小的粒子，这些API相互进行组合则可以完成逆天的异步能力，在后续的API示例中可以看到jsDeferred API组合从而完成强大的异步编程。
+貌似没有看到过jsDeferred的详细的中文API文档（[原API文档][9]），就这里顺便整理一份简单的出来（虽然它的API已经足够通俗易懂了）。值得一提的是官网的API引导例子非常的生动和实用：
+
+__Deferred()/new Deferred ()__
+> 
+构造函数(constructor)，创建一个Deferred对象。
+
 ```javascript
-    var p = new Promise(function (resolve,reject) {
-        console.log(arguments);
-        //resolve表示成功状态下执行
-        //reject表示失败状态下执行
-    });
-```
-传递的这个回调函数，等同被Promise重新封装，并传递了两个参数回调，这两个参数用于驱动Promise数据的传递。resolve和reject本身承载着触发器的使命：
-- 默认的Promise对象是*等待态（Pending）*。
-- 调用resolve()表示这个Promise进入*执行态（Fulfilled）*
-- 调用reject()表示这个promise()进入*拒绝态（Rejected）*
-- Promise对象可以从等待状态下进入到执行态和拒绝态，并且无法回退。
-- 而执行态和拒绝态不允许互相转换（例如执行态转换到拒绝态）。
-  
-__Promise.prototype.then__
+        var defer = Deferred();//或new Deferred()
+        //创建一个Deferred对象
 
-生成的promise实例（如上面的变量p）拥有方法then()，then()方法是Promise对象的核心，它返回一个新的Promise对象，因此可以像jQuery一样链式操作，非常优雅。
-Promise是双链的，所以then()方法接受两个参数，分别表示：
-- _执行态（Fulfilled）_下执行的回调函数
-- _拒绝态（Rejected）_下执行的回调函数。
-   
-```javascript
-    p.then(function () {
-      //我们返回一个promise
-      return new Promise(function (resolve) {
-            setTimeout(function () {
-                resolve('resolve');
-            }, 1000);//异步1s
-        });
+        defer.next(function () {
+            console.log('ok');
+        }).error(function (text) {
+            console.log(text);//=> linkFly
+        }).fail('linkFly');
         
-    }, function () {
-        console.log('rejected');
-    })  //链式回调
-        .then(function (state) {
-            console.log(state);//如果为执行态，输出resolve
-        }, function (data) {
-            console.log(data);//如果为拒绝态，输出undefined
-        });;
+```
+__实例方法__
+
+__Deferred.prototype.next和Deferred.prototype.call__
+> 
+Deferred.prototype.next()构建一个全新的Deferred对象，并为它绑定成功事件处理函数，在没有调用Deferred.prototype.call()之前这个事件处理函数并不会执行。
+
+```javascript
+        var deferred = Deferred();
+        deferred.next(function (value) {
+            console.log(value); // => linkFly
+        }).call('linkFly');
+```
+
+__Deferred.prototype.error和Deferred.prototype.fail__
+>
+Deferred.prototype.error()构建一个全新的Deferred对象，并为它绑定失败事件处理函数，在没有调用Deferred.prototype.fail()之前这个事件处理函数并不会执行。
+
+```javascript
+        var deferred = Deferred();
+        deferred.error(function () {
+            console.log('error');// => error
+        }).fail();
 ```
 
 
-then()方法的返回值由它相应状态下执行的函数决定：这个函数返回undefined，则then()方法构建一个默认的Promise对象，并且这个对象拥有then()方法所属的Promise对象的状态。
-```javascript
-    var p = new Promise(function (resolve) {
-        resolve();//直接标志执行态
-    }), temp;
-    temp = p.then(function () {
-        //传入执行态函数，不返回值
-    });
-    temp.then(function () {
-        console.log('fulfilled');//拥有p的状态
-    });
+__Deferred所有的静态方法，都可以使用_Deferrd.方法名()_的方式调用。__
 
-    console.log(temp === p);//默认构建的promise，但已经和p不是同一个对象，输出false
-```
+__Deferred.define(obj, list)__
+> 
+暴露静态方法到obj上，无参的情况下obj是全局对象：侵入性极强，但使用方便。list是一组方法，这组方法会同时注册到obj上。
 
-如果对应状态所执行的函数返回一个全新的Promise对象，则会覆盖掉当前Promise，代码如下：
 ```javascript
-    var p = new Promise(function (resolve) {
-        resolve();//直接标志执行态
-    }), temp;
-    temp = p.then(function () {
-        //返回新的promise对象，和p的状态无关
-        return new Promise(function (resolve, reject) {
-            reject();//标志拒绝态
+        Deferred.define();//无参，侵入式，默认全局对象，浏览器环境为window
+        next(function () {
+            console.log('ok');
+        });//静态方法入next被注册到了window下
+        var defer = {};
+
+        Deferred.define(defer);//非侵入式，Deferred的静态方法注册到了defer对象下
+        defer.next(function () {
+            console.log('ok');
         });
-    });
-    temp.then(function () {
-        console.log('fulfilled');
-    }, function () {
-        console.log('rejected');//输出
-    });
 ```
-即then()方法传递的进入的回调函数，如果返回promise对象，则then()方法返回这个promise对象，否则将默认构建一个新的promise对象，并继承调用then()方法的promise的状态。
 
+__Deferred.isDeferred(obj)__
+> 
+判断对象obj是否是jsDeferred对象的实例（Deferred对象）。
 
-我们应该清楚Promise的使命，抹平了异步代码的回调金字塔，我们会有很多依赖上一层异步的代码：
 ```javascript
-    var url = 'http://www.cnblogs.com/silin6/';
-    ajax(url, function (data) {
-        ajax(url + data, function (data2) {
-            ajax(url + data2, function (data3) {
-                ajax(url + data3, function () {
-                    //回调金字塔
-                });
+        Deferred.define();
+        console.log(Deferred.isDeferred({}));//=> false
+        console.log(Deferred.isDeferred(wait(2)));//=> true
+```
+
+__Deferred.call(fn[,args]*)__
+> 
+创建一个Deferred实例，并且触发其成功事件。fn是成功后要执行的函数，后续的参数表示传递给fn的参数。
+
+```javascript
+        call(function (text) {
+            console.log(text);//=> linkFly
+        }, 'linkFly');
+        console.log('hello,world!');// => 先输出
+```
+
+__Deferred.next(fn)__
+> 
+创建一个Deferred实例，并且触发其成功事件。fn是成功后要执行的函数，它等同于只有一个参数的call，即：Deferred.call(fn)
+
+```javascript
+		Deferred.define();
+        next(function () {
+            console.log('ok');
+        });
+        console.log('hello,world!');// => 先输出
+
+		//上面的代码等同于下面的代码
+		call(function () {
+            console.log('ok');
+        });
+        console.log('hello,world!');// => 先输出
+```
+
+__Deferred.wait(time)__
+> 
+创建一个Deferred实例，并等待time_秒_后触发其成功事件，下面的代码首先弹出"Hello,"，2秒后弹出"World!"。
+
+```javascript
+	next(function () {
+		alert('Hello,');
+		return wait(2);//延迟2s后执行
+	}).
+	next(function (r) {
+		alert('World!');
+	});
+	console.log('hello,world!');// => 先输出
+```
+__Deferred.loop(n, fun)__
+> 
+循环执行n次fun，并将最后一次执行fun()的返回值作为Deferred实例成功事件处理函数的参数，同样loop中循环执行的fun()也是异步的。
+
+```javascript
+        loop(3, function () {
+            console.log(count);
+            return count++;
+        }).next(function (value) {
+            console.info(value);// => 2
+        });
+		//上面的代码也是异步的（无阻塞的）
+        console.info('linkFly');
+```
+
+__Deferred.parallel(dl[ ,fn]*)__
+> 
+把参数中非Deferred对象均转换为Deferred对象_通过Deferred.next()_，然后并行触发dl中的Deferred实例的成功事件。
+当所有Deferred对象均调用了成功事件处理函数后，返回的Deferred实例则触发成功事件，并且所有返回值将被封装为数组作为Deferred实例的成功事件处理函数的入参。
+parallel()强悍之处在于它的并归处理，它可以将参数中多次的异步最终并归到一起，这一点在JavaScript ajax嵌套中尤为重要：例如同时发送2条ajax请求，最终parallel()会并归这2条ajax返回的结果。
+parallel()进行了3次重载：
+
+- parallel(fn[ ,fn]*)：传入Function类型的参数，允许多个
+- parallel(Array)：给定一个由Function组成的Array类型的参数
+- parallel(Object)：给定一个对象，由对象中所有可枚举的Function构建Deferred
+
+下面一张图演示了Deferred.parallel的工作模型，它可以理解为合并了3次ajax请求。
+![Deferred.parallel][10]
+
+```javascript
+        Deferred.define();
+        parallel(function () {
+            //等待2秒后执行
+            return wait(2).next(function () { return 'hello,'; });
+        }, function () {
+            return wait(1).next(function () { return 'world!' });
+        }).next(function (values) {
+            console.log(values);// =>  ["hello,", "world!"]
+        });
+
+```
+当parallel传递的参数是一个对象的时候，返回值则是一个对象：
+```javascript
+        parallel({
+            foo: wait(1).next(function () {
+                return 1;
+            }),
+            bar: wait(2).next(function () {
+                return 2;
+            })
+        }).next(function (values) {
+            console.log(values);// =>  Object { foo=1, bar=2 }
+        });
+```
+
+__Deferred.earlier(dl[ ,fn]*)__
+> 
+当参数中某一个Deferred对象调用了成功处理函数，则终止参数中其他Deferred对象的触发的成功事件，返回的Deferred实例则触发成功事件，并且那个触发成功事件的函数返回值将作为Deferred实例的成功事件处理函数的入参。
+注意：Deferred.earlier()并不会通过Deferred.define(obj)暴露给obj，它只能通过Deferred.earlier()调用。
+
+Deferred.earlier()内部的实现和Deferred.parallel()大同小异，但值得注意的是参数，它接受的是Deferred，而不是parallel()的Function：
+
+- Deferred.earlier(Deferred[ ,Deferred]*)：传入__Deferred__类型的参数，允许多个
+- Deferred.earlier(Array)：给定一个由__Deferred__组成的Array类型的参数
+- Deferred.earlier(Object)：给定一个对象，由对象中所有可枚举的__Deferred__构建Deferred
+
+
+
+```javascript
+        Deferred.define();
+        Deferred.earlier(
+            wait(2).next(function () { return 'cnblog'; }),
+            wait(1).next(function () { return 'linkFly' })//1s后执行成功
+        ).next(function (values) {
+            console.log(values);// 1s后 => [undefined, "linkFly"]
+        });
+```
+
+__Deferred.repeat(n, fun)__
+> 
+循环执行fun方法n次，若fun的执行事件超过20毫秒则先将UI线程的控制权交出，等一会儿再执行下一轮的循环。
+自己跑了一下，跑出问题来了...duang...求道友指点下迷津
+
+```javascript
+        Deferred.define();
+        repeat(10, function (i) {
+            if (i === 6) {
+                var starTime = new Date();
+                while (new Date().getTime() - starTime < 50) console.info(new Date().getTime() - starTime);//到6之后时候不应该再执行了，因为这个函数的执行超过了20ms
+            }
+            console.log(i); //=> 0,1,2,3,4,5,6,7,8,9
+        });
+```
+
+__Deferred.chain(args)__
+> 
+chain()方法的参数比较独特，可以接受多个参数，参数类型可以是：Function，Object，Array。
+chain()方法比较难懂，它是将所有的参数构造出一条Deferred方法链。
+
+例如Function类型的参数：
+```javascript
+        Deferred.define();
+        chain(
+            function () {
+                console.log('start');
+            },
+            function () {
+                console.log('linkFly');
+            }
+        );
+
+        //等同于
+        next(function () {
+            console.log('start');
+        }).next(function () {
+            console.log('linkFly');
+        });
+```
+
+它通过函数名来判断函数：
+```javascript
+        chain(
+            //函数名!=error，则默认为next
+            function () {
+                throw Error('error');
+            },
+            //函数名为error
+            function error(e) {
+                console.log(e.message);
+            }
+        );
+
+        //等同于
+        next(function () {
+            throw Error('error');
+        }).error(function (e) {
+            console.log(e.message);
+        });
+```
+
+也支持Deferred.parallel()的方式：
+```javascript
+        chain(
+            [
+                function () {
+                    return wait(1);
+                },
+                function () {
+                    return wait(2);
+                }
+            ]
+        ).next(function () {
+            console.log('ok');
+        });
+
+        //等同于
+        Deferred.parallel([
+            function () {
+                return wait(1);
+            },
+            function () {
+                return wait(2);
+            }
+        ]).next(function () {
+            console.log('ok');
+        });
+```
+
+当然可以组合参数：
+```javascript
+        chain(
+            function () {
+                throw Error('error');
+            },
+            //函数名为error
+            function error(e) {
+                console.log(e.message);
+            },
+            //组合Deferred.parallel()的方式
+            [
+                function () {
+                    return wait(1);
+                },
+                function () {
+                    return wait(2);
+                }
+            ]
+        ).next(function () {
+            console.log('ok');
+        });
+
+
+        //等同于
+        next(function () {
+            throw Error('error');
+        }).error(function (e) {
+            console.log(e.message);
+        });
+
+        Deferred.parallel([
+            function () {
+                return wait(1);
+            },
+            function () {
+                return wait(2);
+            }
+        ]).next(function () {
+            console.log('ok');
+        });
+```
+
+__Deferred.connect(funo, options)__
+> 
+将一个函数封装为Deferred对象，其目的是融入现有的异步编程。
+注意：Deferred.connect()和Deferred.earlier()方法一样，并不会通过Deferred.define(obj)暴露给obj，它只能通过Deferred.connect()调用。官网使用了setTimeout的例子：
+
+Deferred.connect()有两种重载：
+
+- Deferred.connect(target,string)：把target上名为string指定名称的方法包装为Deferred对象。
+- Deferred.connect(function,Object)：Object至少要有一个属性：target。以target为this调用function方法，返回的是包装后的方法，该方法返回Deferred对象。
+给包装后的方法传递的参数，会传递给所指定的function。
+
+```javascript
+  var timeout = Deferred.connect(setTimeout, { target: window, ok: 0 });
+  timeout(1).next(function () {
+      alert('after 1 sec');
+  });
+  //另外一种传参
+  var timeout = Deferred.connect(window, "setTimeout");
+  timeout(1).next(function () {
+      alert('after 1 sec');
+  });
+```
+
+__Deferred.retry(retryCount, funcDeferred[ ,options])__
+> 调用retryCount次funcDeffered方法（返回值类型为Deferred），直到触发成功事件或超过尝试次数为止。
+options参数是一个对象，{wait:number}指定每次调用等待的秒数。
+注意：Deferred.retry()并不会通过Deferred.define(obj)暴露给obj，它只能通过Deferred.retry()调用。
+
+```javascript
+        Deferred.define();
+        Deferred.retry(3, function (number) {//Deferred.retry()方法是--i的方式实现的
+            console.log(number);
+            return Deferred.next(function () {
+                if (number ^ 1)//当number!=1的时候抛出异常，表示失败，number==1的时候则让它成功
+                    throw new Error('error');
             });
+        }).next(function () {
+            console.log('linkFly');//=>linkFly
         });
-    });
+
 ```
 
-使用Promise则抹平了代码：
+从源码这一行可以看到作者重点照顾的是这些方法：
 ```javascript
-    promise.then(function (data) {
-        return ajax(url + data);
-    }).then(function (data2) {
-        return ajax(url + data2);
-    }).then(function (data3) {
-        return ajax(url + data3);
-    }).then(function (data) {
-        //扁平化代码
-    });
+Deferred.methods = ["parallel", "wait", "next", "call", "loop", "repeat", "chain"];
 ```
+其他的方法或许作者也觉得有点勉强吧，在Deferred.define()中默认都没有暴露那些API。
 
-Promise还有更多更强大的API。但本文的目的旨在让大家感受到Promise的魅力，而并非讲解Promise对象自身的API，关于Promise其他辅助实现API请查阅本文最下方的引用章节，Promise其他API如下：
+本来就想写jsDeferred的API，结果读完了源码...篇幅原因就不解读源码的，有兴趣的可以在下面的引用链接点过去看源码，不含注释未压缩版源码仅400行左右。
 
-- _Promise.prototype.catch()_：用于指定发生错误时的回调函数（捕获异常），并具有冒泡性质。
-- _Promise.all()_，_Promise.race()_：Promise.all方法用于将多个Promise实例，包装成一个新的Promise实例。
-- _Promise.resolve()_，_Promise.reject()_:将现有对象转为Promise对象。
+jsDeferred实现简单，代码通俗易懂，而API切割的非常容易上手，理念也容易理解，随着它的知名度提升进而让JavaScript异步编程备受瞩目，在阅读jsDeferred的时候，我总是在想这些前辈们当时苦苦思索走出JavaScript自留地的感觉，从现代的眼光来看，相比Promise，可能jsDeferred的实现甚至于略显青涩。这也让我想起了Robert Nyman前辈最初编写getElementByClassName()，然而在当时看来，足够艳惊世界。
+随着JavaScript的兴起，现在的我们多喜欢四处扒来代码匆匆粘贴完成我们大多数的任务，逐渐的丢失了自己思考和挖掘代码的能力。值得庆幸的是JavaScript正在凝结自己的精华，未来迢长路远，与君共勉。
 
-希望大家一点点的接受Promise，所以没有讲太多，我们对于Promise的理解不应该仅仅是一个异步模型，我们更关注应该是Promise/Deferred的编程思想，所以后续几章会逐渐深入讲解Promise的前生今世。
+##参考和引用
+> - [^_^肥仔John - JS魔法堂：jsDeferred源码剖析][11]
+> - [司徒正美 - JavaScript框架设计：jsDeferred][12]
+> - [jsDeferred][13]
 
-##参考和引用##
-
-> - [ECMAScript 6 入门 - Promise对象][6]
-> - [Promise/A+规范][7]
-> - [JavaScript框架设计-第12章 异步处理][8]
-> - [Promise启示录][9]
-  
 <div class="l-author">
 <div>作者：linkFly</div>
 <div>原文：<a href="http://www.cnblogs.com/silin6/p/4288967.html">http://www.cnblogs.com/silin6/p/4288967.html</a></div>
@@ -267,12 +508,17 @@ Promise还有更多更强大的API。但本文的目的旨在让大家感受到P
 </div>
 
 
-  [1]: http://images.cnblogs.com/cnblogs_com/silin6/596820/o_promiseError.png
-  [2]: http://www.ruanyifeng.com/blog/2013/10/event_loop.html
-  [3]: http://images.cnblogs.com/cnblogs_com/silin6/596820/o_Promise.png
-  [4]: http://images.cnblogs.com/cnblogs_com/silin6/596820/o_PromiseAndCallback.png
-  [5]: http://caniuse.com/#search=Promise
-  [6]: http://es6.ruanyifeng.com/#docs/promise
-  [7]: http://www.ituring.com.cn/article/66566#
-  [8]: http://www.cnblogs.com/rubylouvre/p/3658441.html
-  [9]: https://www.dmfeel.com/post/536799f91f1bf49646000001
+
+  [1]: http://www.cnblogs.com/silin6/p/4288967.html
+  [2]: http://cho45.stfuawsc.com/jsdeferred/
+  [3]: https://github.com/cho45
+  [4]: https://promisesaplus.com/
+  [5]: http://segmentfault.com/blog/code/1190000002452115
+  [6]: http://www.cnblogs.com/fsjohnhuang/
+  [7]: http://www.cnblogs.com/fsjohnhuang/p/4141918.html#a427
+  [8]: http://images.cnblogs.com/cnblogs_com/silin6/596820/o_jsDeferred%20Model.png
+  [9]: http://cho45.stfuawsc.com/jsdeferred/doc/Deferred.html
+  [10]: http://images.cnblogs.com/cnblogs_com/silin6/596820/o_Deferred.parallel.png
+  [11]: http://www.cnblogs.com/fsjohnhuang/p/4141918.html
+  [12]: http://www.cnblogs.com/rubylouvre/p/3658441nhuang/p/4141918.html
+  [13]: http://cho45.stfuawsc.com/jsdeferred/
