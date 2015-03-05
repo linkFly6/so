@@ -1,104 +1,178 @@
 ﻿; (function (window, undefined) {
-
+    'use strict';
     var toString = Object.prototype.toString,
-		each = Array.prototype.forEach,
-        slice = Array.prototype.slice,
-        splice = Array.prototype.splice,
-        push = Array.prototype.push,
-        isFunction = function (obj) {
-            return toString.call(obj) === "[object Function]";
-        },
-        isOver = function (state) {//defer对象是否已经完成状态
-            return state !== globalState.PENDING;
-        },
-        fire = function (callbacks, datas) {//执行一组函数，并允许追加数据
-            if (!callbacks || !callbacks.length) return;
-            for (var i = 0, len = callbacks.length; i < len; i++) {
-                datas ? callbacks[i].apply(datas) : callbacks[i];//设计不正确，每个函数的返回值都应该追加到数组中
-            }
-        },
-        checkState = function () {
-
-        },
-        globalState = {
-            //3个状态是不够的，一共有5个状态：成功，失败，成功等待中，失败等待中
-            PENDING: 0,
-            RESOLVED: 1,
-            REJECTED: 2,
-            RESOLVEWAIT: 3,
-            REJECTWAIT: 4
-        };
-    //只有一个要求！！！轻！！！
-    var Defer = function (callback) {
-        //要兼容jQuery的ajax语法....
-
-        //Publish/Subscribe模式实现
-        var callbacks = [[], [], []],//done/fail/progress
-            state = globalState.PENDING;
-        var defer = {
-            state: function () {
-                return state;
-            },
-            then: function (done, fail) {
-                return Defer(function (newDefer) {
-                    //子链只会有一个父链，只会订阅一个父链
-                    newDefer.parent = defer;
+    each = Array.prototype.forEach,
+    slice = Array.prototype.slice,
+    splice = Array.prototype.splice,
+    push = Array.prototype.push,
+    flagId = 46840404742,
+    isFunction = function (obj) {
+        return toString.call(obj) === "[object Function]";
+    },
+    isArray = Array.isArray || function (arg) {
+        return toString.call(arg) === '[object Array]';
+    },
+    isArrayLike = function (obj) {
+        if (obj == null) return false;
+        var length = obj.length, t = toString.call(obj);
+        return t == '[object Array]' || !isFunction(obj) &&
+                t !== '[object String]' &&
+                (+length === length &&
+                !(length % 1) &&
+                (length - 1) in obj);
+    },
+    map = function () {
+        var res = [];
+        each.call(arguments, function (arg) {
+            if (isArray(arg))
+                res.concat(arg);
+            else if (isArrayLike(arg))
+                each.call(arg, function (tmp) {
+                    res.push(tmp);
                 });
-            },
-            done: function () {
-                if (state === globalState.RESOLVED) {
-                    fire(arguments);
-                } else
-                    each.call(arguments, function (fn) {
-                        if (isFunction(fn))
-                            callbacks[0].push(fn);
-                    });
-                return this;
-            },
-            fial: function () {
-                return this;
-            },
-            aways: function (resolve, reject) {
-                return defer.done(resolve).fail(reject);
-            },
-            resolve: function () {
-                //执行时机要判断父链和子链是否完成
-                //如果有父链，则订阅父链的信息
-                if (defer.parent == null || isOver(defer.parent.state())) {
-                    state = globalState.RESOLVED;
-                    fire(callbacks[0], arguments);
-                } else {
-                    //给父链发消息通知它已经完成了
-                    state = globalState.RESOLVEWAIT;
-                    defer.parent.aways(function () {
-                        defer.resolve();
-                    });
-                }
-            },
-            reject: function () {
+            else
+                res.push(arg);
+        });
+        return res;
+    },
+    isOver = function (state) {//defer对象是否已经完成状态
+        return state !== globalState.PENDING;
+    },
+    trigger = function (self, callbacks, datas) {//执行一组函数，并允许追加数据
+        if (!callbacks || !callbacks.length) return;
+        var fn, value;
+        while (callbacks.length) {
+            fn = callbacks.shift();
+            if (isFunction(fn))
+                value = datas ? fn.apply(self, datas) : fn();//TODO 这个返回值应该和Promise/A+规范一样，一直往后传递
+        }
+        return value;
+    },
+    extend = function (target, source) {
+        for (var name in source)
+            target[name] = source[name];
+        return target;
+    },
+    globalState = {
+        //5个状态：成功，失败，成功等待中，失败等待中
+        PENDING: 6,
+        RESOLVED: 0,
+        REJECTED: 1,
+        ERROR: 2
+    };
+    var deferTemplent = [
+        ['done', 'resolve', globalState.RESOLVED, globalState.RESOLVEWAIT],
+        ['fail', 'reject', globalState.REJECTED, globalState.REJECTWAIT]
+    ],
 
+        Defer = function (callback) {
+            if (!(this instanceof Defer)) return new Defer(callback);
+            this.callbacks = [[], []];
+            this._state = globalState.PENDING;
+            var _self = this, res;
+            if (isFunction(callback)) {
+                res = callback.call(_self, function () {
+                    _self._state = globalState.RESOLVED;
+                    _self._fire(arguments);
+                }, function () {
+                    _self._state = globalState.REJECTED;
+                    _self._fire(arguments);
+                });
+                if (Defer.isDefer(res)) {
+
+                }
             }
+            if (Defer.isDefer(callback)) return callback;
         };
-        return defer;
+
+    Defer.isDefer = function (obj) {
+        return obj && obj._id === flagId;
+    };
+    Defer.prototype._id = flagId;
+    Defer.prototype._post = function (index, callbacks) {
+        var cache = this.callbacks[index];
+        cache && each.call(isArrayLike(callbacks) ? callbacks : [callbacks], function (callback) {
+            if (isFunction(callback))
+                cache.push(callback);
+        });
+        return index === this._state ?
+            this._fire(this.data) :
+            this;
+    };
+
+    //fire方法转移到_fire
+    var fire = function (context, fns, data) {
+        var callback;
+        while ((callback = fns.shift())) {
+            data = callback.apply(context, data);
+            if (Defer.isDefer(data))
+                data._post(data)
+        }
+    }
+
+    Defer.prototype._fire = function (data) {
+        var cache = this.callbacks[this._state], callback;
+        this.data = data;
+        if (!cache) return this;
+        try {
+            while ((callback = cache.shift())) {
+                data = callback.apply(this, data);
+                if (Defer.isDefer(data)) {
+                    data._post(globalState.RESOLVED, cache);
+                    data._post(globalState.REJECTED, cache);
+                    //data.catch(function () {
+
+                    //});
+                    return data;
+                }
+            }
+            //return fire(this, cache, this.data = datas);
+        } catch (e) {
+            var res = e;
+            if (this.callbacks[2])
+                this.callbacks[2].forEach(function (errorCallback) {
+                    try {
+                        res = errorCallback(res);
+                    } catch (e) {
+                        res = e;
+                    }
+                });
+        }
+        return this;
+    };
+
+    Defer.prototype.catch = function () {
+        return this._post(2, arguments);
+    };
+
+
+    Defer.prototype.then = function (done, fail) {
+        var _parent = this,
+            deferred = new Defer(function (resolve, reject) {
+                this._post(globalState.RESOLVED, done);
+                this._post(globalState.REJECTED, fail);
+                _parent._post(globalState.RESOLVED, function () {
+                    resolve.apply(this, arguments);
+                    //return done.apply(this, arguments);
+                })
+                    ._post(globalState.REJECTED, function () {
+                        reject.apply(this, arguments);
+                        //return fail.apply(this, arguments);
+                    })
+                    .catch(function (error) {
+                        deferred.catch(function (e) {
+                            return e || error;
+                        });
+                        return error;
+                    });
+            });
+        return deferred;
+    };
+
+
+    Defer.prototype.all = function () {
+
     };
     window.Defer = Defer;
 })(window);
 
-
-(function (window) {
-    var Defer = window.Defer,
-        defer = new Defer();
-    var defer1 = defer.then(function () {
-
-    }, function () {
-
-    });
-    var defer2 = defer1.then(function () {
-
-    }, function () {
-
-    });
-
-    defer2.resolve();
-    defer1.resolve();//由defer.then()派生的Defer对象，只有在上一层得到结果状态后才会执行下一层状态
-}(window));
