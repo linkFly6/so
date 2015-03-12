@@ -67,6 +67,7 @@
     <Content Include="Article\Before\从angularJS看MVVM\ngDemo.js" />
     <Content Include="Article\Before\编写更加稳定的javascript代码\test.js" />
     <Content Include="Article\Promise\demo-promise-2.html" />
+    <Content Include="Article\Promise\demo-promise-3.html" />
     <Content Include="Index.htm" />
     <Content Include="jQuery\jquery-1.11.1.js" />
     <Content Include="jQuery\jquery-1.7.2.js" />
@@ -126,8 +127,10 @@
     <Content Include="Code\X\README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Article\setTimeout-Event\setTimeout-Event.md" />
     <None Include="Article\Promise\Promise-1.md" />
     <Content Include="Article\Promise\Promise-2.md" />
+    <Content Include="Article\Promise\Promise-3.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Article\Before\从angularJS看MVVM\从angularJS看前端MVVM.md" />
