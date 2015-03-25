@@ -27,14 +27,18 @@
             console.log(data);//linkFly
         });
 
+        //丧心病狂另类版
+        function round(x) {
+            return ~~(x + 0.5 + (x >> 30))
+        }
+
+        console.log(round(12.4));
 
 
-
-
-        setTimeout(function () {
-            //触发事件
-            $test.trigger('is', 'linkFly');
-        }, 1000);//1s后执行
+        //setTimeout(function () {
+        //    //触发事件
+        //    $test.trigger('is', 'linkFly');
+        //}, 1000);//1s后执行
     </script>
 </body>
 </html>

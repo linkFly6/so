@@ -163,3 +163,11 @@
     });
 })();
 
+
+
+var test = 'aaabbbaacdcddcdee',
+     reg = /(\w)\1+/g,
+     res;
+while (res = reg.exec(test))
+    console.log(res);
+
