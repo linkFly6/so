@@ -128,6 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Article\setTimeout-Event\setTimeout-Event.md" />
+    <Content Include="Article\If-NoFunction\if-noFunction.md" />
     <None Include="Article\Promise\Promise-1.md" />
     <Content Include="Article\Promise\Promise-2.md" />
     <Content Include="Article\Promise\Promise-3.md" />

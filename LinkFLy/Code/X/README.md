@@ -12,7 +12,7 @@ __[查看和下载X.js][X.js]__
 __[linkFly的博客][blog]__
 
 
-[X.js]:https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/LinkFly/GameLife/wapXML/X.js
+[X.js]:https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/Code/X/X.js
 [blog]:http://www.cnblogs.com/silin6/
 
 
