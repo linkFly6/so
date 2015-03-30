@@ -1,5 +1,5 @@
 ﻿; (function (window) {
-    var so = window.so || {},
+    var so = window.so ? window.so : (window.so = {}),
         DeferJsonp = function (fn) {
             var writeJSONP = function (url, callback) {
                 var node = document.createElement('script'),
