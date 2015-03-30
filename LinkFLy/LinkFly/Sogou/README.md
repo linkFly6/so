@@ -161,7 +161,7 @@ AMD的起源于NodeJS，NodeJS中涉及到大量处理逻辑，所以模块化�
     function init(id) {
         $elem = $('#' + id);
     }
-    var demo = init('test');
+    init('test');
 
 
 
