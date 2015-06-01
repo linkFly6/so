@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DeferJsonp-2.0测试</title>
+    <script src="DeferJsonp-2.0.js"></script>
+</head>
+<body>
+    <script type="text/javascript">
+        var defer = new DeferJsonp,
+            url = '/Code/TestService.ashx?callback=?',
+            group = function (index, data) {
+                console.group(index);
+                console.dir(data);
+                console.groupEnd();
+            };
+        defer.load(url + '&t=4000&data=one', function () {
+            group(0, arguments);
+            return arguments;
+        }).load(url + '&t=0&data=two', function () {
+            group(1, arguments);
+        });
+    </script>
+</body>
+</html>

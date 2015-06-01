@@ -13,3 +13,15 @@ F:\Github\linkfly.so\LinkFLy\bin\LinkFLy.pdb
 F:\Github\linkfly.so\LinkFLy\obj\Debug\LinkFLy.csprojResolveAssemblyReference.cache
 F:\Github\linkfly.so\LinkFLy\obj\Debug\LinkFLy.dll
 F:\Github\linkfly.so\LinkFLy\obj\Debug\LinkFLy.pdb
+F:\Github\linkfly.so\LinkFLy\bin\Newtonsoft.Json.dll
+F:\Github\linkfly.so\LinkFLy\bin\System.Net.Http.dll
+F:\Github\linkfly.so\LinkFLy\bin\System.Net.Http.Formatting.dll
+F:\Github\linkfly.so\LinkFLy\bin\System.Net.Http.WebRequest.dll
+F:\Github\linkfly.so\LinkFLy\bin\System.Web.Http.dll
+F:\Github\linkfly.so\LinkFLy\bin\System.Web.Http.WebHost.dll
+F:\Github\linkfly.so\LinkFLy\bin\Newtonsoft.Json.xml
+F:\Github\linkfly.so\LinkFLy\bin\System.Net.Http.xml
+F:\Github\linkfly.so\LinkFLy\bin\System.Net.Http.Formatting.xml
+F:\Github\linkfly.so\LinkFLy\bin\System.Net.Http.WebRequest.xml
+F:\Github\linkfly.so\LinkFLy\bin\System.Web.Http.xml
+F:\Github\linkfly.so\LinkFLy\bin\System.Web.Http.WebHost.xml

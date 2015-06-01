@@ -35,7 +35,7 @@
                 var res = [];
                 each.call(arguments, function (arg) {
                     if (isArray(arg))
-                        res.concat(arg);
+                        res = res.concat(arg);
                     else if (isArrayLike(arg))
                         each.call(arg, function (tmp) {
                             res.push(tmp);
