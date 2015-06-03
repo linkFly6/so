@@ -32,7 +32,6 @@
                 !(length % 1) && //整数
                 (length - 1) in obj); //可以被索引
             },
-            guid = 0,
             map = function () {
                 var res = [];
                 each.call(arguments, function (arg) {
@@ -49,64 +48,87 @@
             },
             globalState = {
                 WAIT: 0,
-                DONE: 1,
-                FAIL: 2
-            },
-            Defer = function (url, done) {
-                if (!(this instanceof Defer))
-                    return new Defer(url, done);
-                this.guid = guid++;
-                this.load(url, done);
+                WAITING: 1,
+                END: 2
             };
+        //单向阻塞链
+        var id = +new Date,
+            CallBacks = function () { };
+        CallBacks.prototype.guid = 0;
+        CallBacks.prototype.callbacks = [];
+        CallBacks.prototype.add = function (callback) {//添加一组回调函数
+            this.callbacks.push(callback);
+            callback[id] = this.guid++;
+            return callback[id];
+        };
+        CallBacks.prototype.done = function (id) {//执行一个id下的回调函数，该函数将查询上一个函数的状态
+
+        };
+
+        var Defer = function (url, done) {
+            if (!(this instanceof Defer))
+                return new Defer(url, done);
+            this.load(url, done);
+        },
+        State = function (state, callback) {
+            if (!(this instanceof State))
+                return new State(state, callback);
+            this.state = state || globalState.WAIT;
+            this.callback = callback;
+        };
         Defer.prototype.state = globalState.WAIT;
         Defer.prototype.data = null;
-        Defer.prototype.callback = null;//下一层链的注入
         Defer.time = 1000;//默认超时时间
         Defer.prototype.load = function (url, done, fail, time) {
-            var timeoutHandle, time, defer = this, nextDefer, trigger;
+            var timeoutHandle, time, defer = this, newCallback, trigger, state;
             if (url == null || typeof url !== 'string' || !isFunction(done)) return this;
-
             if (fail > 0) {
                 time = fail;
                 fail = null;
             }
             time = time || Defer.time;
-            trigger = function (callback, data) {
-                if (isFunction(defer._prev)) {//看是否被注入了函数
-                    defer._prev(callback, data);//执行注入函数
-                } else if (isFunction(callback)) {
-                    defer.data = callback.call(defer, data);
-                    if (defer.callback) {
-                        defer.callback(defer.data);
+            trigger = function (state, data) {
+                defer.data = defer.prev(state, data);
+            }
+            state = State();
+            if (defer.prev) {
+                newCallback = defer.prev;
+                defer.prev = function (state, data) {
+                    //console.log('这里');
+                    if (state.state === globalState.WAITING) {
+                        if (newCallback.call(defer, defer.data)) {
+                            defer.data = state.callback.call(defer, map(data, defer.data));
+                            state.state = globalState.END;
+                            //defer.prev = null;
+                        }
                     }
                 }
-            };
-            defer.url = url;
+            } else {
+                defer.prev = function (sate, data) {
+                    //console.log('这里?');
+                    if (state.state === globalState.END) return true;
+                    if (state.state === globalState.WAITING) {
+                        defer.data = map(state.callback.call(defer, data));
+                        state.state = globalState.END;
+                        return true;
+                    }
+                    return false;
+                };
+            }
             writeJSONP(url, function (data) {
                 clearTimeout(timeoutHandle);
-                defer.state = globalState.DONE;
-                trigger(done, data);
+                state.state = globalState.WAITING;
+                state.callback = done;
+                trigger(state, data);
             });
             timeoutHandle = setTimeout(function () {
                 clearTimeout(timeoutHandle);
                 if (defer.state) return;
-                defer.state = globalState.FAIL;
-                trigger(fail, map(defer.data, undefined));
+                state.state = globalState.WAITING;
+                state.callback = fail;
+                trigger(state);
             }, time);
-            nextDefer = new Defer;
-            nextDefer.fuck = defer;
-            nextDefer._prev = function (callback, data) {//为下一个defer对象注入函数
-                //console.log(defer.url, defer.guid, defer.status.state);
-                if (defer.state)
-                    isFunction(callback) ?
-                        callback.apply(defer, nextDefer.data = map(data, nextDefer.data)) :
-                        (nextDefer.data = data);
-                else {
-                    defer.callback = callback;
-                    defer.data = data == null ? data : map(data);
-                }
-            };
-            return nextDefer;
+            return this;
         };
         return Defer;
     }();
