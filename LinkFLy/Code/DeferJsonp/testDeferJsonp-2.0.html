@@ -22,16 +22,18 @@
         //}).load(url + '&t=2000&data=three', function () {
         //    group(2, arguments);
         //});
-        defer.load(url + '&t=0&data=one', function () {
-            group(0, arguments);
-            return arguments;
+        defer.load(url + '&t=4000&data=one', function (data) {
+            return data;
         })
-            .load(url + '&t=1&data=two', function () {
-                group(1, arguments);
-            })
-        //.load(url + '&t=2&data=three', function () {
-        //    group(2, arguments);
-        //});
+        .load(url + '&t=0&data=two', function (data) {
+            return data;
+        })
+        .load(url + '&t=2000&data=three', function (data) {
+            return data;
+        })
+        .load(url + '&t=800&data=three', function () {
+            group('result', arguments);
+        })
     </script>
 </body>
 </html>

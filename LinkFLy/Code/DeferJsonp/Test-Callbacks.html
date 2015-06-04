@@ -42,7 +42,6 @@
             ================================================
         */
         //单向阻塞链
-        //单向阻塞链
         var key = 'defer' + +(new Date),
             CallBacks = function () {
                 if (!(this instanceof CallBacks))
@@ -51,6 +50,8 @@
         CallBacks.prototype.guid = 0;
         CallBacks.prototype.callbacks = [];
         CallBacks.prototype.data = [];
+        CallBacks.prototype.lock = false;
+        CallBacks.prototype.waits = [];
         CallBacks.prototype.add = function (callback) {//添加一组回调函数
             this.callbacks.push(callback);
             callback[key] = this.guid++;
@@ -58,6 +59,12 @@
         };
         CallBacks.prototype.done = function (id) {//执行一个id下的回调函数，该函数将查询上一个函数的状态
             var callback, _id, flag = false, i = 0;
+            //防止event loop冲突，锁定操作
+            if (this.runing) {
+                this.waits.push(id);
+                return this;
+            };
+            this.runing = true;
             while ((callback = this.callbacks[i++])) {
                 _id = callback[key];
                 if (_id !== -1 && _id !== id) {
@@ -67,11 +74,20 @@
                 if (_id === id && flag) {
                     callback[key] = -1;
                     break;
-                };
-                this.data = map(callback.apply(null, this.data), this.data);
-                this.callbacks.shift();
-                i = 0;
+                } else if (!flag) {
+                    if (_id === -1 || id === _id) {
+                        this.data = map(callback.apply(null, this.data), this.data);
+                        this.callbacks.shift();
+                        i = 0;
+                    }
+                }
             }
+            //处理event loop，动态获取length
+            while (this.waits.length) {
+                this.done(this.waits.shift());
+            }
+            this.runing = false;
+            return this;
         };
 
         /*
@@ -89,25 +105,41 @@
             };
         delay = function (time, index) {
             setTimeout(function () {
+                //console.info(index);
                 demo.done(index);
             }, time);
         }, test = [];
         forEach(function (i) {
             demo.add(function () {
-                console.log(i, arguments);
+                //console.log(i);
+                console.log(arguments);
                 return i;
             });
         });
-        forEach(function (i) {
-            test.push(i);
-        })
-        test.sort(function () {
-            return 0.5 - Math.random();
-        });
-        forEach(function (i) {
-            delay(0.5 - -Math.random() * 1000, i)
-        })
 
+        /*=========================异步和乱序测试=======================*/
+
+        //forEach(function (i) {
+        //    test.push(i);
+        //})
+        //test.sort(function () {
+        //    return 0.5 - Math.random();
+        //});
+        //forEach(function (i) {
+        //    delay(Math.floor(0.5 - -(Math.random() * 1000)), test[i]);
+        //})
+
+        /*=========================异步和乱序测试=======================*/
+
+
+        /*=====================乱序测试==================*/
+        //console.log(demo);
+        //demo.done(3);
+        demo.done(2);
+        demo.done(0);
+        demo.done(1);
+        //demo.done(4);
+        /*=====================乱序测试==================*/
     </script>
 </body>
 </html>

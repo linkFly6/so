@@ -45,13 +45,8 @@
                         res.push(arg);
                 });
                 return res;
-            },
-            globalState = {
-                WAIT: 0,
-                WAITING: 1,
-                END: 2
             };
-        //单向阻塞链
+        //Callbacks才在把控顺序执行链的主要对象
         var key = 'defer' + +(new Date),
             CallBacks = function () {
                 if (!(this instanceof CallBacks))
@@ -60,27 +55,44 @@
         CallBacks.prototype.guid = 0;
         CallBacks.prototype.callbacks = [];
         CallBacks.prototype.data = [];
+        CallBacks.prototype.runing = false;
+        CallBacks.prototype.waits = [];
         CallBacks.prototype.add = function (callback) {//添加一组回调函数
             this.callbacks.push(callback);
-            callback[key] = this.guid++;
+            callback[key] = this.guid++;//标识ID
             return callback[key];
         };
         CallBacks.prototype.done = function (id) {//执行一个id下的回调函数，该函数将查询上一个函数的状态
             var callback, _id, flag = false, i = 0;
+            //防止event loop冲突
+            if (this.runing) {
+                this.waits.push(id);
+                return this;
+            };
+            this.runing = true;//锁定操作
             while ((callback = this.callbacks[i++])) {
-                _id = callback[key];
+                _id = callback[key];//获取当前函数的id
                 if (_id !== -1 && _id !== id) {
-                    flag = true;
+                    flag = true;//标识这个函数之前是否有任务尚未完成
                     continue;
                 };
                 if (_id === id && flag) {
-                    callback[key] = -1;
+                    callback[key] = -1;//有任务尚未完成，等待
                     break;
-                };
-                this.data = map(callback.apply(null, this.data), this.data);
-                this.callbacks.shift();
-                i = 0;
+                } else if (!flag) {
+                    //if (_id === -1 || id === _id) {
+                    this.data = map(callback.apply(null, this.data), this.data);//可以运行当前函数
+                    this.callbacks.shift();//重复运行
+                    i = 0;//状态清零，永远从索引0开始
+                    //}
+                }
             }
+            //处理event loop，动态获取length
+            while (this.waits.length) {
+                this.done(this.waits.shift());//任务队列还有任务，继续执行
+            }
+            this.runing = false;//解锁
+            return this;
         };
 
         var Defer = function (url, done) {
@@ -94,57 +106,29 @@
             this.state = state || globalState.WAIT;
             this.callback = callback;
         };
-        Defer.prototype.state = globalState.WAIT;
-        Defer.prototype.data = null;
+        Defer.prototype.Callbacks = new CallBacks;
         Defer.time = 1000;//默认超时时间
         Defer.prototype.load = function (url, done, fail, time) {
-            var timeoutHandle, time, defer = this, newCallback, trigger, state;
+            var timeoutHandle, time, defer = this, id, _data, isDone = false;
             if (url == null || typeof url !== 'string' || !isFunction(done)) return this;
             if (fail > 0) {
                 time = fail;
                 fail = null;
             }
             time = time || Defer.time;
-            trigger = function (state, data) {
-                defer.data = defer.prev(state, data);
-            }
-            state = State();
-            if (defer.prev) {
-                newCallback = defer.prev;
-                defer.prev = function (state, data) {
-                    //console.log('这里');
-                    if (state.state === globalState.WAITING) {
-                        if (newCallback.call(defer, defer.data)) {
-                            defer.data = state.callback.call(defer, map(data, defer.data));
-                            state.state = globalState.END;
-                            //defer.prev = null;
-                        }
-                    }
-                }
-            } else {
-                defer.prev = function (sate, data) {
-                    //console.log('这里?');
-                    if (state.state === globalState.END) return true;
-                    if (state.state === globalState.WAITING) {
-                        defer.data = map(state.callback.call(defer, data));
-                        state.state = globalState.END;
-                        return true;
-                    }
-                    return false;
-                };
-            }
+            id = defer.Callbacks.add(function () {
+                return isDone ? done.apply(defer, map(_data, arguments)) : isFunction(fail) ? fail.apply(defer, map(_data, arguments)) : undefined;
+            });
             writeJSONP(url, function (data) {
+                _data = data;
+                isDone = true;
                 clearTimeout(timeoutHandle);
-                state.state = globalState.WAITING;
-                state.callback = done;
-                trigger(state, data);
+                defer.Callbacks.done(id);
             });
             timeoutHandle = setTimeout(function () {
                 clearTimeout(timeoutHandle);
-                if (defer.state) return;
-                state.state = globalState.WAITING;
-                state.callback = fail;
-                trigger(state);
+                if (isDone) return;
+                defer.Callbacks.done(id);
             }, time);
             return this;
         };
