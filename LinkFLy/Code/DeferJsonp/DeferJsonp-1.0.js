@@ -1,4 +1,11 @@
-﻿; (function (window) {
+﻿/*!
+* Copyright 2015 linkFLy - http://www.cnblogs.com/silin6/
+* Released under the MIT license
+* http://opensource.org/licenses/mit-license.php
+* Help document：https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/Code/DeferJsonp
+* Date: 2015-06-05 00:12:20
+*/
+; (function (window) {
     var so = window.so ? window.so : (window.so = {}),
         DeferJsonp = function (fn) {
             var writeJSONP = function (url, callback) {

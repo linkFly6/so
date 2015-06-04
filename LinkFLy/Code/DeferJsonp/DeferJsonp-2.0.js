@@ -1,4 +1,11 @@
-﻿; (function (window) {
+﻿/*!
+* Copyright 2015 linkFLy - http://www.cnblogs.com/silin6/
+* Released under the MIT license
+* http://opensource.org/licenses/mit-license.php
+* Help document：https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/Code/DeferJsonp
+* Date: 2015-06-05 00:12:25
+*/
+; (function (window) {
     var DeferJsonp = function () {
         var domHead = document.getElementsByTagName('head')[0],
             undefined = void 0,
@@ -46,7 +53,7 @@
                 });
                 return res;
             };
-        //Callbacks才在把控顺序执行链的主要对象
+        //Callbacks才是把控顺序执行链的主要对象
         var key = 'defer' + +(new Date),
             CallBacks = function () {
                 if (!(this instanceof CallBacks))
@@ -55,7 +62,7 @@
         CallBacks.prototype.guid = 0;
         CallBacks.prototype.callbacks = [];
         CallBacks.prototype.data = [];
-        CallBacks.prototype.runing = false;
+        CallBacks.prototype.lock = false;
         CallBacks.prototype.waits = [];
         CallBacks.prototype.add = function (callback) {//添加一组回调函数
             this.callbacks.push(callback);
@@ -65,11 +72,11 @@
         CallBacks.prototype.done = function (id) {//执行一个id下的回调函数，该函数将查询上一个函数的状态
             var callback, _id, flag = false, i = 0;
             //防止event loop冲突
-            if (this.runing) {
+            if (this.lock) {
                 this.waits.push(id);
                 return this;
             };
-            this.runing = true;//锁定操作
+            this.lock = true;//锁定操作
             while ((callback = this.callbacks[i++])) {
                 _id = callback[key];//获取当前函数的id
                 if (_id !== -1 && _id !== id) {
@@ -88,10 +95,10 @@
                 }
             }
             //处理event loop，动态获取length
-            while (this.waits.length) {
+            if (this.waits.length) {
                 this.done(this.waits.shift());//任务队列还有任务，继续执行
             }
-            this.runing = false;//解锁
+            this.lock = false;//解锁
             return this;
         };
 
@@ -99,12 +106,6 @@
             if (!(this instanceof Defer))
                 return new Defer(url, done);
             this.load(url, done);
-        },
-        State = function (state, callback) {
-            if (!(this instanceof State))
-                return new State(state, callback);
-            this.state = state || globalState.WAIT;
-            this.callback = callback;
         };
         Defer.prototype.Callbacks = new CallBacks;
         Defer.time = 1000;//默认超时时间
