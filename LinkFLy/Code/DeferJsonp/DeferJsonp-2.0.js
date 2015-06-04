@@ -52,28 +52,34 @@
                 END: 2
             };
         //单向阻塞链
-        var key = +new Date,
-            CallBacks = function () { };
+        var key = 'defer' + +(new Date),
+            CallBacks = function () {
+                if (!(this instanceof CallBacks))
+                    return new CallBacks();
+            };
         CallBacks.prototype.guid = 0;
         CallBacks.prototype.callbacks = [];
         CallBacks.prototype.data = [];
-        CallBacks.prototype.lastId = 0;
         CallBacks.prototype.add = function (callback) {//添加一组回调函数
             this.callbacks.push(callback);
             callback[key] = this.guid++;
             return callback[key];
         };
         CallBacks.prototype.done = function (id) {//执行一个id下的回调函数，该函数将查询上一个函数的状态
-            var callback, _id;
-            if (id > this.lastId)
-                this.lastId = id;
-            while ((callback = this.callbacks[0])) {
+            var callback, _id, flag = false, i = 0;
+            while ((callback = this.callbacks[i++])) {
                 _id = callback[key];
-                if (_id !== id && _id < id) break;//当2比1先加载下来的时候，_id>id，所以会执行...所以还得向后查询，查询后面的状态是否完成
-                //if (callback[key] === id) {
-                this.data = map(callback[key].apply(null, this.data), this.data);
+                if (_id !== -1 && _id !== id) {
+                    flag = true;
+                    continue;
+                };
+                if (_id === id && flag) {
+                    callback[key] = -1;
+                    break;
+                };
+                this.data = map(callback.apply(null, this.data), this.data);
                 this.callbacks.shift();
-                //}
+                i = 0;
             }
         };
 

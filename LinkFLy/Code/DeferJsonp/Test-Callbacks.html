@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DeferJsonp-2.0内置对象-Callbacks测试</title>
+</head>
+<body>
+    <script>
+
+        var each = Array.prototype.forEach,
+            isArray = Array.isArray,
+            toString = Object.prototype.toString,
+            isFunction = function (obj) {
+                return toString.call(obj) === '[object Function]';
+            },
+            isArrayLike = function (obj) {
+                if (obj == null) return false;
+                var length = obj.length;
+                return isArray(obj) || !isFunction(obj) &&
+                typeof obj !== 'string' &&
+                (+length === length && //正数
+                !(length % 1) && //整数
+                (length - 1) in obj); //可以被索引
+            },
+            map = function () {
+                var res = [];
+                each.call(arguments, function (arg) {
+                    if (isArray(arg))
+                        res = res.concat(arg);
+                    else if (isArrayLike(arg))
+                        each.call(arg, function (tmp) {
+                            res.push(tmp);
+                        });
+                    else
+                        res.push(arg);
+                });
+                return res;
+            }
+        /*
+            ================================================
+                            Callbacks
+            ================================================
+        */
+        //单向阻塞链
+        //单向阻塞链
+        var key = 'defer' + +(new Date),
+            CallBacks = function () {
+                if (!(this instanceof CallBacks))
+                    return new CallBacks();
+            };
+        CallBacks.prototype.guid = 0;
+        CallBacks.prototype.callbacks = [];
+        CallBacks.prototype.data = [];
+        CallBacks.prototype.add = function (callback) {//添加一组回调函数
+            this.callbacks.push(callback);
+            callback[key] = this.guid++;
+            return callback[key];
+        };
+        CallBacks.prototype.done = function (id) {//执行一个id下的回调函数，该函数将查询上一个函数的状态
+            var callback, _id, flag = false, i = 0;
+            while ((callback = this.callbacks[i++])) {
+                _id = callback[key];
+                if (_id !== -1 && _id !== id) {
+                    flag = true;
+                    continue;
+                };
+                if (_id === id && flag) {
+                    callback[key] = -1;
+                    break;
+                };
+                this.data = map(callback.apply(null, this.data), this.data);
+                this.callbacks.shift();
+                i = 0;
+            }
+        };
+
+        /*
+    ================================================
+                        Callbacks
+    ================================================
+*/
+        var demo = CallBacks(),
+            i = 0, len = 30,
+            forEach = function (callback) {
+                i = 0;
+                for (; i < len; i++) {
+                    callback(i);
+                }
+            };
+        delay = function (time, index) {
+            setTimeout(function () {
+                demo.done(index);
+            }, time);
+        }, test = [];
+        forEach(function (i) {
+            demo.add(function () {
+                console.log(i, arguments);
+                return i;
+            });
+        });
+        forEach(function (i) {
+            test.push(i);
+        })
+        test.sort(function () {
+            return 0.5 - Math.random();
+        });
+        forEach(function (i) {
+            delay(0.5 - -Math.random() * 1000, i)
+        })
+
+    </script>
+</body>
+</html>

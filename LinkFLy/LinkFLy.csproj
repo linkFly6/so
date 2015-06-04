@@ -88,6 +88,7 @@
     <Content Include="Article\Promise\demo-promise-3.html" />
     <Content Include="Code\DeferJsonp\DeferJsonp-2.0.js" />
     <Content Include="Code\DeferJsonp\test-2.0.html" />
+    <Content Include="Code\DeferJsonp\Test-Callbacks.html" />
     <Content Include="Index.htm" />
     <Content Include="jQuery\jquery-1.11.1.js" />
     <Content Include="jQuery\jquery-1.7.2.js" />
