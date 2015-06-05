@@ -1,13 +1,30 @@
-﻿<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>DeferJsonp-2.0内置对象-Callbacks测试</title>
-</head>
-<body>
-    <script>
-
-        var each = Array.prototype.forEach,
+﻿/*!
+* Copyright 2015 linkFLy - http://www.cnblogs.com/silin6/
+* Released under the MIT license
+* http://opensource.org/licenses/mit-license.php
+* Help document：https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/Code/deferJsonp
+* Date: 2015-06-05 00:12:25
+*/
+; (function (window) {
+    var DeferJsonp = function () {
+        var domHead = document.getElementsByTagName('head')[0],
+            undefined = void 0,
+            writeJSONP = function (url, callback) {
+                var node = document.createElement('script'),
+                    callbackName = regGetCallbackName.test(url) ?
+                          url.match(regGetCallbackName)[1] : 'djsonp' + jsonpID++,
+                    match;
+                window[callbackName] = callback;
+                node.type = "text/javascript";
+                node.charset = "utf-8";
+                node.src = url.replace(regCallbackName, '?$1=' + callbackName);
+                domHead.appendChild(node);
+            },
+            regGetCallbackName = /callback=([^&\b?]+)/,
+            regCallbackName = /\?(.+)=\?/,
+            jsonpID = +new Date,
+            slice = Array.prototype.slice,
+            each = Array.prototype.forEach,
             isArray = Array.isArray,
             toString = Object.prototype.toString,
             isFunction = function (obj) {
@@ -35,12 +52,7 @@
                         res.push(arg);
                 });
                 return res;
-            }
-        /*
-            ================================================
-                            Callbacks
-            ================================================
-        */
+            };
         //Callbacks才是把控顺序执行链的主要对象
         var key = 'defer' + +(new Date),
             CallBacks = function () {
@@ -91,56 +103,41 @@
             return this;
         };
 
-        /*
-    ================================================
-                        Callbacks
-    ================================================
-*/
-        var demo = CallBacks(),
-            i = 0, len = 30,
-            forEach = function (callback) {
-                i = 0;
-                for (; i < len; i++) {
-                    callback(i);
-                }
-            };
-        delay = function (time, index) {
-            setTimeout(function () {
-                //console.info(index);
-                demo.done(index);
-            }, time);
-        }, test = [];
-        forEach(function (i) {
-            demo.add(function () {
-                //console.log(i);
-                console.log(arguments);
-                return i;
+        var Defer = function (url, done) {
+            if (!(this instanceof Defer))
+                return new Defer(url, done);
+            this.load(url, done);
+        };
+        Defer.prototype.Callbacks = new CallBacks;
+
+        Defer.time = 10e3;//默认超时时间
+
+        Defer.prototype.load = function (url, done, fail, time) {
+            var timeoutHandle, time, defer = this, id, _data, isDone = false;
+            if (url == null || typeof url !== 'string' || !isFunction(done)) return this;
+            if (fail > 0) {
+                time = fail;
+                fail = null;
+            }
+            time = time || Defer.time;
+            id = defer.Callbacks.add(function () {
+                return isDone ? done.apply(defer, map(_data, arguments)) : isFunction(fail) ? fail.apply(defer, map(_data, arguments)) : undefined;
             });
-        });
+            writeJSONP(url, function (data) {
+                isDone = true;
+                clearTimeout(timeoutHandle);
+                _data = data;
+                defer.Callbacks.done(id);
+            });
+            timeoutHandle = setTimeout(function () {
+                clearTimeout(timeoutHandle);
+                if (isDone) return;
+                defer.Callbacks.done(id);
+            }, time);
+            return this;
+        };
+        return Defer;
+    }();
+    window.deferJsonp = DeferJsonp;
 
-        /*=========================异步和乱序测试=======================*/
-
-        //forEach(function (i) {
-        //    test.push(i);
-        //})
-        //test.sort(function () {
-        //    return 0.5 - Math.random();
-        //});
-        //forEach(function (i) {
-        //    delay(Math.floor(0.5 - -(Math.random() * 1000)), test[i]);
-        //})
-
-        /*=========================异步和乱序测试=======================*/
-
-
-        /*=====================乱序测试==================*/
-        //console.log(demo);
-        //demo.done(3);
-        demo.done(2);
-        demo.done(0);
-        demo.done(1);
-        //demo.done(4);
-        /*=====================乱序测试==================*/
-    </script>
-</body>
-</html>
+})(window);
