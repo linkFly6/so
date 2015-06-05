@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DeferJsonp-2.0内置对象-Callbacks测试</title>
+</head>
+<body>
+    <script>
+
+        var each = Array.prototype.forEach,
+            isArray = Array.isArray,
+            toString = Object.prototype.toString,
+            isFunction = function (obj) {
+                return toString.call(obj) === '[object Function]';
+            },
+            isArrayLike = function (obj) {
+                if (obj == null) return false;
+                var length = obj.length;
+                return isArray(obj) || !isFunction(obj) &&
+                typeof obj !== 'string' &&
+                (+length === length && //正数
+                !(length % 1) && //整数
+                (length - 1) in obj); //可以被索引
+            },
+            map = function () {
+                var res = [];
+                each.call(arguments, function (arg) {
+                    if (isArray(arg))
+                        res = res.concat(arg);
+                    else if (isArrayLike(arg))
+                        each.call(arg, function (tmp) {
+                            res.push(tmp);
+                        });
+                    else
+                        res.push(arg);
+                });
+                return res;
+            }
+        /*
+            ================================================
+                            Callbacks
+            ================================================
+        */
+        //Callbacks才是把控顺序执行链的主要对象
+        var key = 'defer' + +(new Date),
+            CallBacks = function () {
+                if (!(this instanceof CallBacks))
+                    return new CallBacks();
+            };
+        CallBacks.prototype.guid = 0;
+        CallBacks.prototype.callbacks = [];
+        CallBacks.prototype.data = [];
+        CallBacks.prototype.lock = false;
+        CallBacks.prototype.waits = [];
+        CallBacks.prototype.add = function (callback) {//添加一组回调函数
+            this.callbacks.push(callback);
+            callback[key] = this.guid++;//标识ID
+            return callback[key];
+        };
+        CallBacks.prototype.done = function (id) {//执行一个id下的回调函数，该函数将查询上一个函数的状态
+            var callback,
+                _id,
+                flag = false,
+                i = 0;
+            //防止event loop冲突
+            if (this.lock) {
+                this.waits.push(id);
+                return this;
+            };
+            this.lock = true;//锁定操作
+            while ((callback = this.callbacks[i++])) {
+                _id = callback[key];//获取当前函数的id
+                if (_id !== -1 && _id !== id) {
+                    flag = true;//标识这个函数之前是否有任务尚未完成
+                    continue;
+                };
+                if (_id === id && flag) {
+                    callback[key] = -1;//有任务尚未完成，等待
+                    break;
+                } else if (!flag) {
+                    this.data = map(callback.apply(null, this.data), this.data);//可以运行当前函数
+                    this.callbacks.shift();//重复运行
+                    i = 0;//状态清零，永远从索引0开始
+                }
+            }
+            //处理event loop，动态获取length
+            if (this.waits.length) {
+                this.done(this.waits.shift());//任务队列还有任务，继续执行
+            }
+            this.lock = false;//解锁
+            return this;
+        };
+
+        /*
+    ================================================
+                        Callbacks
+    ================================================
+*/
+        var demo = CallBacks(),
+            i = 0, len = 30,
+            forEach = function (callback) {
+                i = 0;
+                for (; i < len; i++) {
+                    callback(i);
+                }
+            };
+        delay = function (time, index) {
+            setTimeout(function () {
+                //console.info(index);
+                demo.done(index);
+            }, time);
+        }, test = [];
+        forEach(function (i) {
+            demo.add(function () {
+                //console.log(i);
+                console.log(arguments);
+                return i;
+            });
+        });
+
+        /*=========================异步和乱序测试=======================*/
+
+        //forEach(function (i) {
+        //    test.push(i);
+        //})
+        //test.sort(function () {
+        //    return 0.5 - Math.random();
+        //});
+        //forEach(function (i) {
+        //    delay(Math.floor(0.5 - -(Math.random() * 1000)), test[i]);
+        //})
+
+        /*=========================异步和乱序测试=======================*/
+
+
+        /*=====================乱序测试==================*/
+        //console.log(demo);
+        //demo.done(3);
+        //demo.done(2);
+        //demo.done(0);
+        //demo.done(1);
+        //demo.done(4);
+        /*=====================乱序测试==================*/
+    </script>
+</body>
+</html>
