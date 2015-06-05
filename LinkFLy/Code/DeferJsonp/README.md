@@ -100,7 +100,7 @@ DeferJsonp目前仅一个API。
 
 
   [1]: https://camo.githubusercontent.com/11b46a2fb2858bbfcaf16cd73aa05f851230d0f5/687474703a2f2f696d672e736869656c64732e696f2f62616467652f6c6963656e73652d4d49542d79656c6c6f77677265656e2e737667
-  [2]: https://github.com/linkFly6/linkfly.so/tree/master/LinkFLy/Code/DeferJsonp/images/jsonp.png
-  [3]: https://github.com/linkFly6/linkfly.so/tree/master/LinkFLy/Code/DeferJsonp/images/deferJsonp.png
-  [4]: https://github.com/linkFly6/linkfly.so/tree/master/LinkFLy/Code/DeferJsonp
+  [2]: https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/Code/DeferJsonp/images/jsonp.png
+  [3]: https://github.com/linkFly6/linkfly.so/blob/master/LinkFLy/Code/DeferJsonp/images/deferJsonp.png
+  [4]: https://github.com/linkFly6/linkfly.so/tree/master/LinkFLy/Code/DeferJsonp#%E5%BB%B6%E4%BC%B8
   [5]: https://github.com/linkFly6/linkfly.so/tree/master/LinkFLy/Code/DeferJsonp/DESCRIPTION.md
