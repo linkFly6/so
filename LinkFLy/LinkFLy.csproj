@@ -87,6 +87,7 @@
     <Content Include="Article\Promise\demo-promise-2.html" />
     <Content Include="Article\Promise\demo-promise-3.html" />
     <Content Include="Code\DeferJsonp\DeferJsonp-2.0.js" />
+    <Content Include="Code\DeferJsonp\Demo.html" />
     <Content Include="Code\DeferJsonp\testDeferJsonp-2.0.html" />
     <Content Include="Code\DeferJsonp\Test-Callbacks.html" />
     <Content Include="Index.htm" />
@@ -101,6 +102,7 @@
     <Content Include="jQuery\jQuery.LinkFLy\DOMReady.js" />
     <Content Include="jQuery\Zepto\test.html" />
     <Content Include="jQuery\Zepto\Zepto.1.1.4.js" />
+    <None Include="LICENSE" />
     <Content Include="LinkFly\ArrayLike.js" />
     <Content Include="Article\Before\ArrayLike.html" />
     <Content Include="Article\Before\jQuery.Callbacks.html" />
@@ -161,6 +163,7 @@
     <Content Include="LinkFly\Sogou\README.md" />
     <Content Include="packages.config" />
     <Content Include="Code\TestService.ashx" />
+    <Content Include="Code\DeferJsonp\README.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Article\Before\从angularJS看MVVM\从angularJS看前端MVVM.md" />

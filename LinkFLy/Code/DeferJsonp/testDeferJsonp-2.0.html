@@ -33,7 +33,10 @@
         })
         .load(url + '&t=800&data=three', function () {
             group('result', arguments);
-        })
+        });
+
+        var defer = new DeferJsonp;
+        defer.load(url, done, fail, time)
     </script>
 </body>
 </html>

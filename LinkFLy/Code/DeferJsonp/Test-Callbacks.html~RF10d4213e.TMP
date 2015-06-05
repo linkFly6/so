@@ -136,9 +136,9 @@
         /*=====================乱序测试==================*/
         //console.log(demo);
         //demo.done(3);
-        //demo.done(2);
-        //demo.done(0);
-        //demo.done(1);
+        demo.done(2);
+        demo.done(0);
+        demo.done(1);
         //demo.done(4);
         /*=====================乱序测试==================*/
     </script>

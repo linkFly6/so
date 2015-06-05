@@ -22,7 +22,7 @@
             },
             regGetCallbackName = /callback=([^&\b?]+)/,
             regCallbackName = /\?(.+)=\?/,
-            jsonpID = new Date().getTime(),
+            jsonpID = +new Date(),
             slice = Array.prototype.slice,
             each = Array.prototype.forEach,
             isArray = Array.isArray,
@@ -70,7 +70,10 @@
             return callback[key];
         };
         CallBacks.prototype.done = function (id) {//执行一个id下的回调函数，该函数将查询上一个函数的状态
-            var callback, _id, flag = false, i = 0;
+            var callback,
+                _id,
+                flag = false,
+                i = 0;
             //防止event loop冲突
             if (this.lock) {
                 this.waits.push(id);
@@ -87,11 +90,9 @@
                     callback[key] = -1;//有任务尚未完成，等待
                     break;
                 } else if (!flag) {
-                    //if (_id === -1 || id === _id) {
                     this.data = map(callback.apply(null, this.data), this.data);//可以运行当前函数
                     this.callbacks.shift();//重复运行
                     i = 0;//状态清零，永远从索引0开始
-                    //}
                 }
             }
             //处理event loop，动态获取length
@@ -108,7 +109,9 @@
             this.load(url, done);
         };
         Defer.prototype.Callbacks = new CallBacks;
-        Defer.time = 1000;//默认超时时间
+
+        Defer.time = 10e3;//默认超时时间
+
         Defer.prototype.load = function (url, done, fail, time) {
             var timeoutHandle, time, defer = this, id, _data, isDone = false;
             if (url == null || typeof url !== 'string' || !isFunction(done)) return this;
