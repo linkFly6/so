@@ -32,11 +32,15 @@
 
 > 和**Promise**并不相同，*Promise*强调等待上一个Promise对象的结果，而deferJsonp是在上一个deferJsonp请求的同时并行请求自己，在返回结果的时候按照顺序执行。
 
-  &nbsp;&nbsp;
+&nbsp;&nbsp;
+
+----------
+
+&nbsp;&nbsp;
 
 最大化利用浏览器http线程并行，并维持每一个jsonp的执行顺序。
 
- - 传统的jsonp进行三次请求，三次请求分别阻塞2000ms、3000ms和1000ms，传统jsonp完成所有请求共计约6000s：
+ - 传统的jsonp进行三次请求，三次请求分别阻塞2000ms、3000ms和1000ms。完成所有请求共计约6000ms：
 
 ![jsonp][3]
   
@@ -61,12 +65,12 @@
     }, function () {
         return false;//fail
     }, 1000)
-    .load('/test?callback=demo2', function (data) {
-        return 'linkFly';
-    })
-    .load('/test?callback=demo3', function (data3, data2, data) {
-		console.log(data, data2, data3);//[true,'linkFly','data3']
-    });
+		.load('/test?callback=demo2', function (data) {
+			return 'linkFly';
+		})
+		.load('/test?callback=demo3', function (data3, data2, data) {
+			console.log(data, data2, data3);//[true,'linkFly','data3']
+		});
 ```
 
 
