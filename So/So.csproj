@@ -7,19 +7,14 @@
     <ProductVersion>
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7FBAE9A0-D8CF-4747-94FB-AB50AE0874AA}</ProjectGuid>
+    <ProjectGuid>{4B01C21F-9089-47B9-81CF-910C70EA2272}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LinkFLy</RootNamespace>
-    <AssemblyName>LinkFLy</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <UseIISExpress>false</UseIISExpress>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <OldToolsVersion>4.0</OldToolsVersion>
+    <RootNamespace>So</RootNamespace>
+    <AssemblyName>So</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -44,32 +39,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.6\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.4.0.20710.0\lib\net40\System.Net.Http.Formatting.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http.WebRequest, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Web.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.4.0.20710.0\lib\net40\System.Web.Http.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Http.WebHost, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.4.0.20710.0\lib\net40\System.Web.Http.WebHost.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
@@ -79,18 +57,23 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Article\Promise\demo-promise-1.js" />
+    <Content Include="Article\Before\ArrayLike.html" />
+    <Content Include="Article\Before\jQuery.Callbacks.html" />
+    <Content Include="Article\Before\jQuery.data.html" />
+    <Content Include="Article\Before\jQuery.Deferred.html" />
     <Content Include="Article\Before\从angularJS看MVVM\angularJS.html" />
     <Content Include="Article\Before\从angularJS看MVVM\demo.js" />
     <Content Include="Article\Before\从angularJS看MVVM\ngDemo.js" />
     <Content Include="Article\Before\编写更加稳定的javascript代码\test.js" />
+    <Content Include="Article\Promise\demo-promise-1.js" />
     <Content Include="Article\Promise\demo-promise-2.html" />
     <Content Include="Article\Promise\demo-promise-3.html" />
-    <Content Include="Code\DeferJsonp\DeferJsonp-2.0.js" />
-    <Content Include="Code\DeferJsonp\Demo.html" />
-    <Content Include="Code\DeferJsonp\testDeferJsonp-2.0.html" />
-    <Content Include="Code\DeferJsonp\Test-Callbacks.html" />
-    <Content Include="Index.htm" />
+    <Content Include="JavaScript\Defer\Defer.js" />
+    <Content Include="JavaScript\Round\dataFile10315_4.xml" />
+    <Content Include="JavaScript\Round\Index.htm" />
+    <Content Include="JavaScript\Round\Round.js" />
+    <Content Include="JavaScript\Round\tpl10315.4.xsl" />
+    <Content Include="JavaScript\String\String.js" />
     <Content Include="jQuery\jquery-1.11.1.js" />
     <Content Include="jQuery\jquery-1.7.2.js" />
     <Content Include="jQuery\jquery-2.1.1.js" />
@@ -102,72 +85,46 @@
     <Content Include="jQuery\jQuery.LinkFLy\DOMReady.js" />
     <Content Include="jQuery\Zepto\test.html" />
     <Content Include="jQuery\Zepto\Zepto.1.1.4.js" />
-    <None Include="LICENSE" />
-    <Content Include="LinkFly\ArrayLike.js" />
-    <Content Include="Article\Before\ArrayLike.html" />
-    <Content Include="Article\Before\jQuery.Callbacks.html" />
-    <Content Include="Article\Before\jQuery.data.html" />
-    <Content Include="Article\Before\jQuery.Deferred.html" />
-    <Content Include="LinkFly\Article\box-flex.html" />
-    <Content Include="LinkFly\Code.v.1.0.js" />
-    <Content Include="Code\Defer\Defer.js" />
-    <Content Include="Demo\ArrayLike.htm" />
-    <Content Include="Demo\ArrayLike.html" />
-    <Content Include="Demo\Data.html" />
-    <Content Include="Demo\testAnimate.htm" />
-    <Content Include="LinkFly\Extend.js" />
-    <Content Include="Code\DeferJsonp\DeferJsonp-1.0.js" />
-    <Content Include="Code\Round\dataFile10315_4.xml" />
-    <Content Include="Code\Round\Index.htm" />
-    <Content Include="Code\Round\Round.js" />
-    <Content Include="Code\Round\tpl10315.4.xsl" />
-    <Content Include="Code\X\test.htm" />
-    <Content Include="Code\X\testXML.xml" />
-    <Content Include="Code\X\X.js" />
-    <Content Include="Code\X\X.js对象的思考.html" />
-    <Content Include="Code\X\X.min.js" />
-    <Content Include="LinkFly\MobileAnimated.htm" />
-    <Content Include="LinkFly\Sogou\builder.js" />
-    <Content Include="LinkFly\Sogou\SogouGps.js" />
-    <Content Include="LinkFly\String.js" />
-    <Content Include="LinkFly\testAnimate.htm" />
-    <Content Include="LinkFly\wapAnimated.js" />
-    <Content Include="Themes\Global.css" />
+    <Content Include="JavaScript\laboratory\ArrayLike.js" />
+    <Content Include="Article\Other\box-flex.html" />
+    <Content Include="JavaScript\Core\Code.v.1.0.js" />
+    <Content Include="JavaScript\laboratory\Extend.js" />
+    <Content Include="JavaScript\laboratory\MobileAnimated.htm" />
+    <Content Include="Other\Sogou\builder.js" />
+    <Content Include="Other\Sogou\SogouGps.js" />
+    <Content Include="JavaScript\laboratory\testAnimate.htm" />
+    <Content Include="JavaScript\laboratory\wapAnimated.js" />
     <Content Include="Web.config" />
-    <Content Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </Content>
-    <Content Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Code\TestService.ashx.cs">
+    <Compile Include="JavaScript\TestService.ashx.cs">
       <DependentUpon>TestService.ashx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Code\Defer\Reference\" />
-    <Folder Include="jQuery\jQuery.Code\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Code\X\README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Article\setTimeout-Event\setTimeout-Event.md" />
+    <Content Include="Article\Before\从angularJS看MVVM\从angularJS看前端MVVM.md" />
+    <Content Include="Article\Before\编写更加稳定的javascript代码\编写更加稳定可读的javascript代码.md" />
     <Content Include="Article\If-NoFunction\if-noFunction.md" />
-    <None Include="Article\Promise\Promise-1.md" />
+    <Content Include="Article\Promise\Promise-1.md" />
     <Content Include="Article\Promise\Promise-2.md" />
     <Content Include="Article\Promise\Promise-3.md" />
-    <Content Include="LinkFly\Sogou\README.md" />
-    <Content Include="packages.config" />
-    <Content Include="Code\TestService.ashx" />
-    <Content Include="Code\DeferJsonp\README.md" />
+    <Content Include="Article\setTimeout-Event\setTimeout-Event.md" />
+    <Content Include="JavaScript\TestService.ashx" />
+    <Content Include="Other\Sogou\README.md" />
+    <Content Include="Article\README.md" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Article\Before\从angularJS看MVVM\从angularJS看前端MVVM.md" />
-    <None Include="Article\Before\编写更加稳定的javascript代码\编写更加稳定可读的javascript代码.md" />
+    <Folder Include="Demo\" />
+    <Folder Include="JavaScript\Defer\Reference\" />
+    <Folder Include="jQuery\jQuery.Code\" />
+    <Folder Include="Resource\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -180,12 +137,11 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>False</UseIIS>
+          <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>4121</DevelopmentServerPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>
-          </IISUrl>
+          <IISUrl>http://localhost:13489/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
