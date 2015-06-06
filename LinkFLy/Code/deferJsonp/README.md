@@ -30,7 +30,7 @@
 ```
    
 
-> 和**Promise**并不相同，*Promise*强调等待上一个Promise对象的结果，而deferJsonp是在上一个deferJsonp请求的同时并行请求自己，在返回结果的时候按照顺序执行。
+> *和Promise并不相同，Promise强调等待上一个Promise对象的结果，而deferJsonp是在上一个deferJsonp请求的同时并行请求自己，在返回结果的时候按照顺序执行*。
 
 &nbsp;&nbsp;
 
