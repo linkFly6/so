@@ -61,6 +61,8 @@ Service.js的模块结构如下：
  - Service.Support - 浏览器支持
  - Service.animate - 动画
  
+ &nbsp;
+ 
  
  ###基础工具
  
@@ -78,6 +80,7 @@ Service.js的模块结构如下：
  
 **下面所有的代码中都使用AMD下的变量名service作为演示，变量`service`都代表全局对象`window.sogou.service`。**
 
+ &nbsp;
  
  ####核心和内部工具
  
