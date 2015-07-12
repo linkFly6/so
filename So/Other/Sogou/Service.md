@@ -64,9 +64,9 @@ Service.js的模块结构如下：
  &nbsp;
  
  
- ###基础工具
+##基础工具
  
- ####使用
+###使用
  
  service注册在`window.sogou.service`，全局访问，同时支持AMD规范，AMD中访问模块名为`service`。
  
@@ -82,7 +82,7 @@ Service.js的模块结构如下：
 
  &nbsp;
  
- ####核心和内部工具
+###核心和内部工具
  
  各大框架和基础类库都有这么一套，都是内部和组件常用工具，对这些工具没兴趣的可以略过了。
  
@@ -166,7 +166,7 @@ Service.js的模块结构如下：
 
 &nbsp;
 
-####Service.config(options)
+###Service.config(options)
 > 进行全局自定义配置，以下两个自定义配置需要注意
 - url - url中必须带有占位符，占位符`${0}`表示qoInfo，占位符`${1}`则表示keywords（查询词），例如直连openhub的时候
 - getGpsUrl - url中必须带有占位符，占位符`${0}`表示经度，`${1}`表示纬度
@@ -187,7 +187,7 @@ Service.js的模块结构如下：
 
 &nbsp;
 
-####Service.format(str, object)
+###Service.format(str, object)
 > 格式化一个字符串，通过在字符串中利用占位符进行占位，再用对象或数组进行格式化，占位符支持两种：
 - Array - 使用`${索引}`进行占位，例如：`${0}`,`${1}`则表示数组索引为0和1的元素填充
 - Object - 使用`${属性名}`进行占位，例如：`${name}`则表示使用该对象的name属性值填充
@@ -206,7 +206,7 @@ Service.js的模块结构如下：
 
 &nbsp;
 
-####Service.parseData(value)
+###Service.parseData(value)
 > 转换一个字符串为js中的基础数据类型
 
 ```javascript
@@ -217,7 +217,7 @@ Service.js的模块结构如下：
 
 &nbsp;
 
-####Service.byteLength(target,fix)
+###Service.byteLength(target,fix)
 > 检测字符串byte长度，两个重载。
 
 - target{ String } - 要检测的字符串
@@ -234,7 +234,7 @@ Service.js的模块结构如下：
 
 &nbsp;
 
-####Service.truncate(target, length, truncation, isByte)
+###Service.truncate(target, length, truncation, isByte)
 > 裁剪一个字符串
 
 - target{ String } - 裁剪的目标
@@ -257,7 +257,7 @@ Service.js的模块结构如下：
 
 &nbsp;
 
-####Service.parseDate(jsonDate)
+###Service.parseDate(jsonDate)
 > 转换一个时间戳或序列化的时间戳为Date对象
 
 - jsonDate：时间戳[1436677646736]或序列化后的时间戳[/Date(1436677646736)/]
@@ -273,7 +273,7 @@ Service.js的模块结构如下：
 
 &nbsp;
 
-####Service.dateFormat(jsonDate, format) - 格式化日期
+###Service.dateFormat(jsonDate, format) - 格式化日期
 > 格式化一个时间戳/Date/序列化时间戳为指定的格式
 
 - jsonDate{ Date | jsonDate | timespan } - 要格式化的时间戳/Date对象/序列化时间戳
@@ -310,7 +310,7 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-####Service.dateToLocal(oldDate, nowDate)
+###Service.dateToLocal(oldDate, nowDate)
 > 对比两个日期对象的时间差，转换为本地文本，返回的本地化的文本如下：  
 刚才 - 小于1分钟  
 59分钟前 - 小于1个小时
@@ -333,7 +333,7 @@ f - 1位数毫秒,例：9
 &nbsp;
 
 
-####Service.param(obj, deep)
+###Service.param(obj, deep)
 > 编码一个对象（为url），注意编码的对象如果有function也会被编码，通过调用`encodeURIComponent`进行编码
 
 - obj{ Object } - 要编码的对象
@@ -350,7 +350,7 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-####Service.Search(url)
+###Service.Search(url)
 > 注意，获取url参数，`service.Search`是一个对象，它支持静态获取参数的，之所以提供动态获取是因为DOM3的API `pushState`支持无刷新修改url参数。
 
 - name{ String } - 要获取的参数名
@@ -369,7 +369,7 @@ f - 1位数毫秒,例：9
 &nbsp;
 
 
-####Service.cookie(name, value, expiredays)
+###Service.cookie(name, value, expiredays)
 > 读取/设置cookie
 
 - name - 读取/设置的cookie名称
@@ -397,7 +397,7 @@ f - 1位数毫秒,例：9
 &nbsp;
 
 ###服务模块
-####Service.qo(options)
+###Service.qo(options)
 > 获取一个QueryObject（qo）配置对象，默认配置参见代码 
 
 - options{ Object } - 要自定义的qo配置
@@ -429,7 +429,7 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-####Service.CallBacks()
+###Service.CallBacks()
 > 一个强大的异步队列控制对象，内置在[deferJsonp](https://github.com/linkFly6/deferJsonp)中。  
 传统的异步任务没有队列的概念，Service内置了Callbacks工作对象，用于控制异步任务的队列，让无序的异步任务有序的执行。  
 尤其在ajax/JSONP中，利用浏览器最大HTTP线程，最快发送异步请求，最短且有序的响应。
@@ -447,7 +447,7 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-####Service.getJSONP(url, done, fail, time)
+###Service.getJSONP(url, done, fail, time)
 > 发送一个传统的JSONP请求
 
 - url{ String } - 请求的url，可以使用?占位符自动生成回调函数名称
@@ -467,7 +467,7 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-####Service.defer(url, done, fail, time)
+###Service.defer(url, done, fail, time)
 > 发起一个异步队列的JSONP请求，它的回调函数执行时机依赖上一个JSONP的函数执行与否。
 
 - url{ String } - 请求的url，可以使用?占位符自动生成回调函数名称
@@ -487,7 +487,7 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-####Service.fetch(qo, success, error, time)
+###Service.fetch(qo, success, error, time)
 > 发起一个含有异步队列模型的二次加载，所有的自定义配置都会和默认配置进行合并，没有填写的属性将采用默认属性值
 
 - qo{ Object } - qo对象，参考`service.qo(options)`，会和默认qo配置对象进行合并
@@ -518,7 +518,7 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-####Service.request(qo, success, error, time)
+###Service.request(qo, success, error, time)
 > 和`service.fetch()` API一致，只是它的请求是无序的（没有异步队列模型）
 
 ```javascript
@@ -527,7 +527,7 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-####Service.ajax(options)
+###Service.ajax(options)
 > 在有Zepto/jQuery的情况下才有该方法，该方法将Zepto/jQuery的ajax封装出一套含有异步队列模型的ajax
 
 - options{ Object } - 参考jQuery/Zepto `$.ajax(options)` API
