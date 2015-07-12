@@ -114,10 +114,11 @@ Service.js的模块结构如下：
 	//驼峰转换
 	service.camelCase('-webkit-animation-name');//WebkitAnimationName
 	
-	//循环
+	//遍历数组
     service.each(['a'], function (value, i) {
         console.log(value, i);//a,0
     })
+    //遍历对象
 	service.each({ author: 'linkFly' }, function (key, value) {
         console.log(key, value);//author,linkFly
     })
@@ -197,11 +198,11 @@ Service.js的模块结构如下：
 - service.format(str , object) - 通过Object格式化
 
 ```javascript
-        service.format('${0}ink${1}ly', 'l', 'F');//linkFly
-        service.format('${first}ink${last}ly', {
-            first: 'l',
-            last: 'F'
-        });//linkFly
+    service.format('${0}ink${1}ly', 'l', 'F');//linkFly
+    service.format('${first}ink${last}ly', {
+        first: 'l',
+        last: 'F'
+    });//linkFly
 ```
 
 &nbsp;
@@ -267,8 +268,8 @@ Service.js的模块结构如下：
 - service.parseDate(serializeDate) - 序列化时间戳转换
 
 ```javascript
-    service.parseDate(1436677646736);
-    service.parseDate('/Date(1436711484349)/');
+    service.parseDate(1436677646736);// Date {Sun Jul 12 2015 13:07:26 GMT+0800}
+    service.parseDate('/Date(1436711484349)/');// Date {Sun Jul 12 2015 22:31:24 GMT+0800}
 ```
 
 &nbsp;
@@ -279,7 +280,7 @@ Service.js的模块结构如下：
 - jsonDate{ Date | jsonDate | timespan } - 要格式化的时间戳/Date对象/序列化时间戳
 - format{ String } - 格式化
 
-> 格式化格式例如：`yyyy年MM月dd日 HH:mm:ss`，则会格式出：`2015年7月12日 20:51:19`，所以格式如下：  
+> 格式化格式例如：`yyyy年MM月dd日 HH:mm:ss`，则会格式出：`2015年7月12日 20:51:19`，所有格式如下：  
 yyyy - 4位数年份，例如：2015  
 MM - 2位数月份，自动补零，例：02  
 M - 1位数月份，例：2  
@@ -313,10 +314,10 @@ f - 1位数毫秒,例：9
 ###Service.dateToLocal(oldDate, nowDate)
 > 对比两个日期对象的时间差，转换为本地文本，返回的本地化的文本如下：  
 刚才 - 小于1分钟  
-59分钟前 - 小于1个小时
-23小时前 - 小于24小时
-6天前 - 小于7天
-2015年7月12日 20:58:49 - 超过6天 
+59分钟前 - 小于1个小时  
+23小时前 - 小于24小时  
+6天前 - 小于7天  
+2015年7月12日 20:58:49 - 超过6天   
 
 - oldDate{ Date | jsonDate | timespan } - 要计算的时间
 - nowDate{ Date | jsonDate | timespan } - 更新的时间（默认为当前时间）
@@ -497,11 +498,11 @@ f - 1位数毫秒,例：9
 - options{ Object } - 传递`options`则表示完整配置整个二次加载，它包含这些属性
  - options.url{ String } - 请求url，默认为全局配置`service.config({ url : "/web/features/vr.jsp?keyword=${1}&qoInfo=${0}&cb=?" })`
  - options.keywords{ String } - 请求关键词（keywords），默认为"sogou"，在url中使用`${1}`作占位符
- - options.filter{ Boolean } - 是否过滤数据，默认二次请求加载的XML数据都会进行验证数据正确性，验证不通过则触发`options.error`，默认为true
+ - options.filter{ Boolean } - 是否过滤数据，默认二次请求加载的XML数据都会进行验证数据正确性，验证不通过则触发`options.error`，默认为true。
  - options.success{ Function } - 二次加载请求成功后执行的回调函数
  - options.error{ Function } - 二次加载请求失败后执行的回调函数
  - options.time{ Int } - 超时时间（ms），默认为全局配置`service.config({ timeout : 16e2 })`
- - options.qo{ Object } - qo对象，参考`service.qo(options)`，会和默认qo配置对象进行合并
+ - options.qo{ Object } - qo对象，参考`service.qo(options)`，会和默认qo配置对象进行合并，在url中使用`${0}`作占位符
 
 
 重载
