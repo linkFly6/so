@@ -396,7 +396,7 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-###服务模块
+##服务模块
 ###Service.qo(options)
 > 获取一个QueryObject（qo）配置对象，默认配置参见代码 
 
