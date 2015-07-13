@@ -1,7 +1,10 @@
-#Service.js 帮助
+#Service.js 帮助文档
 
 > Service.js是对服务体系增强的一套基础类库，支持AMD规范。  
 核心目标是把服务中常用的工具集成进来，并给一些模块化的组件提供基础工具。  
+如果觉得这份文档仍然不够详尽，可以参考源码注释。  
+1700多行的源码有700行的注释，基本上每个曝露的API都文档注释了。
+
 Service.js的模块结构如下：
 - 基础工具
 - 服务模块（异步加载）
@@ -123,7 +126,7 @@ Service.js的模块结构如下：
         console.log(key, value);//author,linkFly
     })
 	
-	//根据原数组/类数据生成新的数组，类似但强于Array.prototype.map ECMAScript 5(ES5)规范
+	//根据原数组/类数组生成新的数组，类似但强于Array.prototype.map ECMAScript 5(ES5)规范
 	service.map(['a', 'b'], function (value, i) {
             return i;
     });// [0, 1]
@@ -357,8 +360,8 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-###Service.Search(url)
-> 注意，获取url参数，`service.Search`是一个对象，它支持静态获取参数的，之所以提供动态获取是因为DOM3的API `pushState`支持无刷新修改url参数。
+###Service.Search(name, url)
+> 注意，获取url参数，`service.Search`是一个对象，它支持静态获取参数的，之所以提供动态获取是因为HTML5的API `pushState`支持无刷新修改url参数。
 
 - name{ String } - 要获取的参数名
 - url{ String } - 要获取参数的url，默认为`window.location.search`
@@ -448,7 +451,7 @@ f - 1位数毫秒,例：9
 
 
 ```javascript
-    var callbacks = new service.CallBacks(),
+    var callbacks = new service.CallBacks,//创建一个Callbacks对象，可以无new化创建
         id1 = callbacks.add(function () {
             console.log('0', arguments);
             return 0;
@@ -537,9 +540,9 @@ f - 1位数毫秒,例：9
 > 发起一个含有异步队列模型的二次加载，所有的自定义配置都会和默认配置进行合并，没有填写的属性将采用默认属性值。  
 如果需要发送直连的请求（从openHhub请求），可以全局配置，也可以使用`Service.fetch(options)`重载完整配置请求。  
 强烈推荐使用，特性如下：
-1. 让HTTP请求拥有顺序，并且提升存在依赖关系的HTTP请求的速度
-2. 请求中可以得到上一次请求的结果（可以被上一次请求中的回调函数重写）
-3. 自动验证XML正确性
+ 1. 让HTTP请求拥有顺序，并且提升存在依赖关系的HTTP请求的速度
+ 2. 请求中可以得到上一次请求的结果（可以被上一次请求中的回调函数重写）
+ 3. 自动验证XML正确性
 
 - qo{ Object } - qo对象，参考`service.qo(options)`，会和默认qo配置对象进行合并
 - success{ Function } - 异步加载成功后执行的回调函数，它的第一个参数是JSONP返回的数据，后续的参数在过去全部所有异步队列模型合并的参数
@@ -565,8 +568,8 @@ f - 1位数毫秒,例：9
 
 ```javascript
     service.fetch({
-        query: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
-        vrQuery: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
+        query: 'fuwu_type::搬家::0',
+        vrQuery: 'fuwu_type::搬家::0',
         classId: '70014600',
         classTag: 'MULTIHIT.58FUWU.GONGSI',
         tplId: '70014600',
@@ -590,8 +593,8 @@ f - 1位数毫秒,例：9
     service.fetch({
         //qo
         qo: {
-            query: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
-            vrQuery: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
+            query: 'fuwu_type::搬家::0',
+            vrQuery: 'fuwu_type::搬家::0',
             classId: '70014600',
             classTag: 'MULTIHIT.58FUWU.GONGSI',
             tplId: '70014600',
@@ -633,8 +636,8 @@ f - 1位数毫秒,例：9
 
 ```javascript
     service.request({
-        query: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
-        vrQuery: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
+        query: 'fuwu_type::搬家::0',
+        vrQuery: 'fuwu_type::搬家::0',
         classId: '70014600',
         classTag: 'MULTIHIT.58FUWU.GONGSI',
         tplId: '70014600',
@@ -800,7 +803,6 @@ f - 1位数毫秒,例：9
 
 - service.before(count, func)
 - service.before(count, func, $this) 
-- 
 
 ```javascript
     var newFunc = service.before(2, function () {
@@ -1068,7 +1070,7 @@ f - 1位数毫秒,例：9
 &nbsp;
 
 ###Service.animate(elem, properties, duration, ease, callback, delay)
-> 简单强悍的动画
+> 简单强悍的动画（不要觉得的又大又重的，核心代码50行）
 
 - elem{ Element }  - 要执行动画的元素 
 - properties{ Object|String } - 为Object对应css属性`transition-property`，为String对应css属性`animation-name`
