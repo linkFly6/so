@@ -128,7 +128,13 @@ Service.js的模块结构如下：
             return i;
     });// [0, 1]
 	
-	
+	//创建一个不可修改的枚举
+    service.createEnum({
+        MALE: '男',
+        FEMALE: '女'
+    });
+    
+    
 	//判断类型
     service.type('linkFly');//string
     service.type(true);//boolean
@@ -143,7 +149,7 @@ Service.js的模块结构如下：
 	
 	//将一个任务挂起到下一个时钟周期执行
     var startTime = service.now();//开始时间
-    service.tick(function () {
+    service.nextTick(function () {
         console.log(service.now() - startTime);//输出时间差
     });
 	
@@ -442,8 +448,18 @@ f - 1位数毫秒,例：9
 
 
 ```javascript
-
-
+    var callbacks = new service.CallBacks(),
+        id1 = callbacks.add(function () {
+            console.log('0', arguments);
+            return 0;
+        }),
+        id2 = callbacks.add(function () {
+            console.log('1', arguments);;
+        });
+    callbacks.done(id2);//无输出，要等待id1完成
+    setTimeout(function () {
+        callbacks.done(id1);//约1000ms后，先输出"0 []",后输出"1 [0]"
+    }, 1000)
 ```
 
 &nbsp;
@@ -463,13 +479,27 @@ f - 1位数毫秒,例：9
 - Service.getJSONP(url,done,fail,time) - 全部配置
 
 ```javascript
+    var url = '/demo?callback=?';
+    service.getJSONP(url, function () {
+        console.log('done');
+    });//默认超时时间可以通过service.config({ timeout : 16e2 })配置，默认是16e2
+    
+    service.getJSONP(url, function () {
+        console.log('done');
+    }, 3000);//3000ms后执行
 
+    service.getJSONP(url, function () {
+        console.log('done');
+    }, function () {
+        console.log('fail');
+    }, 3000)
 ```
 
 &nbsp;
 
 ###Service.defer(url, done, fail, time)
-> 发起一个异步队列的JSONP请求，它的回调函数执行时机依赖上一个JSONP的函数执行与否。
+> 发起一个异步队列的JSONP请求，它的回调函数执行时机依赖上一个JSONP的函数执行与否。  
+异步队列的工作模型和细节请参考：[DeferJsonp](https://github.com/linkFly6/deferJsonp)
 
 - url{ String } - 请求的url，可以使用?占位符自动生成回调函数名称
 - done{ Function } - 成功后执行的回调函数，参数是服务器JSONP回调函数的传递的参数
@@ -483,13 +513,33 @@ f - 1位数毫秒,例：9
 - Service.defer(url,done,fail,time) - 全部配置
 
 ```javascript
+    var url = '/demo?callback=?';
+    //假如这条请求花了1000ms
+    service
+        .defer(url, function () {//假如这条请求花了1000ms
+            return 'data';
+        }).defer(url, function () {//假如这条请求花了1200ms
 
+            console.log(arguments);//['服务器返回数据','data']
+        });//两条请求一共耗时1200ms完成
+
+    //参数和service.getJSONP一样
+    service.defer(url, function () {//这个函数等待1200ms后执行
+        console.log('done');
+    }, function () {
+        console.log('fail');
+    }, 1000);
 ```
 
 &nbsp;
 
 ###Service.fetch(qo, success, error, time)
-> 发起一个含有异步队列模型的二次加载，所有的自定义配置都会和默认配置进行合并，没有填写的属性将采用默认属性值
+> 发起一个含有异步队列模型的二次加载，所有的自定义配置都会和默认配置进行合并，没有填写的属性将采用默认属性值。  
+如果需要发送直连的请求（从openHhub请求），可以全局配置，也可以使用`Service.fetch(options)`重载完整配置请求。  
+强烈推荐使用，特性如下：
+1. 让HTTP请求拥有顺序，并且提升存在依赖关系的HTTP请求的速度
+2. 请求中可以得到上一次请求的结果（可以被上一次请求中的回调函数重写）
+3. 自动验证XML正确性
 
 - qo{ Object } - qo对象，参考`service.qo(options)`，会和默认qo配置对象进行合并
 - success{ Function } - 异步加载成功后执行的回调函数，它的第一个参数是JSONP返回的数据，后续的参数在过去全部所有异步队列模型合并的参数
@@ -514,16 +564,94 @@ f - 1位数毫秒,例：9
 - Service.fetch(options) - 传入完整请求配置对象
 
 ```javascript
+    service.fetch({
+        query: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
+        vrQuery: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
+        classId: '70014600',
+        classTag: 'MULTIHIT.58FUWU.GONGSI',
+        tplId: '70014600',
+        item_num: '10',
+        location: 1,
+        start: 0
+    }, function (xml) {//成功回调
 
+        console.log(xml);//XML数据
+
+        return '搬家';//覆盖返回值
+
+    }, function (isTimeout) {//失败回调
+
+        console.log(isTimeout);//true：超时异常，false：逻辑异常
+
+    });
+
+
+    //Service.fetch(options) - 传入完整配置
+    service.fetch({
+        //qo
+        qo: {
+            query: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
+            vrQuery: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
+            classId: '70014600',
+            classTag: 'MULTIHIT.58FUWU.GONGSI',
+            tplId: '70014600',
+            item_num: '10',
+            location: 1,
+            start: 0
+        },
+
+        //是否过滤（自动验证XML正确性）
+        filter: true,
+
+        //请求的url，${0}填充qo，${1}填充keywords
+        url: '/web/features/vr.jsp?keyword=${1}&qoInfo=${0}&cb=?',
+
+        //关键词
+        keywords: 'sogou',
+
+        //成功回调
+        success: function (xml, data) {
+            //这里的函数在上一次请求的回调函数执行完成后执行，并且可以得到上一次请求的结果
+
+            console.log(xml, data, arguments);//XML数据,'搬家',[XML数据,'搬家']
+        },
+
+        //失败回调
+        error: function (isTimeout) {
+            console.log(isTimeout);//true：超时异常，false：逻辑异常
+        },
+
+        //超时时间
+        time: 2000
+    });
 ```
 
 &nbsp;
 
 ###Service.request(qo, success, error, time)
-> 和`service.fetch()` API一致，只是它的请求是无序的（没有异步队列模型）
+> 和`service.fetch()` API/重载一致，只是它的请求是无序的（没有异步队列模型），回调函数中也得不到上一次请求返回的结果
 
 ```javascript
+    service.request({
+        query: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
+        vrQuery: 'fuwu_type::搬家::0&vrQuery=fuwu_type::搬家::0',
+        classId: '70014600',
+        classTag: 'MULTIHIT.58FUWU.GONGSI',
+        tplId: '70014600',
+        item_num: '10',
+        location: 1,
+        start: 0
+    }, function (xml) {
 
+        console.log(xml);//XML数据
+
+        return '搬家';//覆盖返回值
+
+    }, function (isTimeout) {
+
+        console.log(isTimeout);//true：超时异常，false：逻辑异常
+
+    });
 ```
 
 &nbsp;
@@ -539,9 +667,478 @@ f - 1位数毫秒,例：9
 
 
 ```javascript
+    service.ajax({
+        url: '/test',
+        success: function () {
+            return 'linkFly';
+        }
 
+    }).ajax({
+        url: '/test',
+        success: function () {
+            console.log(arguments);//[服务器返回数据,'linkFly']
+        },
+        error: function () {
+
+        }
+    });
 ```
 
 &nbsp;
 
+##逻辑增强
+
+###Service.throttle(func, wait, options)
+> 函数节流：节流阀 -  把原函数封装为拥有函数节流阀的函数，当重复调用函数，只有到达这个阀值（wait毫秒）才会执行。  
+节流阀主要针对频繁执行的函数。  
+例如拖拽元素、滚动条频繁滚动所触发的回调函数。
+
+- func{ Function } - 要封装的回调函数 
+- wait{ Int } - 阀值(ms)
+- options{ Object } - 配置第一次执行和禁用最后一次执行
+ - options.leading{ Boolean } - 是否禁用第一次执行，默认为false
+ - options.trailing{ Boolean } - 默认为true，传递false则禁用最后一次执行
+
+重载
+
+- service.throttle(func, wait) - 默认配置
+- service.throttle(func, wait,options) - 自定义配置 
+
+```javascript
+    var endCount = 0,
+        count = 0,
+        newFunc = service.throttle(function () {
+            count++;
+            console.clear();
+            console.log(count);//输出5，仅被调用了5次
+        }, 1000),
+        id;
+
+    id = setInterval(function () {
+        newFunc();
+        endCount > 60 ?
+            clearInterval(id) : endCount++;
+    }, 60);
+
+
+
+    service.throttle(function () {
+        
+    }, 200, {
+        leading: false,//禁用第一次执行
+        trailing: false//禁用最后一次执行
+    });
+```
+
+&nbsp;
+
+###Service.debounce(func, wait, immediate)
+> 函数节流：防反跳 -  把原函数封装为拥有防反跳的函数，延迟函数的执行(wait毫秒)，当重复调用函数时候，只执行最后一个调用（在wait毫秒之后）  
+主要是针对某些频繁调用并且仅需要响应最后一次的函数。
+例如用户在输入中动态查询结果，节流阀可以限制当用户在指定毫秒内没有再进行输入操作再进行查询，或者在滚动条事件中限制频繁触发的回调函数。
+
+- func{ Function } - 要封装的回调函数
+- wait{ Int } - 阀值(ms)
+- immediate{ Boolean } - 表示是否逆转模型，为true表示：wait毫秒内的多次调用，仅第一次生效，默认为false
+
+重载
+
+- service.debounce(func, wait) - 默认配置
+- service.debounce(func, wait,immediate) - 自定义配置 
+
+```javascript
+    var endCount = 0,
+        count = 0,
+        newFunc = service.debounce(function () {
+            count++;
+            console.log(count);//输出1，仅执行最后一次
+        }, 1000),
+        id;
+
+    id = setInterval(function () {
+        newFunc();
+        endCount > 30 ?
+            clearInterval(id) : endCount++;
+    }, 60);
+```
+
+&nbsp;
+
+###Service.after(count, func, $this)
+> 限定函数运行下限次数：封装一个函数，只有在运行了count次之后才有效果  
+例如两条JSONP请求都完成了才可以执行，则可以封装回调函数并指定下限为2，只有回调函数执行了两次才可以真正的执行。
+
+- count{ Int } - 次数
+- func{ Function } - 要封装的函数 
+- $this{ Object } - 函数的this指向，默认为`window`
+
+重载
+
+- service.after(count, func)
+- service.after(count, func, $this)
+
+```javascript
+    var newFunc = service.after(3, function () {
+        console.log('linkFly');
+    });
+    newFunc();
+    newFunc();
+    newFunc();//输出linkFly
+```
+
+&nbsp;
+
+###Service.before(count, func, $this)
+> 限定函数运行上限次数（不含）：封装一个函数，调用不超过count次，超过count次的调用仅返回最后一次调用的结果
+例如多个JSONP有着相同的重复的业务逻辑，则可以封装这些逻辑，指定调用次数。
+
+- count{ Int } - 次数（不含该次数）
+- func{ Function } - 要封装的函数 
+- $this{ Object } - 函数的this指向，默认为`window`
+
+重载
+
+- service.before(count, func)
+- service.before(count, func, $this) 
+- 
+
+```javascript
+    var newFunc = service.before(2, function () {
+        console.log('linkFly');
+    });
+    newFunc();//输出linkFly
+    newFunc();//重复调用仅返回最后一次调用的结果
+    newFunc();
+    newFunc();
+```
+
+&nbsp;
+
+###Service.once(func, $this)
+> 创建一个仅执行一次的函数，重复调用的方法也没有效果，只会返回第一次执行时的结果  
+
+- func{ Function } - 要封装的函数 
+- $this{ Object } - 函数的this指向，默认为`window`
+
+重载
+
+- service.once(func)
+- service.once(func, $this)
+- 
+
+```javascript
+    var newFunc = service.once(function () {
+        console.log('linkFly');
+    });
+    newFunc();//输出linkFly
+    newFunc();//重复调用仅返回最后一次调用的结果
+    newFunc();
+    newFunc();
+```
+
+&nbsp;
+
+
+&nbsp;
+
+##GPS
  
+###Service.addr(data)
+> 尝试获取本地地址，例：中关村东路1号院，或解析一份数据为本地地址
+
+- data{ Object } - 要解析的数据
+
+重载
+
+- Service.addr() - 尝试从cookie获取，例：中关村东路1号院，获取失败返回null
+- Service.addr(data) - 尝试将一组数据转换为本地地址，转换失败返回null
+
+```javascript
+    //准备测试
+```
+
+&nbsp;
+
+###Service.gps(done, fail, time)
+> 发送一条gps请求，为了保证更佳的正确性，请在**DOMReady**中使用。
+
+- done{ Function } - 获取位置成功后执行的回调函数，参数是：本地地址（北京市海淀区中关村1号院）,{ lat:经度 , lon:纬度 } 
+- fail{ Function } - 获取位置失败后执行的回调函数，参数是：{ code:错误编码（超时为100）,  message:"错误信息" }
+- time{ Int } - 超时时间（ms），默认根据全局配置`Service.config({ gpsTimeout:6000 })` 
+
+重载
+
+- Service.gps(done, time)
+- Service.gps(done, fail)
+- Service.gps(done, fail, time)
+
+```javascript
+    //准备测试
+```
+
+&nbsp;
+
+###Service.position()
+> 尝试从cookie中获取本地gps（经纬度）信息，如果本地有，返回的对象格式{lat:lat,lon:lon}，否则为null
+
+```javascript
+    //准备测试
+```
+
+&nbsp;
+
+
+&nbsp;
+
+
+##数据中心
+
+###Service.Database(namespace)
+> 创建一个工作的数据中心对象，内部通过`localStorage`对象构建
+
+- namespace{ String } - 命名空间
+
+
+重载
+
+- Service.Database() - 创建一个本地数据中心对象，无命名空间
+- Service.Database(namespace) - 创建一个本地数据中心对象，并指定命名空间
+
+```javascript
+    var databse = new service.Database();
+
+    var db = service.Database();//无new化
+
+    var db2 = service.Database('service.demo');//指定命名空间
+```
+
+&nbsp;
+
+###Database.prototype.val(key, value)
+> 获取/存储数据
+
+- key{ String } - 存储的key
+- value{ Object } - 存储的值
+
+重载
+
+- Database.prototype.val(key) - 读取，读取的值会尝试进行js数据类型转换
+- Database.prototype.val(key, value) - 设置
+- Database.prototype.val(obj) - 设置一组
+
+```javascript
+    var databse = service.Database('service');//这个对象工作在"service"命名空间下
+    //set
+    databse.val('name', 'linkFly');
+    databse.val('arr', [
+                'index0', ['复杂的数组', 'index1-index1', ['index-1-index2-index0', 'index1-index2-index2']]
+    ]);
+    databse.val('json', { name: 'sogou', text: '一个简单的json对象' });
+    databse.val('bool', true);
+
+    //get
+    databse.val('name');//"linkFly"
+    databse.val('arr');//["index0", ["复杂的数组", "index1-index1", ["index-1-index2-index0", "index1-index2-index2"]]]
+    databse.val('json');// Object { name="sogou",  text="一个简单的json对象"}
+    databse.val('bool');// true
+```
+
+&nbsp;
+
+###Database.prototype.remove(key) - 移除数据
+> 移除一个/一组数据项，返回被移除的数据值
+
+- key{ string } - key
+- array{ Array } - 由多个key组成的Array
+
+重载
+
+- Database.prototype.remove(key) - 从数据中心移除一个数据
+- Database.prototype.remove(array) - 从数据中心移除一组数据
+
+```javascript
+    var databse = service.Database('service');
+    databse.val('name', 'linkFly');
+    databse.val('test', 'one');
+    databse.val('test2', 'two');
+
+    databse.remove('name');//"linkFly"
+    databse.remove(['test', 'test2']);//["one","two"]
+```
+
+&nbsp;
+
+###Database.prototype.clear()
+> 清空命名空间下的数据
+
+```javascript
+    var databse = service.Database('service');
+    databse.val('name', 'linkFly');
+    databse.val('test', true);
+
+    databse.clear();// { "service.test":"true" , "service.name":"linkFly" }
+```
+
+&nbsp;
+
+###Service.Database.clear()
+>  清空整个数据中心，**仅限调试模式下使用**
+
+
+```javascript
+    var service = window.sogou.service;
+    //仅限调试模式下使用
+    service.config({ debug: true }).Database.clear();
+```
+
+&nbsp;
+
+
+&nbsp;
+ 
+##DOM增强 
+
+###Service.imgLoad(elem, options)
+> 加载一张图片，默认配置挂载在`Service.imgLoad.DEFAULTS`
+
+- elem{ HTMLImageElement } - img DOM对象，图片加载都会操作该对象 
+- options{ Object } - 配置
+ - options.src{ String } - 要加载的图片url
+ - options.load{ String } - 加载中显示的图片（如果有elem的话）
+ - options.error{ String } - 加载失败显示的图片（如果有elem的话）
+ - options.done{ String } - 加载成功后执行的函数，参数是图片url（options.src）
+ - options.fail{ String } - 加载失败后执行的函数，参数是图片失败的url（options.error）
+
+重载
+- Service.imgLoad(options) - 没有img DOM的操作
+- Service.imgLoad(elem, options) - 使用element的`dataset`（如果支持的话）和传递的options作为配置，根据配置完成后自动设置element的src
+
+```javascript
+    //Service.imgLoad(elem, options)
+    service.imgLoad(document.createElement('img'), {
+        src: 'test.jpg'
+    });
+
+    //Service.imgLoad(options)
+    service.imgLoad({
+        src: 'test.jpg',
+        load: 'loading.jpg',
+        error: 'error.jpg',
+        done: function (src) {
+            console.log('done', src);
+        },
+        fail: function (errorUrl) {
+            console.log('error', errorUrl);
+        }
+    });
+
+    //自定义默认配置
+    service.imgLoad.DEFAULTS = {
+        load: 'newLoad.jpg',
+        error: 'newError.jpg'
+    };
+``` 
+
+&nbsp;
+
+###Service.Support - 浏览器支持
+> 简单的嗅探浏览器特性
+
+```javascript
+    console.log(service.Support.onAnimationEnd);//浏览器支持的animationend事件
+    console.log(service.Support.onTransitionEnd);//浏览器支持的transitionend事件
+
+
+    //监听一个animationEnd动画结束事件，如果浏览器不支持，那么就在指定的秒数（第三个参数）后执行
+    service.onAnimationEnd(document.createElement('div'), function () {
+
+        console.log('触发onAnimationEnd（动画结束）事件');
+
+    }, 5)//5s
+
+    //同上，监听transitionEnd动画结束事件
+    service.onTransitionEnd(document.createElement('div'), function () {
+
+        console.log('触发onTransitionEnd（动画结束）事件');
+
+    }, 3);
+
+``` 
+
+&nbsp;
+
+###Service.animate(elem, properties, duration, ease, callback, delay)
+> 简单强悍的动画
+
+- elem{ Element }  - 要执行动画的元素 
+- properties{ Object|String } - 为Object对应css属性`transition-property`，为String对应css属性`animation-name`
+- duration{ Int } - 动画执行时间（s），对应css属性`transition-duration/animation-duration`
+- ease{ String } - 动画的速度曲线，对应css属性`animation-timing-function/transition-timing-function`，默认为`linear`。
+- callback{ Function } - 动画完成后执行的回调函数
+- delay{ Int }  - 动画延迟时间（s），对应css属性`transition-delay/animation-delay`，默认为0 
+
+重载
+- Service.animate(elem, properties, duration)
+- Service.animate(elem, properties, duration, delay)
+- Service.animate(elem, properties, duration, callback, delay)
+- Service.animate(elem, properties, duration, ease, callback, delay)
+
+```javascript
+    service.animate(document.getElementById('translate'),
+                    {
+                        transform: 'translate3d(500px,0,0)'
+                    },
+                    3,//动画运行时间
+                    1,//动画延时
+                    function () {
+                        console.info('translate() - 动画完成');
+                    });
+
+
+    service.animate(document.getElementById('leftElem'),
+                    {
+                        left: 500
+                    }, 3,
+
+                    //指定动画曲线
+                    'ease-in-out');
+
+
+    service.animate(document.getElementById('animaElem'),
+
+                    //传递animation-name
+                    'demoAnimation',
+
+                    3,
+                    function () {
+                        console.info('animation() - 动画完成');
+                    });
+
+
+    //完整的参数
+    service.animate(document.getElementById('moreElem'),
+                    //动画目标属性
+                    {
+                        'transform': 'rotate(720deg)', //支持多属性
+                        'background-color': '#ffe48e',
+                        left: 500
+                    },
+
+                    //动画运行时间（s）
+                    3,
+
+                    //动画曲线
+                    'ease-in-out',
+
+                    //动画完成后的回调函数
+                    function () {
+
+                        console.info('多属性 - 动画完成');
+
+                    },
+
+                    //动画延时(s)
+                    1)
+``` 
+
+&nbsp;
