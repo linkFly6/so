@@ -12,56 +12,56 @@ Service.js的模块结构如下：
 
 
 ##目录
-- 基础工具
- - 使用
- - 核心和内部工具
- - Service.config - 配置
- - Service.format - 格式化字符串
- - Service.parseData - 转换字符串为js中的基础数据类型
- - Service.byteLength - 检测字符串byte长度
- - Service.truncate - 裁剪字符串
- - Service.parseDate - 转换日期
- - Service.dateFormat - 格式化日期
- - Service.dateToLocal - 本地化日期
- - Service.param - 编码对象
- - Service.Search - 获取url参数
- - Service.cookie - 读取/设置cookie
- 
-- 服务模块（异步加载,二次加载）
- - Service.qo - 获取qo一个对象
- - Service.CallBacks - 异步队列 
- - Service.getJSONP - JSONP请求
- - Service.defer - 异步队列的JSONP请求 
- - Service.fetch - 异步队列的二次加载 
- - Service.request - 传统的二次加载
- - Service.ajax - 异步队列的ajax 
- 
-- 逻辑增强
- - Service.createEnum - 枚举 
- - Service.throttle - 函数节流：节流阀
- - Service.debounce - 函数节流：防反跳
- - Service.after - 限定函数运行下限次数
- - Service.before - 限定函数运行上限次数
- - Service.once - 构建一次性函数
- 
-- GPS 
- - Service.addr - 获取本地地址
- - Service.gps - 发送gps请求
- - Service.position - 获取本地gps（经纬度）信息
- 
-- 数据中心
- - Service.Database - 创建一个在指定命名空间下工作的数据中心对象
- - Database.prototype.val - 获取/存储数据
- - Database.prototype.remove - 移除数据
- - Database.prototype.clear - 清空命名空间下的数据
- - Service.Database.clear - 清空数据中心
- 
-- DOM增强 
- - Service.imgLoad - 图片加载
- - Service.Support - 浏览器支持
- - Service.animate - 动画
- 
- &nbsp;
+
+- [基础工具](#基础工具)
+ - [使用](#使用)
+ - [核心和内部工具](#核心和内部工具)
+ - [Service.config - 配置](#serviceconfigoptions)
+ - [Service.format - 格式化字符串](#serviceformatstr-object)
+ - [Service.parseData - 转换字符串为js中的基础数据类型](#serviceparsedatavalue)
+ - [Service.byteLength - 检测字符串byte长度](#servicebytelengthtargetfix)
+ - [Service.truncate - 裁剪字符串](#servicetruncatetarget-length-truncation-isbyte)
+ - [Service.parseDate - 转换日期](#serviceparsedatejsondate)
+ - [Service.dateFormat - 格式化日期](#servicedateformatjsondate-format---格式化日期)
+ - [Service.dateToLocal - 本地化日期](#servicedatetolocalolddate-nowdate)
+ - [Service.param - 编码对象](#serviceparamobj-deep)
+ - [Service.Search - 获取url参数](#servicesearchurl)
+ - [Service.cookie - 读取/设置cookie](#servicecookiename-value-expiredays)
+
+- [服务模块（异步加载,二次加载）](#服务模块)
+ - [Service.qo - 获取qo一个对象](#serviceqooptions)
+ - [Service.CallBacks - 异步队列 ](#servicecallbacks)
+ - [Service.getJSONP - JSONP请求](#servicegetjsonpurl-done-fail-time)
+ - [Service.defer - 异步队列的JSONP请求 ](#servicedeferurl-done-fail-time)
+ - [Service.fetch - 异步队列的二次加载 ](#servicefetchqo-success-error-time)
+ - [Service.request - 传统的二次加载](#servicerequestqo-success-error-time)
+ - [Service.ajax - 异步队列的ajax ](#serviceajaxoptions)
+
+- [逻辑增强](#逻辑增强)
+ - [Service.throttle - 函数节流：节流阀](#servicethrottlefunc-wait-options)
+ - [Service.debounce - 函数节流：防反跳](#servicedebouncefunc-wait-immediate)
+ - [Service.after - 限定函数运行下限次数](#serviceaftercount-func-this)
+ - [Service.before - 限定函数运行上限次数](#servicebeforecount-func-this)
+ - [Service.once - 构建一次性函数](#serviceoncefunc-this)
+
+- [GPS](#gps) 
+ - [Service.addr - 获取本地地址](#serviceaddrdata)
+ - [Service.gps - 发送gps请求](#servicegpsdone-fail-time)
+ - [Service.position - 获取本地gps（经纬度）信息](#serviceposition)
+
+- [数据中心](#数据中心)
+ - [Service.Database - 创建一个在指定命名空间下工作的数据中心对象](#servicedatabasenamespace)
+ - [Database.prototype.val - 获取/存储数据](#databaseprototypevalkey-value)
+ - [Database.prototype.remove - 移除数据](#databaseprototyperemovekey)
+ - [Database.prototype.clear - 清空命名空间下的数据](#databaseprototypeclear)
+ - [Service.Database.clear - 清空数据中心](#servicedatabaseclear)
+
+- [DOM增强](#呵呵) 
+ - [Service.imgLoad - 图片加载](#serviceimgloadelem-options)
+ - [Service.Support - 浏览器支持](#servicesupport)
+ - [Service.animate - 动画](#serviceanimateelem-properties-duration-ease-callback-delay)
+
+&nbsp;
  
  
 ##基础工具
@@ -945,7 +945,7 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-###Database.prototype.remove(key) - 移除数据
+###Database.prototype.remove(key)
 > 移除一个/一组数据项，返回被移除的数据值
 
 - key{ string } - key
@@ -1041,7 +1041,7 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-###Service.Support - 浏览器支持
+###Service.Support
 > 简单的嗅探浏览器特性
 
 ```javascript
