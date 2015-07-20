@@ -63,7 +63,8 @@ Service.js的模块结构如下：
  - [Service.imgLoad - 图片加载](#serviceimgloadelem-options)
  - [Service.Support - 浏览器支持](#servicesupport)
  - [Service.animate - 动画](#serviceanimateelem-properties-duration-ease-callback-delay)
-
+ 
+- [更新](#更新)
 &nbsp;
  
  
@@ -185,7 +186,7 @@ Service.js的模块结构如下：
 	//这些都是默认配置
     service.config({
 		debug: false,//是否调试模式
-        timeout: 16e2,//JSONP超时时间（包括二次加载）
+        timeout: null,//JSONP超时时间ms（包括二次加载）,默认为null（没有处理）
         url: '/web/features/vr.jsp?keyword=${1}&qoInfo=${0}&cb=?',//二次请求url
         gpsCookieId: 'G_LOC_MI',//gps cookieId
         qqposName: 'qqpos',//gps qqpos存储的cookieName
@@ -193,6 +194,8 @@ Service.js的模块结构如下：
         gpsCookieTime: 0.02,//gpsCookie存放时间
         getGpsUrl: 'http://m.sogou.com/web/maplocate.jsp?points=${0},${1}&cb=?'//gps（经纬度）获取的url
     });
+    
+    //如果需要自定义log，请重写
 ```
 
 &nbsp;
@@ -347,7 +350,7 @@ f - 1位数毫秒,例：9
 > 编码一个对象（为url），注意编码的对象如果有function也会被编码，通过调用`encodeURIComponent`进行编码
 
 - obj{ Object } - 要编码的对象
-- deep{ Boolean } - 是否深度编码（当一个对象包含子对象的时候，是否也编码这个子对象），默认为false
+- deep{ Boolean } - 是否深度编码（当一个对象包含子对象的时候，是否也编码这个子对象），默认为true
 
 重载：
 - service.param(obj) - 编码一个对象（为url）
@@ -355,25 +358,22 @@ f - 1位数毫秒,例：9
 
 ```javascript
     service.param({ name: 'linkFly', say: '大家好' });//name=linkFly&say=%E5%A4%A7%E5%AE%B6%E5%A5%BD
-    service.param({ name: 'linkFly', qo: { say: '大家好' } }, true);//name=linkFly&say%3D%25E5%25A4%25A7%25E5%25AE%25B6%25E5%25A5%25BD
+    service.param({ name: 'linkFly', qo: { say: '大家好' } });//name=linkFly&say%3D%25E5%25A4%25A7%25E5%25AE%25B6%25E5%25A5%25BD
 ```
 
 &nbsp;
 
-###Service.Search(name, url)
-> 注意，获取url参数，`service.Search`是一个对象，它支持静态获取参数的，之所以提供动态获取是因为HTML5的API `pushState`支持无刷新修改url参数。
+###Service.search(url)
+> 获取url中的参数
 
-- name{ String } - 要获取的参数名
 - url{ String } - 要获取参数的url，默认为`window.location.search`
 
 重载：
-- Service.Search(name) - 动态获取当前页面url的参数
-- Service.Search(name, url) - 动态获取指定url的参数 
-- Service.Search[name] - **静态获取**当前页面的参数，它是一个当前页面url的静态快照，当前页面的url如果变动过并不会改变静态属性的值。
+- Service.search() - 动态获取当前页面url的参数
+- Service.search(url) - 动态获取指定url的参数 
 
 ```javascript
-    service.Search('name', '?name=linkFly');//linkFly
-    service.Search('hello', '?hello=%E5%A4%A7%E5%AE%B6%E5%A5%BD');//大家好
+    service.search('/fuwu/test/index.html?name=linkFly&type=%E6%B5%8B%E8%AF%95');//Object {name: "linkFly", type: "测试"}
 ```
 
 &nbsp;
@@ -439,30 +439,31 @@ f - 1位数毫秒,例：9
 
 &nbsp;
 
-###Service.CallBacks()
+###Service.Asyncqueue()
 > 一个强大的异步队列控制对象，内置在[deferJsonp](https://github.com/linkFly6/deferJsonp)中。  
-传统的异步任务没有队列的概念，Service内置了Callbacks工作对象，用于控制异步任务的队列，让无序的异步任务有序的执行。  
+传统的异步任务没有队列的概念，Service内置了Asyncqueue工作对象，用于控制异步任务的队列，让无序的异步任务有序的执行。  
 尤其在ajax/JSONP中，利用浏览器最大HTTP线程，最快发送异步请求，最短且有序的响应。
 
 重载
 
-- Callbacks.prototype.add(callback) - 传入一个回调函数，把它加入任务队列中，并返回一个函数id
-- Callbacks.prototype.done(id) - 根据id找到对应的函数并执行，执行条件是在这个函数前面的任务队列已经没有其他任务了
+- Asyncqueue.prototype.add(callback) - 传入一个回调函数，把它加入任务队列中，并返回一个函数id
+- Asyncqueue.prototype.fire(id[, data, data ...]) - 根据id找到对应的函数并执行，执行条件是在这个函数前面的任务队列已经没有其他任务了
 
 
 ```javascript
-    var callbacks = new service.CallBacks,//创建一个Callbacks对象，可以无new化创建
-        id1 = callbacks.add(function () {
-            console.log('0', arguments);
+    var asyncqueue = new service.Asyncqueue,//创建一个Asyncqueue对象，可以无new化创建
+        id1 = asyncqueue.add(function () {
             return 0;
         }),
-        id2 = callbacks.add(function () {
+        id2 = asyncqueue.add(function () {
             console.log('1', arguments);;
         });
-    callbacks.done(id2);//无输出，要等待id1完成
+
+    asyncqueue.fire(id2, 'linkFly');//无输出，要等待id1完成
+
     setTimeout(function () {
-        callbacks.done(id1);//约1000ms后，先输出"0 []",后输出"1 [0]"
-    }, 1000)
+        asyncqueue.fire(id1);//约1000ms后，输出['linkFly',0]
+    }, 1000);
 ```
 
 &nbsp;
@@ -507,7 +508,7 @@ f - 1位数毫秒,例：9
 - url{ String } - 请求的url，可以使用?占位符自动生成回调函数名称
 - done{ Function } - 成功后执行的回调函数，参数是服务器JSONP回调函数的传递的参数
 - fail{ Function } - 超时后执行的回调函数
-- time{ Int } - 超时时间（ms），默认为全局配置`service.config({ timeout : 16e2 })`
+- time{ Int } - 超时时间（ms），默认为null，可以为全局配置`service.config({ timeout : 16e2 })`配置全局超时时间
 
 重载
 - Service.defer(url,done) - 发送一个回调函数
@@ -527,7 +528,7 @@ f - 1位数毫秒,例：9
         });//两条请求一共耗时1200ms完成
 
     //参数和service.getJSONP一样
-    service.defer(url, function () {//这个函数等待1200ms后执行
+    service.defer(url, function () {//这个函数等待约1200ms后执行
         console.log('done');
     }, function () {
         console.log('fail');
@@ -554,7 +555,7 @@ f - 1位数毫秒,例：9
  - options.filter{ Boolean } - 是否过滤数据，默认二次请求加载的XML数据都会进行验证数据正确性，验证不通过则触发`options.error`，默认为true。
  - options.success{ Function } - 二次加载请求成功后执行的回调函数
  - options.error{ Function } - 二次加载请求失败后执行的回调函数
- - options.time{ Int } - 超时时间（ms），默认为全局配置`service.config({ timeout : 16e2 })`
+ - options.time{ Int } - 超时时间（ms），默认为null，可以通过全局配置`service.config({ timeout : 16e2 })`
  - options.qo{ Object } - qo对象，参考`service.qo(options)`，会和默认qo配置对象进行合并，在url中使用`${0}`作占位符
 
 
@@ -582,9 +583,9 @@ f - 1位数毫秒,例：9
 
         return '搬家';//覆盖返回值
 
-    }, function (isTimeout) {//失败回调
+    }, function (error) {//失败回调
 
-        console.log(isTimeout);//true：超时异常，false：逻辑异常
+        console.log(error);//{ code: 0, msg: "请求失败" }或{ code: 1, msg: '请求超时' }
 
     });
 
@@ -620,8 +621,8 @@ f - 1位数毫秒,例：9
         },
 
         //失败回调
-        error: function (isTimeout) {
-            console.log(isTimeout);//true：超时异常，false：逻辑异常
+        error: function (error) {
+            console.log(error);
         },
 
         //超时时间
@@ -650,9 +651,9 @@ f - 1位数毫秒,例：9
 
         return '搬家';//覆盖返回值
 
-    }, function (isTimeout) {
+    }, function (error) {
 
-        console.log(isTimeout);//true：超时异常，false：逻辑异常
+        console.log(error);//{ code: 0, msg: "请求失败" }或{ code: 1, msg: '请求超时' }
 
     });
 ```
@@ -856,7 +857,8 @@ f - 1位数毫秒,例：9
 - Service.addr(data) - 尝试将一组数据转换为本地地址，转换失败返回null
 
 ```javascript
-    //准备测试
+    service.addr();//返回地址
+    service.addr({ "city": "北京", "province": "", "GLOC": "CN110108", "county": "海淀区", "addr": "长椿桥路5号" })//北京海淀区长椿桥路5号
 ```
 
 &nbsp;
@@ -875,7 +877,11 @@ f - 1位数毫秒,例：9
 - Service.gps(done, fail, time)
 
 ```javascript
-    //准备测试
+    service.gps(function (addr, gps) {
+        console.log(addr, gps);//地址信息,经纬度，例如：[ "北京海淀区长椿桥路5号", { "lat": "39.959911999999996", "lon": "116.29805599999999" }]
+    }, function (error) {
+        console.log(error);//{ code:错误编码（超时为100）,  message:"错误信息" }
+    },2000);
 ```
 
 &nbsp;
@@ -884,7 +890,7 @@ f - 1位数毫秒,例：9
 > 尝试从cookie中获取本地gps（经纬度）信息，如果本地有，返回的对象格式{lat:lat,lon:lon}，否则为null
 
 ```javascript
-    //准备测试
+    service.position();//返回经纬度，例如：{ "lat": "39.959911999999996", "lon": "116.29805599999999" }
 ```
 
 &nbsp;
@@ -1144,3 +1150,19 @@ f - 1位数毫秒,例：9
 ``` 
 
 &nbsp;
+
+&nbsp;
+ 
+##更新 
+
+###2015-7-20
+- 移除异步请求/二次加载**默认的**超时配置，但支持全局和每次请求的超时配置
+- 重写`service.search(url)`，不再静态编译URL
+- 内置对象`deferJsonp`被重写，强壮了模型
+- 二次请求相关的API可以接收可以接收到`超时异常`和`请求/逻辑异常`的信息
+
+&nbsp;
+
+###2015-7-13
+- 创建了service.js
+
