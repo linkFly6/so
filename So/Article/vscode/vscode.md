@@ -47,7 +47,7 @@ VS注册的启动方式是`Update.exe`程序，是这样的：
 - 找到注册表程序列表项："HKEV-CLASSES-ROOT\\APPlications\\Code.exe\\shell\\open\\command"：  
 ├── HKEV-CLASSES-ROOT  
 │	├── APPlications  
-│	│	├── Code.exe
+│	│	├── Code.exe  
 │	│	│	├── shell  
 │	│	│	│	├── open  
 │	│	│	│	│	├── command  
