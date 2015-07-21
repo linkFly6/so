@@ -57,6 +57,8 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Article\Animate\animate.html" />
+    <Content Include="Article\Animate\animate.js" />
     <Content Include="Article\Before\ArrayLike.html" />
     <Content Include="Article\Before\jQuery.Callbacks.html" />
     <Content Include="Article\Before\jQuery.data.html" />
@@ -113,6 +115,7 @@
     <Content Include="JavaScript\TestService.ashx" />
     <Content Include="Other\Sogou\README.md" />
     <Content Include="Article\README.md" />
+    <Content Include="Article\Animate\animate.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

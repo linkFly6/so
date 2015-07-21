@@ -12,7 +12,7 @@
         <style>
             .demo { background-color: #0094ff; width: 100px; height: 100px; position: absolute; left: 0; color: #fff; text-align: center; line-height: 100px; }
         </style>
-        <div class="demo" id="demo">点击这里</div>
+        <div class="demo" id="demo" style="left:0;">点击这里</div>
         <script>
             (function (window) {
                 var Support = {
@@ -128,17 +128,37 @@
             })(window);
         </script>
         <script>
-            var elem = document.getElementById('demo')
+            //var elem = document.getElementById('demo')
+            //elem.onclick = function () {
+            //    var left = parseInt(this.style.left);
+            //    if (left > 0)
+            //        animate(this, { left: 0 }, 1, 'ease-in-out', function () {
+            //            alert('向左结束');
+            //        });
+            //    else
+            //        animate(this, { left: 200 }, 1, 'ease-in-out', function () {
+            //            alert('向右结束');
+            //        });
+            //};
+
+            var elem = document.getElementById('demo'),//获取元素
+                elemStyleSheet = elem.style,//元素的内联样式对象
+                left = parseInt(elemStyleSheet.left),//获取当前left
+                targetLeft = 200,//目标left
+                time = 13,//动画每帧间隔
+                offsetValue = targetLeft / parseInt(1000 / 13),//每帧偏移量
+                intervalId,
+                temp;//临时变量
+            
             elem.onclick = function () {
-                var left = parseInt(this.style.left);
-                if (left > 0)
-                    animate(this, { left: 0 }, 1, 'ease-in-out', function () {
-                        alert('向左结束');
-                    });
-                else
-                    animate(this, { left: 200 }, 1, 'ease-in-out', function () {
-                        alert('向右结束');
-                    });
+                intervalId = setInterval(function () {
+                    //追加偏移量
+                    temp = parseInt(elemStyleSheet.left) + offsetValue;
+                    elemStyleSheet.left = temp + 'px';
+
+                    if (temp >= targetLeft)//完成动画
+                        clearInterval(intervalId);
+                }, time);
             };
 
         </script>
