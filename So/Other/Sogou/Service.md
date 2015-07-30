@@ -387,6 +387,7 @@ f - 1位数毫秒,例：9
 - expiredays - 过期时间（天）
 
 重载：
+- Service.cookie() - 读取所有的cookie，返回JSON对象
 - Service.cookie(name) - 读取cookie，读取的值会尝试自动转换
 - Service.cookie(name, value) - 设置永久有效cookie
 - Service.cookie(name, value, expiredays) - 设置cookie，并设置有效天数
@@ -398,6 +399,7 @@ f - 1位数毫秒,例：9
     service.cookie('demo', 'true');
     service.cookie('null', 'linkFly', -1);
     //get
+    service.cookie();// all cookie
     service.cookie('test');// Object { name="linkFly",  say="大家好"}
     service.cookie('name');//'linkFly'
     service.cookie('demo');//true
