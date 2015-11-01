@@ -3,40 +3,24 @@
 > 无线VR集成了RequireJS，这份文档主要说明如何用RequireJS编写自己的需求，以及RequireJS相关注意事项。  
 > 后续内部编写的相关插件/组件都会朝着这篇文章集成。
 
-Service.js的模块结构如下：
-- 基础工具
-- 服务模块（异步加载）
-- 逻辑增强
-- GPS
-- 数据中心
-- DOM增强
-
-
 ##目录
 
-- [RequireJS](#基础工具)
+- [RequireJS](#requirejs)
  - [使用](#使用)
- - [define([id], [dependencies], factory)](#serviceconfigoptions)
- - [require([module], callback)](#serviceformatstr-object)
- - [require.config](#serviceparsedatavalue)
- - [编写规范](#servicebytelengthtargetfix)
-
-- [RequireJS插件](#服务模块)
- - [Text](#serviceqooptions)
-
-- [插件化](#逻辑增强)
- - [插件列表](#servicethrottlefunc-wait-options)
-
-- [组件化](#gps) 
- - [待定](#serviceaddrdata)
-
-- [Q&A](#gps) 
-
+ - [define([id], [dependencies], factory)](#defineid-dependencies-factory)
+ - [require([module], callback)](#requiremodule-callback)
+ - [require.config](#requireconfig)
+ - [编写规范](#编写规范)
+- [RequireJS插件](#requirejs插件)
+ - [Text](#text)
+- [插件化](#插件化)
+ - [插件列表](#插件列表)
+- [组件化](#组件化) 
+- [Q&A](#qa) 
 - [后续方向](#数据中心)
  - [强模块化](#servicedatabasenamespace)
  - [组件化](#databaseprototypevalkey-value)
  - [工程化](#databaseprototyperemovekey)
-
 - [更新](#更新)
 &nbsp;
  
@@ -49,14 +33,12 @@ Service.js的模块结构如下：
  
  - define([id], [dependencies], factory) - 定义一个模块
  - require([module], callback) - 获取一个/组模块，成功后执行callback
- 
- &nbsp;
- 
+
 ###define([id], [dependencies], factory)
 定义一个模块：
 - id：定义的模块名称，可略参数。如果没有，则为匿名模块，关于匿名模块定义条件请参阅[模块定义的条件]。
 - dependencies：模块的依赖，可略参数。
-- factory：模块代码
+- factory：模块代码，返回值是模块
  
 ```javascript
     //#1定义一个模块，名称叫做vr、依赖zepto模块
@@ -97,7 +79,7 @@ Service.js的模块结构如下：
     })
 ```
 
-> 依赖的模块名称优先查找`require.config`里面的配置和当前已经定义(define)的所有模块，如果没有配置相关模块，则会尝试从当前环境加载。  
+> 依赖的模块名称优先查找`require.config`里面的配置和当前已经定义(define)的所有模块，如果没有配置相关模块，则会尝试从当前目录（baseUrl）发送Http请求加载。  
 例如没有配置和定义zepto模块，而`require.config`默认配置的路径是`/resource/js/`：
 
 ```javascript
@@ -204,9 +186,7 @@ Service.js的模块结构如下：
             //dosomething
         }
     });
-    
-    
-    //XSLT中，直接请求VR模块，传入相应的数据
+    //入口JS中，直接请求VR模块，传入相应的数据
     require(['vr700054900'], function (main) {
         
         var classid = '<xsl:value-of select="/DOCUMENT/item/classid"/>',//XPath
@@ -230,12 +210,7 @@ Service.js的模块结构如下：
     * Date: 2015-10-30 15:37:53
     */
     (function (global, factory) {
-        if (typeof define === "function" && define.amd) {
-            //AMD
-            define("foo", [], function () {
-                return factory(global);
-            });
-        } else if (typeof module === "object" && typeof module.exports === "object") {
+        if (typeof module === "object" && typeof module.exports === "object") {
             //node/commonJs
             module.exports = global.document ?//依赖document
     			factory(global, true) :
@@ -255,9 +230,16 @@ Service.js的模块结构如下：
         //编写插件相关代码
         function Foo() { }
     
+        //dosomething...
     
     
-    
+        //兼容AMD，定义模块
+        if (typeof define === "function" && define.amd) {
+            define("foo", [], function () { //AMD
+                return Foo;
+            });
+        }
+        
         //默认尝试暴露到全局环境，除非该插件非常重要，否则并不推荐
         if (noGlobal !== true) {
             window.sogou = window.sogou || {};
@@ -275,6 +257,7 @@ Service.js的模块结构如下：
 2. 可配置性高、参阅Bootstrap插件、支持options和dataset配置
 3. 尽可能与页面无关
 4. 基于对象工作
+5. API简洁了然、set/get一体
 
 
 &nbsp;
@@ -312,17 +295,16 @@ Service.js的模块结构如下：
 
 ##插件化
 
-&nbsp;
-
 ###插件列表
 > 这份列表列出了当前组里所有的插件项目和模块名：
+
 
 1. Zepto.js    
  - 模块名：zepto
  - 兼容性：mobile
  - 介绍：DOM基础操作
  
-2. jQuery.imgLoad.js  
+2. jQuery.imgLoad.js
  - 模块名：文件名
  - 兼容性：IE6+
  - 介绍：图片加载/预加载/懒加载
@@ -332,7 +314,7 @@ Service.js的模块结构如下：
  - 兼容性：mobile
  - 介绍：搜狗GPS通用插件
  
-4. X.js
+4. [X.js](https://github.com/linkFly6/X)
  - 模块名：x
  - 兼容性：mobile
  - 介绍：XML操作
@@ -351,13 +333,12 @@ Service.js的模块结构如下：
 
 ##组件化
 
-###待定
+> 待定
 
 &nbsp;
 
 ##Q&A
 **Q:有些代码需要DOMReady才可以加载，如何保证代码在DOMReady后加载呢？**
-
 A:使用基础模块Zepto的DOMReady
 ```javascript
 require(['zepto'],function($){
@@ -367,7 +348,69 @@ require(['zepto'],function($){
 });
 ```
 
+**Q:什么是匿名模块？什么是命名模块？如何定义呢？**
+A:两种模块的定义方式不同。
+匿名模块，外链的js文件尽可能使用匿名模块,这样模块名可以十分灵活，通过`require.config`的`paths`可以自由配置任意模块名，是**官方推荐**写法：
+```javascript
+    //anonModuleDemo.js、匿名模块，依赖jquery模块
+    define(['jquery'], function ($) {
+        return function () {
+            console.log('匿名模块', $);
+        }
+    });   
+    
+    //页面中使用
+    require(['anonModuleDemo'], function (func) {
+        func();//匿名模块 function(selector, context)
+    })
+   
+```
+而命名模块多用于页面中直接定义的模块，因为是在页面中直接定义的，没有独立的文件，所以无法通过文件名识别模块，**因此在(HTML)页面中，无法直接定义匿名模块**。
+```html
+    <script>
+        //定义一个名为demo的模块，依赖jquery模块
+        define('demo', ['jquery'], function ($) {
+            return function () {
+                console.log('命名模块', $);
+            }
+        });
+        //调用这个命名模块
+        require(['demo'], function (func) {
+            func();//命名模块 function(selector, context)
+        })
+    </script>
+```
 
+**Q:定义的模块什么时候执行呢？**
+A:AMD强调优先执行，**当模块被请求(require)，且加载完成后，会立即执行**，如果：
+```javascript
+    define('demo', function () {
+        console.log('1');
+        return function () {
+            console.log('2');
+        }
+    });
+    require(
+        ['demo'],//当demo模块加载完成了之后立即执行
+        function (demo) {
+            //调用demo的时候，输出2
+        });
+```
+requireJS还有另外一个模块依赖的写法，名义上是延迟执行，本质上仍然是立即执行，只不过写法上更加的贴近NodeJS中的CommonJS模块化规范：
+```javascript
+    define('demo', function (require, exports, module) {
+        //延迟执行
+        var $ = require('jquery');
+        //曝露方法
+        exports.get = function () {
+            console.log('linkFly');
+        }
+    });
+
+    require(['demo'], function (demo) {
+        demo.get();//输出linkFly
+    });
+```
 
 &nbsp;
 
@@ -377,10 +420,23 @@ require(['zepto'],function($){
 ##后续方向
 
 ###强模块化
+> 通过编译工具（例如grunt）工具将所有外链的js、css都编译成内联的，并且通过编译工具进行更佳的版本策略管理。
 
 ###组件化
+> 注入组件化语法，注入新的HTML标签，通过工具编译把标签转换（例子仅供参考）：
+```html
+    <!--编译前：自定义标签，通过属性自定义组件的配置（配置参数）-->
+    <sogou-gps data-id="gpsBox" data-search="yes"/>
+    
+    <!--编译后，通过参数配置了id、是否显示搜索框-->
+    <div class="sogou-gps" id="gpsBox">
+      <input placeholder="请输入地点" /><input value="搜索"/>
+      <div class="searchBox"><!--搜索列表--></div>
+    </div>
+```
 
 ###工程化
+> 尝试通过`Reactjs`混合HTML+JS来编写业务、集成组件化，本地环境一键压缩、编译、部署。
 
 
 
