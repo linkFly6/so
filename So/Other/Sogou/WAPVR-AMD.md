@@ -339,6 +339,7 @@
 
 ##Q&A
 **Q:有些代码需要DOMReady才可以加载，如何保证代码在DOMReady后加载呢？**
+
 A:使用基础模块Zepto的DOMReady
 ```javascript
 require(['zepto'],function($){
@@ -349,6 +350,7 @@ require(['zepto'],function($){
 ```
 
 **Q:什么是匿名模块？什么是命名模块？如何定义呢？**
+
 A:两种模块的定义方式不同。
 匿名模块，外链的js文件尽可能使用匿名模块,这样模块名可以十分灵活，通过`require.config`的`paths`可以自由配置任意模块名，是**官方推荐**写法：
 ```javascript
@@ -381,7 +383,9 @@ A:两种模块的定义方式不同。
     </script>
 ```
 
+
 **Q:定义的模块什么时候执行呢？**
+
 A:AMD强调优先执行，**当模块被请求(require)，且加载完成后，会立即执行**，如果：
 ```javascript
     define('demo', function () {
@@ -424,6 +428,7 @@ requireJS还有另外一个模块依赖的写法，名义上是延迟执行，�
 
 ###组件化
 > 注入组件化语法，注入新的HTML标签，通过工具编译把标签转换（例子仅供参考）：
+
 ```html
     <!--编译前：自定义标签，通过属性自定义组件的配置（配置参数）-->
     <sogou-gps data-id="gpsBox" data-search="yes"/>
@@ -434,6 +439,7 @@ requireJS还有另外一个模块依赖的写法，名义上是延迟执行，�
       <div class="searchBox"><!--搜索列表--></div>
     </div>
 ```
+
 
 ###工程化
 > 尝试通过`Reactjs`混合HTML+JS来编写业务、集成组件化，本地环境一键压缩、编译、部署。
