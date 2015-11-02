@@ -31,14 +31,14 @@
  
  requireJS会在全局环境下注册三个函数：`require`、`define`和`requirejs`，其中`requirejs`是`require`函数的别名。
  
- - define([id], [dependencies], factory) - 定义一个模块
- - require([module], callback) - 获取一个/组模块，成功后执行callback
+ - `define([id], [dependencies], factory)` - 定义一个模块
+ - `require([module], callback)` - 获取一个/组模块，成功后执行callback
 
 ###define([id], [dependencies], factory)
 定义一个模块：
-- id：定义的模块名称，可略参数。如果没有，则为匿名模块，关于匿名模块定义条件请参阅[模块定义的条件]。
-- dependencies：模块的依赖，可略参数。
-- factory：模块代码，返回值是模块
+- `id`：定义的模块名称，可略参数。如果没有，则为匿名模块，关于匿名模块定义条件请参阅[模块定义的条件]。
+- `dependencies`：模块的依赖，可略参数。
+- `factory`：模块代码，返回值是模块
  
 ```javascript
     //#1定义一个模块，名称叫做vr、依赖zepto模块
@@ -69,8 +69,8 @@
 
 ###require([module], callback)
 > 获取一个/组模块，成功后执行回调函数
-- module - 依赖的模块列表
-- callback - 依赖模块加载后执行的回调函数
+- `module` - 依赖的模块列表
+- `callback` - 依赖模块加载后执行的回调函数
 
 ```javascript
     //依赖zepto和vr模块，当zepto和vr模块加载完毕了之后执行callback
@@ -96,12 +96,12 @@
 ###require.config
 > 配置requireJS的工作细节和相关模块配置
 
-- baseUrl：配置requireJS的工作空间/路径，所有模块都相对于该路径查找  
+- `baseUrl`：配置requireJS的工作空间/路径，所有模块都相对于该路径查找  
   例如定义了`baseUrl`在`/resource/vr/5/js/`，则所有模块都相对于该路径工作。
-- paths：配置模块的路径、备用路径、相当于给模块取别名
-- shim：用于配置那些并不支持AMD定义(define)的模块，即配置兼容不遵循AMD规范的库，使用shim配置他们的依赖关系和全局变量
-- map：用于配置不同的模块版本
-- urlArgs：为每个模块请求加上版本号（请求后缀参数），用于避免模块更新而浏览器的缓存导致并没有加载最新的模块
+- `paths`：配置模块的路径、备用路径、相当于给模块取别名
+- `shim`：用于配置那些并不支持AMD定义(define)的模块，即配置兼容不遵循AMD规范的库，使用shim配置他们的依赖关系和全局变量
+- `map`：用于配置不同的模块版本
+- `urlArgs`：为每个模块请求加上版本号（请求后缀参数），用于避免模块更新而浏览器的缓存导致并没有加载最新的模块
 
 配置示例：
 ```javascript
@@ -161,7 +161,7 @@
 
 1. VR模块化编写  
   
->  VR的业务，可以直接require()得到所有依赖的模块后编写，也可以先`define`一个VR的模块，然后通过`require`调用这个模块。
+>  VR的业务，可以直接`require()`得到所有依赖的模块后编写，也可以先`define`一个VR的模块，然后通过`require`调用这个模块。
 
 ```javascript
     //#1.直接请求依赖的模块，编写VR业务逻辑
@@ -253,11 +253,11 @@
 
 
 插件的编写尽可能遵循以下特性：
-1. 逻辑和页面的代码尽可能拆开，后续推组件化的时候可以更好的整合
-2. 可配置性高、参阅Bootstrap插件、支持options和dataset配置
-3. 尽可能与页面无关
-4. 基于对象工作
-5. API简洁了然、set/get一体
+1. 逻辑和页面的代码尽可能拆开，后续推组件化的时候可以更好的整合  
+2. 可配置性高、参阅Bootstrap插件、支持options和dataset配置  
+3. 尽可能与页面无关  
+4. 基于对象工作  
+5. API简洁了然、set/get一体  
 
 
 &nbsp;
