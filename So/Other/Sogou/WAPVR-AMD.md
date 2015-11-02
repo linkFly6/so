@@ -19,7 +19,7 @@
 - [Q&A](#qa) 
 - [后续方向](#后续方向)
  - [强模块化](#强模块化)
- - [组件化](#组件化-value)
+ - [组件化](#组件化)
  - [工程化](#工程化)
 - [更新](#更新)
 &nbsp;
@@ -436,10 +436,24 @@ requireJS还有另外一个模块依赖的写法，名义上是延迟执行，�
     <!--编译前：自定义标签，通过属性自定义组件的配置（配置参数）-->
     <sogou-gps data-id="gpsBox" data-search="yes"/>
     
+    
+    
     <!--编译后，通过参数配置了id、是否显示搜索框-->
-    <div class="sogou-gps" id="gpsBox">
+    <div class="sogou-gps" id="gpsBox" data-version="1.0">
+        <!--自动编译进css和js-->
+       <style>
+           .sogou-gps{ border:1px solid #CCC; }
+       </style>
       <input placeholder="请输入地点" /><input value="搜索"/>
       <div class="searchBox"><!--搜索列表--></div>
+      <script>
+          define('sogouGps',function(){
+               return {
+                    gps:function(){ },
+                    addr:function(){ }
+               };
+          });
+      </script>
     </div>
 ```
 
