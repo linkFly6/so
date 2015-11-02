@@ -17,10 +17,10 @@
  - [插件列表](#插件列表)
 - [组件化](#组件化) 
 - [Q&A](#qa) 
-- [后续方向](#数据中心)
- - [强模块化](#servicedatabasenamespace)
- - [组件化](#databaseprototypevalkey-value)
- - [工程化](#databaseprototyperemovekey)
+- [后续方向](#后续方向)
+ - [强模块化](#强模块化)
+ - [组件化](#组件化-value)
+ - [工程化](#工程化)
 - [更新](#更新)
 &nbsp;
  
