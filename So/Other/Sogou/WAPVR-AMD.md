@@ -303,31 +303,52 @@
  - 模块名：zepto
  - 兼容性：mobile
  - 介绍：DOM基础操作
- 
-2. jQuery.imgLoad.js
- - 模块名：文件名
- - 兼容性：IE6+
- - 介绍：图片加载/预加载/懒加载
- 
-3. sogouGps.m.js
- - 模块名：sogouGps
+
+2. [service.js](https://github.com/linkFly6/so/blob/master/So/Other/Sogou/service.vr.md)
+ - 模块名：service
  - 兼容性：mobile
- - 介绍：搜狗GPS通用插件
+ - 介绍：VR基础库
+ - 作者：linkFly
  
-4. [X.js](https://github.com/linkFly6/X)
+3. [X.js](https://github.com/linkFly6/X)
  - 模块名：x
  - 兼容性：mobile
  - 介绍：XML操作
+ - 作者：linkFly
+
+4. [promise.js](https://github.com/linkFly6/Promise)
+ - 模块名：promise（已集成在service.js中）
+ - 兼容性：mobile
+ - 介绍： 异步编程ECMAScript 2015(ECMAScript 6) Promise对象polyfill
+ - 作者：linkFly
  
-5. sogouLogin.js
+4. request.js
+ - 模块名：request
+ - 兼容性：mobile
+ - 介绍： 针对JSONP、AJAX请求以及二次查询（二次请求）做增强的一个库，**文档和源码请登录内网文档系统**。 
+ - 作者：linkFly
+
+5. jQuery.imgLoad.js
+ - 模块名：文件名
+ - 兼容性：IE6+
+ - 介绍：图片加载/预加载/懒加载，文档正在编写中
+ - 作者：linkFly
+ 
+6. sogouGps.m.js
+ - 模块名：sogouGps
+ - 兼容性：mobile
+ - 介绍：搜狗GPS通用插件，文档正在编写中
+ - 作者：linkFly
+ 
+7. sogouLogin.js
  - 模块名：sogouLogin
  - 兼容性：mobile
- - 介绍：搜狗登录插件
+ - 介绍：搜狗登录插件，文档正在编写中
+ - 作者：linkFly
  
-6. 谜の类库，编写中
- - 模块名：编写中
- - 兼容性：编写中
- - 介绍： 编写中
+
+
+
 
 &nbsp;
 
