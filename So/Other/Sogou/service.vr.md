@@ -4,11 +4,9 @@
 核心目标是把服务中常用的工具集成进来，并给一些模块化的组件提供基础工具。  
 如果觉得这份文档仍然不够详尽，可以参考源码注释，基本上每个曝露的API都文档注释了。
 
-Service.js的模块结构如下：
+Service.vr.js的模块结构如下：
 - 基础工具
-- 服务模块（异步加载）
 - 逻辑增强
-- GPS
 - 数据中心
 - DOM增强
 
@@ -24,7 +22,7 @@ Service.js的模块结构如下：
  - [Service.byteLength - 检测字符串byte长度](#servicebytelengthtargetfix)
  - [Service.truncate - 裁剪字符串](#servicetruncatetarget-length-truncation-isbyte)
  - [Service.parseDate - 转换日期](#serviceparsedatejsondate)
- - [Service.$apply - 方法转接](#service$apply)
+ - [Service.$apply - 方法转接](##serviceapplycallback-args-this)
  - [Service.param - 编码对象](#serviceparamobj-deep)
  - [Service.search - 获取url参数](#servicesearchurl)
  - [Service.cookie - 读取/设置cookie](#servicecookiename-value-expiredays)
@@ -259,7 +257,7 @@ Service.js的模块结构如下：
 &nbsp;
 
 
-###Service.$apply(callback, args, $this) - 方法转接
+###Service.$apply(callback, args, $this)
 > 模拟Function.prorotype.apply  
 当arg.length<=3，会通过call来提升性能和速度，当args.length>3的时候将调用原生apply
 
