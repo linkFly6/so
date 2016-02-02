@@ -295,6 +295,51 @@
 
 ##插件化
 
+这是配置：
+```javascript
+require.config({
+    //版本号
+    urlArgs: 'v=1.0',
+    
+    //线上CDN
+    //baseUrl: (location.protocol.toLowerCase() == "https:" ? 'https:' : 'http:') + '//dl.web.sogoucdn.com/common/widget/wapvr/',
+
+    //线下
+    baseUrl: (location.protocol.toLowerCase() == "https:" ? 'https:' : 'http:') + '//10.134.81.191/common/widget/wapvr/',
+
+    //配置路径
+    paths: {
+        'x': 'X.min',
+        'service': 'service.vr',
+        'request': 'request'
+    }
+    //配置垫片
+    //,shim: {}
+});
+```
+
+修改配置找姜赉。线上所有的`wapVR`所有的组件放在这个SVN路径下（/static/common/widget/wapvr/）：
+
+[http://svn.sogou-inc.com/svn/websearch4/web/web_front/websearch/trunk/webapp/pc_vr/static/common/widget/wapvr](http://svn.sogou-inc.com/svn/websearch4/web/web_front/websearch/trunk/webapp/pc_vr/static/common/widget/wapvr)
+
+
+这样引用：
+```javascript
+    //文件放在/static/common/widget/wapvr/foo.js
+    require(['foo.js'],function(foo){
+        console.log(foo);
+    });
+```
+
+需要配置别名的(`require.config配置paths`)联系姜赉。
+
+
+所有组件相关的源码、文档、测试等之类的东西放在这个SVN路径下：
+[http://svn.sogou-inc.com/svn/websearch4/web/web_front/websearch/branches/webapp/open_vr/base/widget/wapvr](http://svn.sogou-inc.com/svn/websearch4/web/web_front/websearch/branches/webapp/open_vr/base/widget/wapvr)
+
+> checkout下这个svn路径，运行server.exe就可以打开一个本地服务器浏览组件的测试用例。
+
+
 ###插件列表
 > 这份列表列出了当前组里所有的插件项目和模块名：
 
