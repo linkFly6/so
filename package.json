@@ -1,0 +1,57 @@
+{
+  "name": "@tasaid/so",
+  "version": "0.0.1",
+  "description": "javascript utils",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linkFly6/so.git"
+  },
+  "keywords": [
+    "utils"
+  ],
+  "author": "linkFly <linkFly6@live.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/linkFly6/so/issues"
+  },
+  "homepage": "https://github.com/linkFly6/so#readme",
+  "dependencies": {
+    "debug": "^4.1.0",
+    "lodash": "^4.17.11",
+    "moment": "^2.22.2"
+  },
+  "devDependencies": {
+    "@types/debug": "0.0.31",
+    "@types/express": "^4.16.0",
+    "@types/jest": "^23.3.5",
+    "@types/lodash": "^4.14.118",
+    "@types/node": "^10.5.2",
+    "@types/supertest": "^2.0.6",
+    "express": "^4.16.3",
+    "jest": "^23.6.0",
+    "supertest": "^3.3.0",
+    "ts-jest": "^23.10.4",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.1.1"
+  },
+  "jest": {
+    "rootDir": "tests",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "collectCoverage": true,
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  }
+}
