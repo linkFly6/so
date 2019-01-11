@@ -4,7 +4,8 @@
   "description": "javascript utils",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "city": "ts-node ./src/pinyin/index.ts"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
     "@types/supertest": "^2.0.6",
     "express": "^4.16.3",
     "jest": "^23.6.0",
+    "pinyin": "^2.8.3",
     "supertest": "^3.3.0",
     "ts-jest": "^23.10.4",
     "ts-node": "^7.0.1",

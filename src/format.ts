@@ -87,3 +87,27 @@ export const parseBit = (value: number) => {
   })
   return v
 }
+
+
+/**
+ * 驼峰转连字符
+ * @example exampleTest => example-test
+ * @param str 
+ */
+export const camelCase2Hyphenate = (str: string) => {
+  return str.replace(/([A-Z])/g, '-$1').toLowerCase()
+}
+
+/**
+ * 连字符转驼峰
+ * @example example-test => exampleTest
+ * @param str 
+ */ 
+export const hyphenate2CamelCase = (str: string) => {
+  if (str.indexOf('-') < 0 && str.indexOf('_') < 0) {
+    return str
+  }
+  return str.replace(/[-_][^-_]/g, function (match) {
+    return match.charAt(1).toUpperCase()
+  })
+}
