@@ -7,7 +7,10 @@ const localStorage = window.localStorage
 /**
  * local storage 存储
  */
-export class Store {
+/**
+ * local storage 存储
+ */
+export class Store<T = any> {
   private _namespace: string
   /**
    * 指定一个命名空间存储数据 (LocalStorage)
@@ -21,7 +24,7 @@ export class Store {
     this._namespace = namespace || ''
   }
 
-  public getKey(key: string) {
+  public getKey(key: keyof T) {
     return this._namespace + key
   }
 
@@ -30,15 +33,22 @@ export class Store {
    * @param key 
    * @param value 
    */
-  public val<T = any>(key: string, value?: any) {
+  public get<K extends keyof T>(key: K): T[K] | null {
+    try {
+      return parseData(localStorage.getItem(this.getKey(key)))
+    } catch (e) {
+      return null
+    }
+  }
+
+  public set<K extends keyof T>(key: K | { [N in keyof T]?: T[N] }, value?: T[K]) {
     if (typeof key === 'object') {
       // set
       Object.keys(key).forEach(name => {
-        this.val(name, key[name])
+        this.set(name as any, (key as any)[name])
       })
       return this
     }
-
     // set
     let objectType
     if (arguments.length > 1) {
@@ -47,25 +57,20 @@ export class Store {
       try {
         localStorage.setItem(
           this.getKey(key),
-          objectType ? JSON.stringify(value) : value)
+          objectType ? JSON.stringify(value) : value as any)
       } catch (e) {
         // safari 隐私模式
       }
       return this
     }
-    // get
-    try {
-      return parseData(localStorage.getItem(this.getKey(key))) as T
-    } catch (e) {
-      return null
-    }
+
   }
 
   /**
-   * 或者该 Store 所有的 key
+   * 获取该 Store 所有的 key
    * @param [noTrimNamespace=false] 是否保留命名空间(保留命名空间前缀)，如果保留前缀则是 localStorage 中真实存储的 key
    */
-  public getAllKey(noTrimNamespace = false) {
+  public getAllKey(noTrimNamespace = false): Array<(keyof T)> {
     const nameSpace = this._namespace
     const keys: string[] = []
     for (let i = 0; i < localStorage.length; i++) {
@@ -74,14 +79,14 @@ export class Store {
         keys.push(noTrimNamespace ? name : name.substring(nameSpace.length))
       }
     }
-    return keys
+    return keys as any
   }
 
   /**
    * 检查是否存在某个 key
    * @param key 
    */
-  public has(key: string) {
+  public has(key: keyof T) {
     try {
       return localStorage[this.getKey(key)] !== undefined
     } catch (error) {
@@ -93,7 +98,7 @@ export class Store {
    * 删除指定 key 的数据
    * @param key 
    */
-  public delete(key: string) {
+  public delete(key: keyof T) {
     try {
       return localStorage.removeItem(this.getKey(key))
     } catch (error) {
@@ -104,10 +109,10 @@ export class Store {
   /**
    * 清空这个 Store 命名空间下的数据，返回被清除的数据
    */
-  public clear() {
-    const res: { [props: string]: any } = {}
+  public clear(): T {
+    const res: T = {} as any
     this.getAllKey().forEach(key => {
-      const localKey = this.getKey(key)
+      const localKey = this.getKey(key as any)
       try {
         res[key] = parseData(localStorage[localKey])
         localStorage.removeItem(localKey)
@@ -116,21 +121,6 @@ export class Store {
       }
     })
     return res
-    // var nameSpace = this._namespace
-    // var name, reg = new RegExp('^' + nameSpace), res = Object.create(null)
-    // for (var i = 0; i < localStorage.length; i++) {
-    //   name = localStorage.key(i)
-    //   if (reg.test(name)) {
-    //     i-- // removeItem了之后，索引不正确，修正索引
-    //     res[name] = so.parseData(localStorage[name])
-    //     try {
-    //       localStorage.removeItem(name)
-    //     } catch (e) {
-
-    //     }
-    //   }
-    // }
-    // return res
   }
 }
 
@@ -194,9 +184,9 @@ export const setCookie = (name: string, value: any, expiredays?: number, path?: 
  * @param key 在 store 中要保存的 key
  * @param [timer=300] 函数节流时间阈
  */
-export const createFactoryStoreSave = <T = any>(namespace: string, key: string, timer = 300) => {
-  const store = new Store(namespace)
-  let data = store.val<T>(key) || {}
+export const createFactoryStoreSave = <T = any>(namespace: string, key: keyof T, timer = 300) => {
+  const store = new Store<T>(namespace)
+  let data = store.get(key) || {} as any
   return {
     /**
      * store 对象
@@ -207,7 +197,7 @@ export const createFactoryStoreSave = <T = any>(namespace: string, key: string, 
      */
     save: debounce((value: T) => {
       data = { ...data, ...value as any }
-      store.val(key, data)
+      store.set(key, data)
     }, timer),
   }
 }
