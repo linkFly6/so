@@ -22,7 +22,7 @@
   "homepage": "https://github.com/linkFly6/so#readme",
   "dependencies": {
     "debug": "^4.1.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "moment": "^2.22.2"
   },
   "devDependencies": {
