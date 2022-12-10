@@ -32,7 +32,7 @@
     "@types/lodash": "^4.14.118",
     "@types/node": "^10.5.2",
     "@types/supertest": "^2.0.6",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "jest": "^23.6.0",
     "pinyin": "^2.8.3",
     "supertest": "^3.3.0",
